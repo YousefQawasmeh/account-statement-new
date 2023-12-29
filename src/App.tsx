@@ -33,18 +33,18 @@ const router = createBrowserRouter([
     //     }, 2000)
     //   })
     // },
-    // children: [
-    //   {
-    //     path: "/about",
-    //     element: <div>About!</div>,
-    //     children: [
-    //       {
-    //         path: "/about/team",
-    //         element: <div>Team!</div>,
-    //       }
-    //     ]
-    //   }
-    // ]
+    children: [
+      {
+        path: "/home",
+        element: <HomePage />,
+        // children: [
+        //   {
+        //     path: "/about/team",
+        //     element: <div>Team!</div>,
+        //   }
+        // ]
+      }
+    ]
   }
 ]);
 
