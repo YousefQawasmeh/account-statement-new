@@ -3,13 +3,12 @@ import {
   Button,
   Card,
   Chip,
-  Grid,
   TextField,
   Typography,
 } from "@mui/material";
 import moment from "moment";
 import { useEffect, memo, useState } from "react";
-import homePageStyles from "./index.style.ts";
+// import homeStyles from "./index.style.ts";
 import { User, Users } from "../../types.ts";
 const styles = {
   flex: {
@@ -102,8 +101,8 @@ const buttons: ButtonType[] = [
   },
 ];
 
-const HomePage = () => {
-  const classes = homePageStyles();
+const Home = () => {
+  // const classes = homeStyles();
   const todayDate = moment().format("YYYY-MM-DD");
   const [dateString, setDateString] = useState<string>(todayDate);
   const [users, setUsers] = useState<Users>(usersTemp);
@@ -306,4 +305,4 @@ const HomePage = () => {
     </Card>
   );
 };
-export default HomePage;
+export default Home;
