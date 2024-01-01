@@ -7,9 +7,13 @@ import {
   Typography,
 } from "@mui/material";
 import moment from "moment";
-import { useEffect, memo, useState } from "react";
+import { useEffect, useState } from "react";
 // import homeStyles from "./index.style.ts";
-import { User, Users } from "../../types.ts";
+import { IUser, IUsers } from "../../types.ts";
+import { getUsers } from "../../apis/user.ts";
+import { createNewRecord } from "../../apis/record.ts";
+import { AxiosResponse } from "axios";
+
 const styles = {
   flex: {
     display: "flex",
@@ -30,24 +34,6 @@ const styles = {
   },
 };
 
-const usersTemp: Users = {
-  "123": {
-    total: 55,
-    name: "يوسف خالد دلال",
-    phone: "0566252561",
-    type: 1,
-    notes: "",
-    id: "123",
-  },
-  "111": {
-    total: 55,
-    name: "خالد دلال",
-    phone: "0599252561",
-    type: 2,
-    notes: "",
-    id: "111",
-  },
-};
 type ButtonType = {
   label: string;
   value: number;
@@ -62,42 +48,42 @@ const buttons: ButtonType[] = [
     value: 0,
     color: "primary",
     variant: "contained",
-    id: 1,
+    id: 4,
   },
   {
     label: "مشتريات",
     value: -1,
     color: "secondary",
     variant: "contained",
-    id: 2,
+    id: 5,
   },
   {
     label: "صرف له",
     value: 1,
     color: "primary",
     variant: "outlined",
-    id: 3,
+    id: 6,
   },
   {
     label: "نقدي",
     value: 0,
     color: "primary",
     variant: "contained",
-    id: 4,
+    id: 1,
   },
   {
     label: "دين",
     value: 1,
     color: "secondary",
     variant: "contained",
-    id: 5,
+    id: 2,
   },
   {
     label: "دفعة",
     value: -1,
     color: "primary",
     variant: "outlined",
-    id: 6,
+    id: 3,
   },
 ];
 
@@ -105,11 +91,29 @@ const Home = () => {
   // const classes = homeStyles();
   const todayDate = moment().format("YYYY-MM-DD");
   const [dateString, setDateString] = useState<string>(todayDate);
-  const [users, setUsers] = useState<Users>(usersTemp);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<IUsers | null>(null);
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [cardId, setCardId] = useState<string>("");
+  const [values, setValues] = useState<{ [key: number]: number }>({})
 
-  const ButtonsSection = memo(() => {
+  useEffect(() => {
+    setSelectedUser(null);
+    getUsers().then((res: AxiosResponse<[any]>) => {
+      console.log(res.data)
+      setUsers(res.data.reduce((acc, user) => {
+        user.type = Number(user.type?.id)
+        return {
+          ...acc,
+          [user.cardId]: user,
+          // [user.id]: user,
+        }
+      }, {}));
+    });
+  }, [])
+
+  const ButtonsSection = 
+  // memo
+  (() => {
     return (
       <>
         {buttons.slice(0, 3).map((button) => {
@@ -118,8 +122,20 @@ const Home = () => {
               key={button.id}
               onSubmit={(e) => {
                 e.preventDefault();
-                console.log(button);
+                createNewRecord({
+                  // ...selectedUser,
+                  user: selectedUser?.id,
+                  date: dateString,
+                  type: button.id,
+                  amount: values[button.id]*button.value,
+                  notes: button.label,
+                }).then(()=>{
+                  if(!selectedUser?.cardId) return
+                  setUsers({...users, [selectedUser?.cardId]: {...selectedUser, total: selectedUser?.total+(values[button.id]*button.value)}})
+                  setValues({})
+                })
               }}
+              name={button.id.toString()}
               style={{ display: "flex" }}
             >
               <Button
@@ -129,14 +145,17 @@ const Home = () => {
               >
                 {button.label}
               </Button>
-              <TextField size='small' fullWidth placeholder='...' />
+              <TextField value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
             </form>
           );
         })}
       </>
     );
   });
-  const ButtonsSection2 = memo(() => {
+  const ButtonsSection2 = 
+  
+  // memo
+  (() => {
     return (
       <>
         {buttons.slice(3).map((button) => {
@@ -145,8 +164,19 @@ const Home = () => {
               key={button.id}
               onSubmit={(e) => {
                 e.preventDefault();
-                console.log(button);
+                createNewRecord({
+                  // ...selectedUser,
+                  user: selectedUser?.id,
+                  date: dateString,
+                  type: button.id,
+                  amount: values[button.id]*button.value,
+                  notes: button.label,
+                }).then(()=>{
+                  if(!selectedUser?.cardId) return
+                  setUsers({...users, [selectedUser?.cardId]: {...selectedUser, total: selectedUser?.total+(values[button.id]*button.value)}})
+                  setValues({})                })
               }}
+              name={button.id.toString()}
               style={{ display: "flex" }}
             >
               <Button
@@ -156,22 +186,19 @@ const Home = () => {
               >
                 {button.label}
               </Button>
-              <TextField size='small' fullWidth placeholder='...' />
+              <TextField value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
             </form>
           );
         })}
       </>
     );
   });
-  useEffect(() => {
-    setUsers(usersTemp);
-    setSelectedUser(null);
-  }, []);
 
   useEffect(() => {
-    if (cardId.length === 3) setSelectedUser(users[cardId]);
-    else setSelectedUser(null);
+    if (cardId.length === 3) setSelectedUser(users?.[cardId] || null);
+    // else setSelectedUser(null);
   }, [cardId, users]);
+
   return (
     <Card sx={{ maxWidth: "850px", bgcolor: "#f9f9f9", padding: "50px" }}>
       <Box sx={styles.flex}>
