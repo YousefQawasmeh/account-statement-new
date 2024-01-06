@@ -59,16 +59,16 @@ const Users = () => {
           رقم البطاقة :
         </Typography>
         <TextField
-          onChange={(e)=>{setNewUser({...newUser, cardId: +e.target?.value })}}
+          onChange={(e) => { setNewUser({ ...newUser, cardId: +e.target?.value }) }}
           size='small'
           fullWidth
           placeholder='رقم البطاقة ...'
           type='search'
-          value={newUser.cardId}
-          // value={cardId}
-          // onChange={(e) => {
-          //   setCardId(e.target.value);
-          // }}
+          value={newUser.cardId || ""}
+        // value={cardId}
+        // onChange={(e) => {
+        //   setCardId(e.target.value);
+        // }}
         />
         <Chip
           variant='outlined'
@@ -106,7 +106,7 @@ const Users = () => {
             الاسم :
           </Typography>
           <TextField
-            onChange={(e)=>{setNewUser({...newUser, name: e.target?.value })}}
+            onChange={(e) => { setNewUser({ ...newUser, name: e.target?.value }) }}
             value={newUser?.name || ""}
             size='small'
             fullWidth
@@ -118,7 +118,7 @@ const Users = () => {
             رقم التلفون :
           </Typography>
           <TextField
-            onChange={(e)=>{setNewUser({...newUser, phone: e.target?.value })}}
+            onChange={(e) => { setNewUser({ ...newUser, phone: e.target?.value }) }}
             value={newUser?.phone || ""}
             size='small'
             fullWidth
@@ -130,7 +130,7 @@ const Users = () => {
             الرصيد :
           </Typography>
           <TextField
-            onChange={(e)=>{setNewUser({...newUser, total: +e.target?.value })}}
+            onChange={(e) => { setNewUser({ ...newUser, total: +e.target?.value }) }}
             value={newUser?.total || ""}
             size='small'
             fullWidth
@@ -142,7 +142,7 @@ const Users = () => {
             ملاحظات :
           </Typography>
           <TextField
-            onChange={(e)=>{setNewUser({...newUser, notes: e.target?.value })}}
+            onChange={(e) => { setNewUser({ ...newUser, notes: e.target?.value }) }}
             value={newUser?.notes || ""}
             size='small'
             fullWidth
@@ -165,7 +165,17 @@ const Users = () => {
               alert("ادخل نوع البطاقة")
               return
             }
-            createNewUser(newUser)
+            createNewUser(newUser).then(() => {
+              setNewUser({
+                total: 0,
+                name: "",
+                phone: "",
+                type: 0,
+                notes: "",
+                id: "",
+                cardId: 0,
+              })
+            }).catch(err => alert(err.message || err))
 
           }} sx={{ width: "180px", marginTop: "20px" }} variant='contained' color='primary'>
             إضافة بطاقة جديدة

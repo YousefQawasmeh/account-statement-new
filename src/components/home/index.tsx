@@ -8,11 +8,11 @@ import {
 } from "@mui/material";
 import moment from "moment";
 import { useEffect, useState } from "react";
-// import homeStyles from "./index.style.ts";
 import { IUser, IUsers } from "../../types.ts";
 import { getUsers } from "../../apis/user.ts";
 import { createNewRecord } from "../../apis/record.ts";
 import { AxiosResponse } from "axios";
+import Operations from "./Operations.tsx";
 
 const styles = {
   flex: {
@@ -34,72 +34,18 @@ const styles = {
   },
 };
 
-type ButtonType = {
-  label: string;
-  value: number;
-  color: "primary" | "secondary";
-  variant: "contained" | "outlined" | "text";
-  id: number;
-};
-
-const buttons: ButtonType[] = [
-  {
-    label: "نقدي",
-    value: 0,
-    color: "primary",
-    variant: "contained",
-    id: 4,
-  },
-  {
-    label: "مشتريات",
-    value: -1,
-    color: "secondary",
-    variant: "contained",
-    id: 5,
-  },
-  {
-    label: "صرف له",
-    value: 1,
-    color: "primary",
-    variant: "outlined",
-    id: 6,
-  },
-  {
-    label: "نقدي",
-    value: 0,
-    color: "primary",
-    variant: "contained",
-    id: 1,
-  },
-  {
-    label: "دين",
-    value: 1,
-    color: "secondary",
-    variant: "contained",
-    id: 2,
-  },
-  {
-    label: "دفعة",
-    value: -1,
-    color: "primary",
-    variant: "outlined",
-    id: 3,
-  },
-];
-
 const Home = () => {
-  // const classes = homeStyles();
   const todayDate = moment().format("YYYY-MM-DD");
   const [dateString, setDateString] = useState<string>(todayDate);
   const [users, setUsers] = useState<IUsers | null>(null);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [cardId, setCardId] = useState<string>("");
-  const [values, setValues] = useState<{ [key: number]: number }>({})
+  const [values, setValues] = useState<any>({})
+  const [autoFocusId, setAutoFocusId] = useState<number>(0)
 
   useEffect(() => {
     setSelectedUser(null);
     getUsers().then((res: AxiosResponse<[any]>) => {
-      console.log(res.data)
       setUsers(res.data.reduce((acc, user) => {
         user.type = Number(user.type?.id)
         return {
@@ -108,94 +54,34 @@ const Home = () => {
           // [user.id]: user,
         }
       }, {}));
-    });
+    }).catch(err => alert(err.message || err))
   }, [])
 
-  const ButtonsSection = 
-  // memo
-  (() => {
-    return (
-      <>
-        {buttons.slice(0, 3).map((button) => {
-          return (
-            <form
-              key={button.id}
-              onSubmit={(e) => {
-                e.preventDefault();
-                createNewRecord({
-                  // ...selectedUser,
-                  user: selectedUser?.id,
-                  date: dateString,
-                  type: button.id,
-                  amount: values[button.id]*button.value,
-                  notes: button.label,
-                }).then(()=>{
-                  if(!selectedUser?.cardId) return
-                  setUsers({...users, [selectedUser?.cardId]: {...selectedUser, total: selectedUser?.total+(values[button.id]*button.value)}})
-                  setValues({})
-                })
-              }}
-              name={button.id.toString()}
-              style={{ display: "flex" }}
-            >
-              <Button
-                sx={{ minWidth: "100px", mr: "8px" }}
-                variant={button.variant}
-                color={button.color}
-              >
-                {button.label}
-              </Button>
-              <TextField value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
-            </form>
-          );
-        })}
-      </>
-    );
-  });
-  const ButtonsSection2 = 
-  
-  // memo
-  (() => {
-    return (
-      <>
-        {buttons.slice(3).map((button) => {
-          return (
-            <form
-              key={button.id}
-              onSubmit={(e) => {
-                e.preventDefault();
-                createNewRecord({
-                  // ...selectedUser,
-                  user: selectedUser?.id,
-                  date: dateString,
-                  type: button.id,
-                  amount: values[button.id]*button.value,
-                  notes: button.label,
-                }).then(()=>{
-                  if(!selectedUser?.cardId) return
-                  setUsers({...users, [selectedUser?.cardId]: {...selectedUser, total: selectedUser?.total+(values[button.id]*button.value)}})
-                  setValues({})                })
-              }}
-              name={button.id.toString()}
-              style={{ display: "flex" }}
-            >
-              <Button
-                sx={{ minWidth: "100px", mr: "8px" }}
-                variant={button.variant}
-                color={button.color}
-              >
-                {button.label}
-              </Button>
-              <TextField value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
-            </form>
-          );
-        })}
-      </>
-    );
-  });
+  const onSubmit = (e: any, data: {
+    type: number
+    amount: number
+    notes: string
+  }) => {
+    e.preventDefault();
+    const { type, amount, notes } = data
+    createNewRecord({
+      user: selectedUser?.id,
+      date: dateString,
+      type,
+      amount,
+      notes,
+    }).then(() => {
+      if (!selectedUser?.cardId) return
+      setUsers({ ...users, [selectedUser?.cardId]: { ...selectedUser, total: selectedUser?.total + amount } })
+      setValues({})
+    }).catch(err => alert(err.message || err))
+  }
 
   useEffect(() => {
-    if (cardId.length === 3) setSelectedUser(users?.[cardId] || null);
+    // if (cardId.length === 3) 
+    setSelectedUser(users?.[cardId] || null);
+    const user = users?.[cardId]
+    setAutoFocusId(user? user.type === 1 ? 2 : 5 : 0)
     // else setSelectedUser(null);
   }, [cardId, users]);
 
@@ -206,10 +92,14 @@ const Home = () => {
           رقم البطاقة :
         </Typography>
         <TextField
+        // autoFocus={false}
+        // focused={false}
+        // disabled={selectedUser?.name.length > 0}
           size='small'
           fullWidth
           placeholder='رقم البطاقة ...'
           type='search'
+          // value={123}
           value={cardId}
           onChange={(e) => {
             setCardId(e.target.value);
@@ -296,39 +186,7 @@ const Home = () => {
           </Button>
         </Box>
       </Box>
-
-      <Box
-        sx={{
-          ...styles.flex,
-          justifyContent: "space-between",
-          paddingTop: "24px",
-          mt: "18px",
-          borderTop: "solid 1px #ccc ",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            width: "45%",
-            gap: "6px",
-          }}
-        >
-          <ButtonsSection />
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            width: "45%",
-            gap: "6px",
-          }}
-        >
-          <ButtonsSection2 />
-        </Box>
-      </Box>
+      <Operations autoFocusId={autoFocusId} values={values} setValues={setValues} onSubmit={onSubmit} />
     </Card>
   );
 };
