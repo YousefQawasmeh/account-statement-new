@@ -1,5 +1,5 @@
 import Axios from 'axios'
-const API_URL = 'http://192.168.8.11:3000'
+const API_URL = 'https://super-market-eqe5.onrender.com'
 
 export const createNewRecordType = async (newRecordType: any) => {
     const res = await Axios.post(`${API_URL}/api/recordtypes`, newRecordType)
