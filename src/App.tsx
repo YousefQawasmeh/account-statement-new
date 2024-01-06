@@ -69,6 +69,18 @@ const router = createBrowserRouter([
     element: <Users />,
   },
   {
+    path: "/account-statement-new/",
+    element: <Home />,
+  },
+  {
+    path: "/account-statement-new/home",
+    element: <Home />,
+  },
+  {
+    path: "/account-statement-new/users",
+    element: <Users />,
+  },
+  {
     path: "/records",
     element: <p>000 records 000</p>,
   },
