@@ -1,3 +1,4 @@
+import React, { useRef, useEffect } from "react";
 // import React, { /useState } from "react";
 import {
     Box,
@@ -72,95 +73,104 @@ const styles = {
     }
 }
 // const Operations = ({createNewRecord}:  {createNewRecord: (data: any)=>void}) => {
-const Operations = ({ values, setValues, onSubmit, autoFocusId }: {autoFocusId: number, onSubmit: any, values: any, setValues: React.Dispatch<React.SetStateAction<any>> }) => {
-
+const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId: number, onSubmit: any, values: any, setValues: React.Dispatch<React.SetStateAction<any>> }) => {
+    const inputRef = useRef()
+    useEffect(() => {
+        const inputElm: any =  inputRef.current;
+        inputElm?.focus()
+    }, [autoFocusId])
+    
     return (
         <>
-        <Box
-            sx={{
-                ...styles.flex,
-                justifyContent: "space-between",
-                paddingTop: "24px",
-                mt: "18px",
-                borderTop: "solid 1px #ccc ",
-            }}
-        >
             <Box
                 sx={{
-                    display: "flex",
-                    flexDirection: "column",
+                    ...styles.flex,
                     justifyContent: "space-between",
-                    width: "45%",
-                    gap: "6px",
+                    paddingTop: "24px",
+                    mt: "18px",
+                    borderTop: "solid 1px #ccc ",
                 }}
             >
-                <>
-                    {buttons.slice(0, 3).map((button) => {
-                        return (
-                            <form
-                                key={button.id}
-                                onSubmit={(e) => onSubmit(e, {
-                                    type: button.id,
-                                    amount: +values[button.id] * button.value,
-                                    notes: values?.notes || button.label
-                                })}
-                                name={button.id.toString()}
-                                style={{ display: "flex" }}
-                            >
-                                <Button
-                                    type={"submit"}
-                                    sx={{ minWidth: "100px", mr: "8px" }}
-                                    variant={button.variant}
-                                    color={button.color}
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        width: "45%",
+                        gap: "6px",
+                    }}
+                >
+                    <>
+                        {buttons.slice(0, 3).map((button) => {
+                            return (
+                                <form
+                                    key={button.id}
+                                    onSubmit={(e) => onSubmit(e, {
+                                        type: button.id,
+                                        amount: +values[button.id] * button.value,
+                                        notes: values?.notes || button.label
+                                    })}
+                                    name={button.id.toString()}
+                                    style={{ display: "flex" }}
                                 >
-                                    {button.label}
-                                </Button>
-                                <TextField autoFocus={autoFocusId === button.id} value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
-                            </form>
-                        );
-                    })}
-                </>
-            </Box>
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    width: "45%",
-                    gap: "6px",
-                }}
-            >
-                <>
-                    {buttons.slice(3).map((button) => {
-                        return (
-                            <form
-                                key={button.id}
-                                onSubmit={(e) => onSubmit(e, {
-                                    type: button.id,
-                                    amount: values[button.id] * button.value,
-                                    notes: values?.notes || button.label
-                                })}
-                                name={button.id.toString()}
-                                style={{ display: "flex" }}
-                            >
-                                <Button
-                                    type={"submit"}
-                                    sx={{ minWidth: "100px", mr: "8px" }}
-                                    variant={button.variant}
-                                    color={button.color}
+                                    <Button
+                                        type={"submit"}
+                                        sx={{ minWidth: "100px", mr: "8px" }}
+                                        variant={button.variant}
+                                        color={button.color}
+                                    >
+                                        {button.label}
+                                    </Button>
+                                    <TextField
+                                        inputRef={autoFocusId === button.id ? inputRef : null}
+                                        autoComplete={"off"} value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
+                                </form>
+                            );
+                        })}
+                    </>
+                </Box>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        width: "45%",
+                        gap: "6px",
+                    }}
+                >
+                    <>
+                        {buttons.slice(3).map((button) => {
+                            return (
+                                <form
+                                    key={button.id}
+                                    onSubmit={(e) => onSubmit(e, {
+                                        type: button.id,
+                                        amount: values[button.id] * button.value,
+                                        notes: values?.notes || button.label
+                                    })}
+                                    name={button.id.toString()}
+                                    style={{ display: "flex" }}
                                 >
-                                    {button.label}
-                                </Button>
-                                <TextField autoFocus={autoFocusId === button.id} value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
-                            </form>
-                        );
-                    })}
-                </>
-            </Box>
+                                    <Button
+                                        type={"submit"}
+                                        sx={{ minWidth: "100px", mr: "8px" }}
+                                        variant={button.variant}
+                                        color={button.color}
+                                    >
+                                        {button.label}
+                                    </Button>
+                                    <TextField
+                                        inputRef={autoFocusId === button.id ? inputRef : null}
+                                        autoComplete={"off"} value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
+                                </form>
+                            );
+                        })}
+                    </>
+                </Box>
 
-        </Box>
-            <TextField value={values["notes"] || ""} onChange={(e) => setValues({ ...values, notes: e.target.value })} size='small' fullWidth placeholder='ملاحظات ...' />
-            </>
+            </Box>
+            <TextField autoComplete={"off"} value={values["notes"] || ""} onChange={(e) => setValues({ ...values, notes: e.target.value })} size='small' fullWidth placeholder='ملاحظات ...' />
+        </>
     )
 
 }

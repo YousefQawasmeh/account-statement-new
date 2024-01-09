@@ -5,6 +5,7 @@ import {
   Chip,
   TextField,
   Typography,
+  Autocomplete
 } from "@mui/material";
 import moment from "moment";
 import { useEffect, useState } from "react";
@@ -13,6 +14,8 @@ import { getUsers } from "../../apis/user.ts";
 import { createNewRecord } from "../../apis/record.ts";
 import { AxiosResponse } from "axios";
 import Operations from "./Operations.tsx";
+import styled from "styled-components";
+import {useNavigate} from 'react-router-dom';
 
 const styles = {
   flex: {
@@ -34,12 +37,24 @@ const styles = {
   },
 };
 
+const StyledNoOptions = styled(Typography)`
+  padding: 5px;
+  margin: -5px;
+  text-align: center;
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
 const Home = () => {
+const navigate = useNavigate();
+
   const todayDate = moment().format("YYYY-MM-DD");
   const [dateString, setDateString] = useState<string>(todayDate);
   const [users, setUsers] = useState<IUsers | null>(null);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [cardId, setCardId] = useState<string>("");
+  const [searchName, setSearchName] = useState<string>("");
   const [values, setValues] = useState<any>({})
   const [autoFocusId, setAutoFocusId] = useState<number>(0)
 
@@ -81,7 +96,7 @@ const Home = () => {
     // if (cardId.length === 3) 
     setSelectedUser(users?.[cardId] || null);
     const user = users?.[cardId]
-    setAutoFocusId(user? user.type === 1 ? 2 : 5 : 0)
+    setAutoFocusId(user ? user.type === 1 ? 2 : 5 : 0)
     // else setSelectedUser(null);
   }, [cardId, users]);
 
@@ -92,9 +107,10 @@ const Home = () => {
           رقم البطاقة :
         </Typography>
         <TextField
-        // autoFocus={false}
-        // focused={false}
-        // disabled={selectedUser?.name.length > 0}
+          autoComplete={"off"}
+          // autoFocus={false}
+          // focused={false}
+          // disabled={selectedUser?.name.length > 0}
           size='small'
           fullWidth
           placeholder='رقم البطاقة ...'
@@ -127,18 +143,39 @@ const Home = () => {
           <Typography variant='body1' sx={{ mr: "8px" }}>
             الاسم :
           </Typography>
-          <TextField
+          <Autocomplete
+            disablePortal
+            options={Object.values(users || {})}
+            noOptionsText={<StyledNoOptions 
+              onClick={() =>navigate(`/account-statement-new/users?name=${searchName}`)} >
+                غير موجود، إضغط للإضافة
+                </StyledNoOptions>}
+            // noOptionsText="لا يوجد بيانات"
+            getOptionLabel={(option) => option.name}
+            size='small'
+            fullWidth
+            value={selectedUser}
+            onChange={(_, value) => {
+              setSelectedUser(value || null)
+              setCardId((value?.cardId || "").toString())
+            }
+            }
+
+            renderInput={(params) => <TextField onChange={(e) => setSearchName(e.target.value)} {...params} label="الاسم" />}
+          />
+          {/* <TextField
             value={selectedUser?.name || ""}
             size='small'
             fullWidth
             placeholder='الاسم'
-          />
+          /> */}
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
             رقم التلفون :
           </Typography>
           <TextField
+            autoComplete={"off"}
             value={selectedUser?.phone || ""}
             size='small'
             fullWidth
@@ -150,6 +187,7 @@ const Home = () => {
             الرصيد :
           </Typography>
           <TextField
+            autoComplete={"off"}
             value={selectedUser?.total || ""}
             size='small'
             fullWidth
@@ -161,6 +199,7 @@ const Home = () => {
             ملاحظات :
           </Typography>
           <TextField
+            autoComplete={"off"}
             value={selectedUser?.notes || ""}
             size='small'
             fullWidth
@@ -172,6 +211,7 @@ const Home = () => {
             التاريخ :
           </Typography>
           <TextField
+            autoComplete={"off"}
             type='date'
             sx={{ width: "100%" }}
             // sx={{ width: 220 }}

@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { IUser } from "../../types.ts";
 import { createNewUser } from "../../apis/user.ts";
+import {Link, useLocation} from 'react-router-dom';
 
 const styles = {
   flex: {
@@ -31,9 +32,11 @@ const styles = {
 };
 
 const Users = () => {
+  const {search} = useLocation();
+  const query: any =  new URLSearchParams(search);
   const [newUser, setNewUser] = useState<IUser>({
     total: 0,
-    name: "",
+    name: query.get('name') || "",
     phone: "",
     type: 0,
     notes: "",
@@ -151,8 +154,9 @@ const Users = () => {
         </Box>
 
         <Box sx={{ ...styles.flex, width: "45%" }}>
-          <Button onClick={() => {
-            console.log()
+          <Button
+          type="submit" 
+          onClick={() => {
             if (!newUser.cardId) {
               alert("ادخل رقم البطاقة")
               return
@@ -182,6 +186,7 @@ const Users = () => {
           </Button>
         </Box>
       </Box>
+      <Link style={{ display: "flex", fontSize: "14px" }} to="/account-statement-new/">الصفحة الرئيسية</Link>
 
 
     </Card>
