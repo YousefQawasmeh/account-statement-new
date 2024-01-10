@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-// import { DataGrid } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
-import { DataGrid, GridColDef, GridDeleteIcon, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridDeleteIcon } from '@mui/x-data-grid';
 import Switch from '@mui/material/Switch';
 
 import { IUser } from "../../../types.ts";
@@ -14,9 +13,6 @@ const columns: GridColDef[] = [
         headerName: 'رقم البطاقة',
         width: 110,
         sortable: false,
-
-        // type: 'number',
-
     },
     {
         field: 'name',
@@ -82,7 +78,7 @@ const columns: GridColDef[] = [
     {
         field: ' ',
         sortable: false,
-        width: 90,
+        width: 60,
         disableColumnMenu: true,
         renderCell(params) {
             return <IconButton onClick={() => {
@@ -117,11 +113,9 @@ const UsersList = () => {
             }
         });
     })
-    const [users, setUsers] = useState<IUser[]>([]);
     const [usersRows, setUsersRows] = useState<IUser[]>([]);
     useEffect(() => {
         getUsers().then((res) => {
-            setUsers(res.data);
             setUsersRows(res.data.map((user: IUser) => {
                 return {
                     id: user.id,
@@ -139,8 +133,27 @@ const UsersList = () => {
     }, [])
 
     return (
-        <Box sx={{ height: 400, width: '100%' }}>
+        <Box sx={{ width: '100%', height: 'calc(100vh - 150px)' }}>
             <DataGrid
+                sx={
+                    {
+                        "& .MuiDataGrid-row:nth-of-type(even)": {
+                            backgroundColor: '#f9f9f9',
+                        },
+                        "& .MuiDataGrid-aggregationColumnHeader": {
+                            backgroundColor: '#f9f9f9',
+                        },
+                        "& .MuiDataGrid-columnHeaderTitle": {
+                            fontWeight: 700,
+                        },
+                        "& .MuiDataGrid-withBorderColor": {
+                            borderColor: '#4caf5050',
+                        },
+                        "& .MuiDataGrid-columnHeaders": {
+                            backgroundColor: '#4caf5040',
+                        }
+                    }
+                }
                 rows={usersRows}
                 columns={columns}
                 onCellEditStop={(params, event: any) => {
@@ -150,8 +163,7 @@ const UsersList = () => {
                             .catch(err => alert(err.message || err))
                     }
                 }}
-
-
+                // pageSizeOptions={[5, 10, 20, 50, 100]}
                 // checkboxSelection
                 disableRowSelectionOnClick
             />

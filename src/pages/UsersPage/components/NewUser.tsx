@@ -9,7 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { IUser } from "../../../types.ts";
 import { createNewUser, getNewCardId } from "../../../apis/user.ts";
-import { Link, useLocation } from 'react-router-dom';
+import {  useLocation } from 'react-router-dom';
 
 const styles = {
   flex: {
@@ -137,6 +137,8 @@ const Users = () => {
             size='small'
             fullWidth
             placeholder='الاسم'
+            autoFocus
+            required
           />
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>
@@ -187,7 +189,7 @@ const Users = () => {
           </Button>
         </Box>
       </Box>
-      <Link style={{ display: "flex", fontSize: "14px" }} to="/account-statement-new/">الصفحة الرئيسية</Link>
+      {/* <Link style={{ display: "flex", fontSize: "14px" }} to="/account-statement-new/">الصفحة الرئيسية</Link> */}
 
 
     </Card>
