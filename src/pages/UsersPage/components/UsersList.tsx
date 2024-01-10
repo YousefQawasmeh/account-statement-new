@@ -7,98 +7,10 @@ import { IUser } from "../../../types.ts";
 import { getUsers, deleteUserById, updateUserById } from "../../../apis/user.ts";
 import { IconButton } from "@mui/material";
 
-const columns: GridColDef[] = [
-    {
-        field: 'cardId',
-        headerName: 'رقم البطاقة',
-        width: 110,
-        sortable: false,
-    },
-    {
-        field: 'name',
-        headerName: 'الاسم',
-        width: 170,
-        editable: true,
-    },
-    {
-        field: 'phone',
-        headerName: 'رقم التلفون',
-        sortable: false,
-
-        width: 130,
-        editable: true,
-    },
-    {
-        field: 'type',
-        headerName: 'فئة البطاقة',
-        sortable: false,
-
-        width: 130,
-        valueFormatter(params) {
-            return params.value?.title
-        },
-    },
-    {
-        field: 'notes',
-        headerName: 'ملاحظات',
-        width: 130,
-        editable: true,
-        sortable: false,
-
-    },
-    {
-        field: 'total',
-        headerName: 'الرصيد',
-        width: 130,
-        type: 'number',
-    },
-    {
-        field: 'limit',
-        headerName: 'اعلى حد',
-        width: 130,
-        editable: true,
-        type: 'number',
-    },
-    {
-        field: 'active',
-        headerName: 'مفعل',
-        sortable: false,
-
-        renderCell(params) {
-            return <Switch
-                size="small"
-                defaultChecked={params.value}
-                onChange={(e) => {
-                    updateUserById(params.row.id, { active: e.target.checked }).then()
-                        .catch(err => alert(err.message || err))
-                }}
-            />
-        },
-    },
-    {
-        field: ' ',
-        sortable: false,
-        width: 60,
-        disableColumnMenu: true,
-        renderCell(params) {
-            return <IconButton onClick={() => {
-                deleteUserById(params.row.id)
-                    .catch(err => alert(err.message || err))
-            }}
-            >
-                <GridDeleteIcon sx={{ opacity: 0.7, color: 'red' }} />
-            </IconButton>
-            // return <button
-            //     onClick={() => {
-            //         deleteUserById(params.row.id)
-            //         .catch(err => alert(err.message || err))
-            //     }}
-            // >حذف</button>
-        },
-    }
-
-]
 const UsersList = () => {
+    const [usersRows, setUsersRows] = useState<IUser[]>([]);
+    const [columns, setColumns] = useState<GridColDef[]>([]);
+
     useEffect(() => {
         const elements = document.getElementsByClassName("MuiTablePagination-selectLabel muirtl-pdct74-MuiTablePagination-selectLabel");
         Array.from(elements).forEach((element: any) => {
@@ -113,8 +25,96 @@ const UsersList = () => {
             }
         });
     })
-    const [usersRows, setUsersRows] = useState<IUser[]>([]);
     useEffect(() => {
+        const columns: GridColDef[] = [
+            {
+                field: 'cardId',
+                headerName: 'رقم البطاقة',
+                width: 110,
+                sortable: false,
+            },
+            {
+                field: 'name',
+                headerName: 'الاسم',
+                width: 170,
+                editable: true,
+            },
+            {
+                field: 'phone',
+                headerName: 'رقم التلفون',
+                sortable: false,
+        
+                width: 130,
+                editable: true,
+            },
+            {
+                field: 'type',
+                headerName: 'فئة البطاقة',
+                sortable: false,
+        
+                width: 130,
+                valueFormatter(params) {
+                    return params.value?.title
+                },
+            },
+            {
+                field: 'notes',
+                headerName: 'ملاحظات',
+                width: 130,
+                editable: true,
+                sortable: false,
+        
+            },
+            {
+                field: 'total',
+                headerName: 'الرصيد',
+                width: 130,
+                type: 'number',
+            },
+            {
+                field: 'limit',
+                headerName: 'اعلى حد',
+                width: 130,
+                editable: true,
+                type: 'number',
+            },
+            {
+                field: 'active',
+                headerName: 'مفعل',
+                sortable: false,
+        
+                renderCell(params) {
+                    return <Switch
+                        size="small"
+                        defaultChecked={params.value}
+                        onChange={(e) => {
+                            updateUserById(params.row.id, { active: e.target.checked }).then()
+                                .catch(err => alert(err.message || err))
+                        }}
+                    />
+                },
+            },
+            {
+                field: ' ',
+                sortable: false,
+                width: 60,
+                disableColumnMenu: true,
+                renderCell(params) {
+                    return <IconButton size="small" onClick={() => {
+                        deleteUserById(params.row.id)
+                        .then(()=>{
+                            setUsersRows(usersRows.filter(user => user.id !== params.row.id))
+                        })
+                            .catch(err => alert(err.message || err))
+                    }}
+                    >
+                        <GridDeleteIcon sx={{ opacity: 0.7, color: 'red' }} />
+                    </IconButton>
+                },
+            }
+        
+        ]
+        setColumns(columns)
         getUsers().then((res) => {
             setUsersRows(res.data.map((user: IUser) => {
                 return {
