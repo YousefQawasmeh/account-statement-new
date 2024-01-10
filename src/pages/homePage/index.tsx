@@ -13,7 +13,7 @@ import { IUser, IUsers } from "../../types.ts";
 import { getUsers } from "../../apis/user.ts";
 import { createNewRecord } from "../../apis/record.ts";
 import { AxiosResponse } from "axios";
-import Operations from "./Operations.tsx";
+import Operations from "./components/Operations.tsx";
 import styled from "styled-components";
 import {useNavigate} from 'react-router-dom';
 

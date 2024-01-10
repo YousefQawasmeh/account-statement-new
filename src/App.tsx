@@ -1,5 +1,5 @@
-import Home from "./components/home";
-import Users from "./components/users";
+import Users from "./pages/UsersPage/components/NewUser";
+import UsersList from "./pages/UsersPage/components/UsersList";
 import { green, purple } from '@mui/material/colors';
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -7,6 +7,7 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
+import { HomePage, UsersPage } from "./pages";
 import './App.css'
 
 const cacheRtl = createCache({
@@ -25,7 +26,7 @@ const theme = createTheme({
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <HomePage />,
     // element: <Home />,
     // errorElement: <div>Error!</div>,
     // loader: () => {
@@ -62,23 +63,39 @@ const router = createBrowserRouter([
   },
   {
     path: "/home",
-    element: <Home />,
+    element: <HomePage />,
   },
   {
     path: "/users",
+    element: <UsersPage />,
+  },
+  {
+    path: "/users/new",
     element: <Users />,
+  },
+  {
+    path: "/users/list",
+    element: <UsersList />,
   },
   {
     path: "/account-statement-new/",
-    element: <Home />,
+    element: <HomePage />,
   },
   {
     path: "/account-statement-new/home",
-    element: <Home />,
+    element: <HomePage />,
   },
   {
     path: "/account-statement-new/users",
+    element: <UsersPage />,
+  },
+  {
+    path: "/account-statement-new/users/new",
     element: <Users />,
+  },
+  {
+    path: "/account-statement-new/users/list",
+    element: <UsersList />,
   },
   {
     path: "/records",

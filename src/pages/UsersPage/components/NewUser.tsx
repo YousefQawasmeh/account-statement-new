@@ -7,8 +7,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { IUser } from "../../types.ts";
-import { createNewUser, getNewCardId } from "../../apis/user.ts";
+import { IUser } from "../../../types.ts";
+import { createNewUser, getNewCardId } from "../../../apis/user.ts";
 import { Link, useLocation } from 'react-router-dom';
 
 const styles = {
