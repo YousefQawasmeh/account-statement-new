@@ -1,3 +1,4 @@
+[![Deploy static content to Pages](https://github.com/YousefQawasmeh/account-statement-new/actions/workflows/deploy.yml/badge.svg)](https://github.com/YousefQawasmeh/account-statement-new/actions/workflows/deploy.yml)
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
