@@ -2,16 +2,6 @@ import Axios from 'axios'
 // const API_URL = process.env.API_URL || `${API_URL}/api`
 const API_URL = 'https://super-market-eqe5.onrender.com'
 export const createNewUser = async (newUser: any) => {
-    // console.log(newUser)
-    // const newUser0 = {
-    //     name: 'يوسف خالد دلال',
-    //     phone: '0566252561',
-    //     type: 1,
-    //     password: '123456',
-    //     cardId: 123
-    // }
-    // const res0 = await Axios.post(`${API_URL}/api/usertypes`, {id: 1, title: 'زبون'})
-    // const res1 = await Axios.post(`${API_URL}/api/usertypes`, {id: 2, title: 'تاجر'})
     const res = await Axios.post(`${API_URL}/api/users`, newUser)
     
 
@@ -54,6 +44,11 @@ export const updateUserById = async (id: string, newUser: any) => {
 export const updateUserByCardId = async (cardId: number, newUser: any) => {
     const res = await Axios.put(`${API_URL}/api/users/card/${cardId}`, newUser)
     return res
+}
+
+export const getNewCardId = async (cardType: number) => {
+    const newCardId = await Axios.get(`${API_URL}/api/users/newCardId/${cardType}`)
+    return newCardId
 }
 
 export default {

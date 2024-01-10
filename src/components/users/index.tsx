@@ -8,8 +8,8 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { IUser } from "../../types.ts";
-import { createNewUser } from "../../apis/user.ts";
-import {Link, useLocation} from 'react-router-dom';
+import { createNewUser, getNewCardId } from "../../apis/user.ts";
+import { Link, useLocation } from 'react-router-dom';
 
 const styles = {
   flex: {
@@ -32,8 +32,8 @@ const styles = {
 };
 
 const Users = () => {
-  const {search} = useLocation();
-  const query: any =  new URLSearchParams(search);
+  const { search } = useLocation();
+  const query: any = new URLSearchParams(search);
   const [newUser, setNewUser] = useState<IUser>({
     total: 0,
     name: query.get('name') || "",
@@ -43,17 +43,13 @@ const Users = () => {
     id: "",
     cardId: 0,
   });
-  // const [cardId, setCardId] = useState<string>("");
 
   useEffect(() => {
-    // setUsers(usersTemp);
-    // setNewUser(null);
-  }, []);
+    newUser.type && getNewCardId(newUser.type).then((res) => {
+      setNewUser({ ...newUser, cardId: res.data.cardId });
+    })
 
-  // useEffect(() => {
-  //   if (cardId.length === 3) setNewUser(users[cardId]);
-  //   else setNewUser(null);
-  // }, [cardId, users]);
+  }, [newUser.type]);
 
   return (
     <Card sx={{ maxWidth: "850px", bgcolor: "#f9f9f9", padding: "50px" }}>
@@ -68,10 +64,7 @@ const Users = () => {
           placeholder='رقم البطاقة ...'
           type='search'
           value={newUser.cardId || ""}
-        // value={cardId}
-        // onChange={(e) => {
-        //   setCardId(e.target.value);
-        // }}
+          disabled
         />
         <Chip
           variant='outlined'
@@ -98,6 +91,36 @@ const Users = () => {
 
       </Box>
       <Box
+        component={"form"}
+        onSubmit={(e) => {
+          e.preventDefault();
+
+          if (!newUser.cardId) {
+            alert("ادخل رقم البطاقة")
+            return
+          }
+          if (!newUser.name) {
+            alert("ادخل الاسم")
+            return
+          }
+          if (!newUser.type) {
+            alert("ادخل نوع البطاقة")
+            return
+          }
+          createNewUser(newUser).then(() => {
+            setNewUser({
+              total: 0,
+              name: "",
+              phone: "",
+              type: 0,
+              notes: "",
+              id: "",
+              cardId: 0,
+            })
+          }).catch(err => alert(err.message || err))
+
+
+        }}
         sx={{
           ...styles.flex,
           flexWrap: "wrap",
@@ -155,33 +178,11 @@ const Users = () => {
 
         <Box sx={{ ...styles.flex, width: "45%" }}>
           <Button
-          type="submit" 
-          onClick={() => {
-            if (!newUser.cardId) {
-              alert("ادخل رقم البطاقة")
-              return
-            }
-            if (!newUser.name) {
-              alert("ادخل الاسم")
-              return
-            }
-            if (!newUser.type) {
-              alert("ادخل نوع البطاقة")
-              return
-            }
-            createNewUser(newUser).then(() => {
-              setNewUser({
-                total: 0,
-                name: "",
-                phone: "",
-                type: 0,
-                notes: "",
-                id: "",
-                cardId: 0,
-              })
-            }).catch(err => alert(err.message || err))
-
-          }} sx={{ width: "180px", marginTop: "20px" }} variant='contained' color='primary'>
+            type="submit"
+            sx={{ width: "180px", marginTop: "20px" }}
+            variant='contained'
+            color='primary'
+            >
             إضافة بطاقة جديدة
           </Button>
         </Box>
