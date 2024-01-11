@@ -12,13 +12,13 @@ const UsersList = () => {
     const [columns, setColumns] = useState<GridColDef[]>([]);
 
     useEffect(() => {
-        const elements = document.getElementsByClassName("MuiTablePagination-selectLabel muirtl-pdct74-MuiTablePagination-selectLabel");
+        const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
         Array.from(elements).forEach((element: any) => {
             if (element?.innerText) {
                 element.innerText = "عدد الصفوف بالصفحة"
             }
         });
-        const elements2 = document.getElementsByClassName("MuiTablePagination-displayedRows muirtl-levciy-MuiTablePagination-displayedRows");
+        const elements2 = document.getElementsByClassName("MuiTablePagination-displayedRows");
         Array.from(elements2).forEach((element: any) => {
             if (element?.innerText) {
                 element.innerText = element?.innerText.replace("of", "من")
