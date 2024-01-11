@@ -76,10 +76,14 @@ const styles = {
 const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId: number, onSubmit: any, values: any, setValues: React.Dispatch<React.SetStateAction<any>> }) => {
     const inputRef = useRef()
     useEffect(() => {
-        const inputElm: any =  inputRef.current;
+        const inputElm: any = inputRef.current;
         inputElm?.focus()
     }, [autoFocusId])
-    
+
+    const onInputChange = (e: any) => {
+        setValues({ ...values, [e.target.name]: e.target.value })
+    }
+
     return (
         <>
             <Box
@@ -123,7 +127,14 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                     </Button>
                                     <TextField
                                         inputRef={autoFocusId === button.id ? inputRef : null}
-                                        autoComplete={"off"} value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
+                                        autoComplete={"off"}
+                                        value={Number(values[button.id]) || ""}
+                                        onChange={onInputChange}
+                                        size='small'
+                                        fullWidth
+                                        placeholder='...'
+                                        name={`${button.id}`}
+                                    />
                                 </form>
                             );
                         })}
@@ -161,7 +172,14 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                     </Button>
                                     <TextField
                                         inputRef={autoFocusId === button.id ? inputRef : null}
-                                        autoComplete={"off"} value={values[button.id] || ""} onChange={(e) => setValues({ ...values, [button.id]: Number(e.target.value) })} size='small' fullWidth placeholder='...' />
+                                        autoComplete={"off"}
+                                        value={Number(values[button.id]) || ""}
+                                        onChange={onInputChange}
+                                        size='small'
+                                        fullWidth
+                                        placeholder='...'
+                                        name={`${button.id}`}
+                                    />
                                 </form>
                             );
                         })}
@@ -169,7 +187,15 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                 </Box>
 
             </Box>
-            <TextField autoComplete={"off"} value={values["notes"] || ""} onChange={(e) => setValues({ ...values, notes: e.target.value })} size='small' fullWidth placeholder='ملاحظات ...' />
+            <TextField
+                autoComplete={"off"}
+                value={values["notes"] || ""}
+                onChange={onInputChange}
+                size='small'
+                fullWidth
+                placeholder='ملاحظات ...'
+                name="notes"
+            />
         </>
     )
 

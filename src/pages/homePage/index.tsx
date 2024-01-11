@@ -132,6 +132,7 @@ const navigate = useNavigate();
           label='زبون'
         />
       </Box>
+
       <Box
         sx={{
           ...styles.flex,
@@ -160,7 +161,6 @@ const navigate = useNavigate();
               setCardId((value?.cardId || "").toString())
             }
             }
-
             renderInput={(params) => <TextField onChange={(e) => setSearchName(e.target.value)} {...params} label="الاسم" />}
           />
           {/* <TextField
@@ -170,6 +170,7 @@ const navigate = useNavigate();
             placeholder='الاسم'
           /> */}
         </Box>
+
         <Box sx={{ ...styles.flex, width: "45%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
             رقم التلفون :
@@ -180,8 +181,10 @@ const navigate = useNavigate();
             size='small'
             fullWidth
             placeholder='رقم التلفون'
+            disabled
           />
         </Box>
+
         <Box sx={{ ...styles.flex, width: "45%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
             الرصيد :
@@ -192,8 +195,10 @@ const navigate = useNavigate();
             size='small'
             fullWidth
             placeholder='الرصيد'
+            disabled
           />
         </Box>
+
         <Box sx={{ ...styles.flex, width: "45%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
             ملاحظات :
@@ -204,6 +209,8 @@ const navigate = useNavigate();
             size='small'
             fullWidth
             placeholder='ملاحظات'
+            disabled
+
           />
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>
