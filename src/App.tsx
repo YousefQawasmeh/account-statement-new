@@ -1,5 +1,5 @@
-import Users from "./pages/UsersPage/components/NewUser";
-import UsersList from "./pages/UsersPage/components/UsersList";
+import Users from "./pages/usersPage/components/NewUser";
+import UsersList from "./pages/usersPage/components/UsersList";
 import { green, purple } from '@mui/material/colors';
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { createTheme, ThemeProvider } from '@mui/material/styles';

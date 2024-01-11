@@ -1,4 +1,4 @@
-import UsersPage from "./UsersPage";
+import UsersPage from "./usersPage";
 import HomePage from "./homePage";
 
 export { HomePage, UsersPage }
