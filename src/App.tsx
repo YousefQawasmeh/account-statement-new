@@ -1,5 +1,3 @@
-import Users from "./pages/usersPage/components/NewUser";
-import UsersList from "./pages/usersPage/components/UsersList";
 import { green, purple } from '@mui/material/colors';
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -7,7 +5,7 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import { HomePage, UsersPage } from "./pages";
+import { HomePage, UsersPage, RecordsPage } from "./pages";
 import './App.css'
 
 const cacheRtl = createCache({
@@ -24,43 +22,43 @@ const theme = createTheme({
 });
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <HomePage />,
-    // element: <Home />,
-    // errorElement: <div>Error!</div>,
-    // loader: () => {
-    //   return new Promise((resolve) => {
-    //     setTimeout(() => {
-    //       resolve("Hello World!000000000000")
-    //     }, 2000)
-    //   })
-    // },
-    // children: [
-    //   {
-    //     path: "/home",
-    //     // element: <Home />,
-    //     element: <p>0000000</p>,
-    //     // children: [
-    //     //   {
-    //     //     path: "/about/team",
-    //     //     element: <div>Team!</div>,
-    //     //   }
-    //     // ]
-    //   },
-    //   {
-    //     path: "/users",
-    //     element: <p>0000000</p>,
-    //     // element: <Users />,
-    //     // children: [
-    //     //   {
-    //     //     path: "/about/team",
-    //     //     element: <div>Team!</div>,
-    //     //   }
-    //     // ]
-    //   }
-    // ]
-  },
+  // {
+  //   path: "/",
+  //   element: <HomePage />,
+  //   // element: <Home />,
+  //   // errorElement: <div>Error!</div>,
+  //   // loader: () => {
+  //   //   return new Promise((resolve) => {
+  //   //     setTimeout(() => {
+  //   //       resolve("Hello World!000000000000")
+  //   //     }, 2000)
+  //   //   })
+  //   // },
+  //   // children: [
+  //   //   {
+  //   //     path: "/home",
+  //   //     // element: <Home />,
+  //   //     element: <p>0000000</p>,
+  //   //     // children: [
+  //   //     //   {
+  //   //     //     path: "/about/team",
+  //   //     //     element: <div>Team!</div>,
+  //   //     //   }
+  //   //     // ]
+  //   //   },
+  //   //   {
+  //   //     path: "/users",
+  //   //     element: <p>0000000</p>,
+  //   //     // element: <Users />,
+  //   //     // children: [
+  //   //     //   {
+  //   //     //     path: "/about/team",
+  //   //     //     element: <div>Team!</div>,
+  //   //     //   }
+  //   //     // ]
+  //   //   }
+  //   // ]
+  // },
   {
     path: "/home",
     element: <HomePage />,
@@ -69,14 +67,14 @@ const router = createBrowserRouter([
     path: "/users",
     element: <UsersPage />,
   },
-  {
-    path: "/users/new",
-    element: <Users />,
-  },
-  {
-    path: "/users/list",
-    element: <UsersList />,
-  },
+  // {
+  //   path: "/users/new",
+  //   element: <Users />,
+  // },
+  // {
+  //   path: "/users/list",
+  //   element: <UsersList />,
+  // },
   {
     path: "/account-statement-new/",
     element: <HomePage />,
@@ -89,17 +87,17 @@ const router = createBrowserRouter([
     path: "/account-statement-new/users",
     element: <UsersPage />,
   },
+  // {
+  //   path: "/account-statement-new/users/new",
+  //   element: <Users />,
+  // },
+  // {
+  //   path: "/account-statement-new/users/list",
+  //   element: <UsersList />,
+  // },
   {
-    path: "/account-statement-new/users/new",
-    element: <Users />,
-  },
-  {
-    path: "/account-statement-new/users/list",
-    element: <UsersList />,
-  },
-  {
-    path: "/records",
-    element: <p>000 records 000</p>,
+    path: "/account-statement-new/records",
+    element: <RecordsPage />,
   },
   {
     path: "/usersTypes",
