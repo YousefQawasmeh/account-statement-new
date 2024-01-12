@@ -126,9 +126,11 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                         {button.label}
                                     </Button>
                                     <TextField
+                                        // type="number"
+                                        // step="0.01"
                                         inputRef={autoFocusId === button.id ? inputRef : null}
                                         autoComplete={"off"}
-                                        value={Number(values[button.id]) || ""}
+                                        value={(values[button.id]) || ""}
                                         onChange={onInputChange}
                                         size='small'
                                         fullWidth
@@ -171,9 +173,11 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                         {button.label}
                                     </Button>
                                     <TextField
+                                        // type="number"
+                                        // step="0.01"
                                         inputRef={autoFocusId === button.id ? inputRef : null}
                                         autoComplete={"off"}
-                                        value={Number(values[button.id]) || ""}
+                                        value={(values[button.id]) || ""}
                                         onChange={onInputChange}
                                         size='small'
                                         fullWidth
