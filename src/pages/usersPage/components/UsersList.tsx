@@ -4,7 +4,7 @@ import { DataGrid, GridColDef, GridDeleteIcon } from '@mui/x-data-grid';
 import Switch from '@mui/material/Switch';
 
 import { IUser } from "../../../types.ts";
-import { getUsers, deleteUserById, updateUserById } from "../../../apis/user.ts";
+import { getUsers, updateUserById } from "../../../apis/user.ts";
 import { IconButton } from "@mui/material";
 
 const UsersList = () => {
@@ -99,13 +99,14 @@ const UsersList = () => {
                 sortable: false,
                 width: 60,
                 disableColumnMenu: true,
-                renderCell(params) {
+                renderCell(_params) {
                     return <IconButton size="small" onClick={() => {
-                        deleteUserById(params.row.id)
-                        .then(()=>{
-                            setUsersRows(usersRows.filter(user => user.id !== params.row.id))
-                        })
-                            .catch(err => alert(err.message || err))
+                        alert("تم ايقاف عملية الحذف، يمكنك التعديل فقط")
+                        // deleteUserById(params.row.id)
+                        // .then(()=>{
+                        //     setUsersRows(usersRows.filter(user => user.id !== params.row.id))
+                        // })
+                        //     .catch(err => alert(err.message || err))
                     }}
                     >
                         <GridDeleteIcon sx={{ opacity: 0.7, color: 'red' }} />
