@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import Box from '@mui/material/Box';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridDeleteIcon } from '@mui/x-data-grid';
 
 import { IRecord } from "../../../types.ts";
-import { getRecords, updateRecordById } from "../../../apis/record.ts";
+import { deleteRecordById, getRecords, updateRecordById } from "../../../apis/record.ts";
+import { IconButton } from "@mui/material";
+import DeleteDialog from "./DeleteDialog.tsx";
 
 const RecordsList = () => {
     const [recordsRows, setRecordsRows] = useState<IRecord[]>([]);
     const [columns, setColumns] = useState<GridColDef[]>([]);
+    const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
 
     useEffect(() => {
         const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
@@ -27,18 +30,20 @@ const RecordsList = () => {
         const columns: GridColDef[] = [
             {
                 field: 'createdAt',
-                headerName: 'التاريخ',
+                headerName: 'تاريخ الانشاء',
                 width: 110,
                 editable: false,
+                type: 'date',
                 valueFormatter(params) {
                     return new Date(params.value)?.toLocaleDateString()
                 }
             },
             {
                 field: 'date',
-                headerName: 'التاريخ',
-                width: 110,
+                headerName: 'التاريخ الحركة',
+                width: 120,
                 editable: true,
+                type: 'date',
                 valueFormatter(params) {
                     return new Date(params.value)?.toLocaleDateString()
                 }
@@ -46,8 +51,9 @@ const RecordsList = () => {
             {
                 field: 'type',
                 headerName: 'النوع',
-                width: 110,
-                editable: true,
+                width: 65,
+                editable: false,
+                sortable: false,
                 valueFormatter(params) {
                     return params.value?.title
                 },
@@ -55,29 +61,44 @@ const RecordsList = () => {
             {
                 field: 'amount',
                 headerName: 'المبلغ',
-                width: 110,
+                width: 100,
+                type: 'number',
                 editable: true,
             },
             {
                 field: 'notes',
                 headerName: 'ملاحظات',
-                width: 130,
+                width: 180,
                 editable: true,
+                sortable: false,
             },
             {
                 field: 'cardId',
                 headerName: 'رقم البطاقة',
-                width: 110,
+                width: 100,
             },
             {
                 field: 'user',
-                headerName: 'اسم البطاقة',
-                width: 110,
+                headerName: 'اسم صاحب البطاقة',
+                width: 180,
                 valueFormatter(params) {
                     console.log(params)
                     return params.value?.name
                 }
-            }        
+            },
+            {
+                field: '',
+                headerName: '',
+                width: 110,
+                sortable: false,
+                filterable: false,
+                renderCell: (params) => <IconButton
+                    size="small"
+                    onClick={() => { setRecordToDelete(params.row) }}
+                >
+                    <GridDeleteIcon sx={{ opacity: 0.7, color: 'red' }} />
+                </IconButton>
+            }
         ]
         setColumns(columns)
         getRecords().then((res) => {
@@ -130,6 +151,14 @@ const RecordsList = () => {
                 }}
                 disableRowSelectionOnClick
             />
+            {recordToDelete && <DeleteDialog
+                open={!!recordToDelete}
+                setOpen={() => setRecordToDelete(null)}
+                handleDelete={(notes) => deleteRecordById({ id: recordToDelete?.id, notes })
+                    .then(() => setRecordsRows(recordsRows.filter(record => record.id !== recordToDelete?.id)))
+                    .catch(err => alert(err.message || err))
+                }
+            />}
         </Box>
 
     )
