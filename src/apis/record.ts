@@ -1,4 +1,5 @@
 import Axios from 'axios'
+const API_URL = 'https://super-market-eqe5.onrender.com'
 type Ifilters = {
     date?: string
     type?: number
