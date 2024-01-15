@@ -28,4 +28,6 @@ export type IRecord = {
   amount: number;
   notes: string;
   createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
 }

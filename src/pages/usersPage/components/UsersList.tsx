@@ -43,7 +43,7 @@ const UsersList = () => {
                 field: 'phone',
                 headerName: 'رقم التلفون',
                 sortable: false,
-        
+
                 width: 130,
                 editable: true,
             },
@@ -51,7 +51,7 @@ const UsersList = () => {
                 field: 'type',
                 headerName: 'فئة البطاقة',
                 sortable: false,
-        
+
                 width: 130,
                 valueFormatter(params) {
                     return params.value?.title
@@ -63,7 +63,7 @@ const UsersList = () => {
                 width: 130,
                 editable: true,
                 sortable: false,
-        
+
             },
             {
                 field: 'total',
@@ -82,7 +82,7 @@ const UsersList = () => {
                 field: 'active',
                 headerName: 'مفعل',
                 sortable: false,
-        
+
                 renderCell(params) {
                     return <Switch
                         size="small"
@@ -113,7 +113,7 @@ const UsersList = () => {
                     </IconButton>
                 },
             }
-        
+
         ]
         setColumns(columns)
         getUsers().then((res) => {
@@ -164,8 +164,7 @@ const UsersList = () => {
                             .catch(err => alert(err.message || err))
                     }
                 }}
-                // pageSizeOptions={[5, 10, 20, 50, 100]}
-                // checkboxSelection
+                density="compact"
                 disableRowSelectionOnClick
             />
         </Box>
