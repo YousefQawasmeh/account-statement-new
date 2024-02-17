@@ -124,13 +124,13 @@ const navigate = useNavigate();
         />
         <Chip
           variant='outlined'
-          sx={{ ...styles.chip, opacity: selectedUser?.type === 2 ? 1 : 0.3 }}
-          label='تاجر'
+          sx={{ ...styles.chip, opacity: selectedUser?.type === 1 ? 1 : 0.3 }}
+          label='زبون'
         />
         <Chip
           variant='outlined'
-          sx={{ ...styles.chip, opacity: selectedUser?.type === 1 ? 1 : 0.3 }}
-          label='زبون'
+          sx={{ ...styles.chip, opacity: selectedUser?.type === 2 ? 1 : 0.3 }}
+          label='تاجر'
         />
       </Box>
 
