@@ -4,8 +4,9 @@ import { DataGrid, GridColDef, GridDeleteIcon, GridToolbar } from '@mui/x-data-g
 
 import { IRecord } from "../../../types.ts";
 import { deleteRecordById, getRecords, updateRecordById } from "../../../apis/record.ts";
-import { IconButton } from "@mui/material";
+import { IconButton, TextField, Typography } from "@mui/material";
 import DeleteDialog from "./DeleteDialog.tsx";
+import moment from "moment";
 
 type Props = {
     filters?: any
@@ -18,6 +19,10 @@ const RecordsList = (props: Props) => {
     const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
     const { filters } = props || {}
     const reportForUser = Object.keys(filters).length > 0
+    const dateFormat = "YYYY-MM-DD";
+    const todayDate = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    const [dateStringFrom, setDateStringFrom] = useState<string>(todayDate.format(dateFormat));
+    const [dateStringTo, setDateStringTo] = useState<string>(todayDate.format(dateFormat));
     useEffect(() => {
         // const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
         // Array.from(elements).forEach((element: any) => {
@@ -32,6 +37,29 @@ const RecordsList = (props: Props) => {
             }
         });
     })
+    const getRecordsFromDB = () => {
+        getRecords({...filters, date:{from: dateStringFrom, to: dateStringTo}}).then((res) => {
+            setRecordsRows(res.data.map((record: IRecord) => {
+                return {
+                    id: record.id,
+                    date: record.date,
+                    type: record.type,
+                    typeTitle: record.type?.title,
+                    amount: record.amount,
+                    notes: record.notes,
+                    user: record.user,
+                    userName: record.user?.name,
+                    cardId: record.user?.cardId,
+                    createdAt: record.createdAt,
+                    deletedAt: record.deletedAt,
+
+                }
+            }))
+        })
+    }
+    useEffect(() => {
+        getRecordsFromDB()
+    }, [filters, dateStringFrom, dateStringTo])
     useEffect(() => {
         const columns: GridColDef[] = [
             {
@@ -41,7 +69,7 @@ const RecordsList = (props: Props) => {
                 editable: false,
                 type: 'date',
                 valueFormatter(params) {
-                    return new Date(params.value)?.toLocaleDateString()
+                    return moment(params.value)?.format("YYYY-MM-DD");
                 }
             },
             {
@@ -52,7 +80,7 @@ const RecordsList = (props: Props) => {
                 type: 'date',
                 disableColumnMenu: true,
                 valueFormatter(params) {
-                    return new Date(params.value)?.toLocaleDateString()
+                    return moment(params.value)?.format("YYYY-MM-DD");
                 }
             },
             {
@@ -119,24 +147,7 @@ const RecordsList = (props: Props) => {
             }
         ]
         setColumns(columns)
-        getRecords(filters).then((res) => {
-            setRecordsRows(res.data.map((record: IRecord) => {
-                return {
-                    id: record.id,
-                    date: record.date,
-                    type: record.type,
-                    typeTitle: record.type?.title,
-                    amount: record.amount,
-                    notes: record.notes,
-                    user: record.user,
-                    userName: record.user?.name,
-                    cardId: record.user?.cardId,
-                    createdAt: record.createdAt,
-                    deletedAt: record.deletedAt,
-
-                }
-            }))
-        })
+        // getRecordsFromDB()
     }, [])
 
     return (
@@ -145,10 +156,15 @@ const RecordsList = (props: Props) => {
                 sx={
                     {
                         '@media print': {
+                            marginBottom: 'auto !important',
                             '.MuiDataGrid-main': {
                                 width: reportForUser ? '8cm !important' : '100%',
                                 border: 'solid 2px rgba(0, 0, 0, 0.87) !important',
                                 marginLeft: 'auto',
+                            },
+                            '.MuiDataGrid-cellContent': {
+                                maxWidth: '80px !important',
+                                textWrap: 'wrap !important',
                             },
                             "*": {
                                 direction: 'ltr !important',
@@ -193,20 +209,55 @@ const RecordsList = (props: Props) => {
                         const recordsTotal = recordsRows?.reduce((total, record) => total + record.amount, 0)
                         return <>
                             <Box sx={{ textAlign: 'left', paddingLeft: '10px' }}>
+                                <Box
+                                    sx={
+                                        {
+                                            '@media print': {
+                                                "*": { display: 'none !important', }
+                                            }
+                                        }
+                                    }
+                                >
+                                    <Box sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        my: "6px",
+                                        "& p": { minWidth: "30px", }
+                                    }}>
+                                        <Typography variant='body1' sx={{ mr: "8px" }}>من : </Typography>
+                                        <TextField
+                                            autoComplete={"off"}
+                                            type='date'
+                                            sx={{ width: "150px" }}
+                                            size='small'
+                                            value={dateStringFrom}
+                                            onChange={(e) => setDateStringFrom(e.target.value)}
+                                        />
+                                        <Typography variant='body1' sx={{ mr: "8px", ml: "24px" }}>الى : </Typography>
+                                        <TextField
+                                            autoComplete={"off"}
+                                            type='date'
+                                            sx={{ width: "150px" }}
+                                            size='small'
+                                            value={dateStringTo}
+                                            onChange={(e) => setDateStringTo(e.target.value)}
+                                        />
+                                    </Box>
+                                </Box>
                                 {
                                     reportForUser ? <>
                                         <p>كشف حساب من سوبر ماركت ابودعجان</p>
-                                        <p>من تاريخ: {recordsRows?.[0]?.date?.split('T')[0]}</p>
-                                        <p>الي تاريخ: {recordsRows?.[recordsRows.length - 1]?.date?.split('T')[0]}</p>
+                                        <p>من تاريخ: {dateStringFrom}</p>
+                                        <p>الي تاريخ: {dateStringTo}</p>
                                         <p>الاسم: {recordsRows?.[0]?.user?.name}</p>
                                         <p>رقم البطاقة: {recordsRows?.[0]?.user?.cardId}</p>
-                                        {/* <p>مجموع قبل الحركات: {recordsRows?.[0]?.user?.total - recordsTotal}</p> */}
+                                        <p>مجموع قبل {dateStringFrom}: {recordsRows?.[0]?.user?.total - recordsTotal}</p>
                                         <p>مجموع الحركات: {recordsTotal}</p>
                                         <p>المجموع النهائي : {recordsRows?.[0]?.user?.total}</p>
                                     </>
                                         : <>
-                                            <p>من تاريخ: {recordsRows?.[0]?.date?.split('T')[0]}</p>
-                                            <p>الي تاريخ: {recordsRows?.[recordsRows.length - 1]?.date?.split('T')[0]}</p>
+                                            <p>من تاريخ: {dateStringFrom}</p>
+                                            <p>الي تاريخ: {dateStringTo}</p>
                                         </>
                                 }
                             </Box>
