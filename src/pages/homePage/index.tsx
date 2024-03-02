@@ -229,7 +229,7 @@ const navigate = useNavigate();
           />
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>
-          <Button sx={{ width: "100%" }} variant='outlined' color='primary' component={Link} href={`/account-statement-new/records?cardId=${selectedUser?.cardId}`}>
+          <Button sx={{ width: "100%" }} variant='outlined' color='primary' component={Link} href={`/account-statement-new/records${selectedUser?.cardId ? ("?cardId=" + selectedUser?.cardId):""}`}>
             كشف حساب
           </Button>
         </Box>
