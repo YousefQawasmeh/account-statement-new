@@ -21,7 +21,9 @@ const RecordsList = (props: Props) => {
     const reportForUser = Object.keys(filters).length > 0
     const dateFormat = "YYYY-MM-DD";
     const todayDate = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-    const [dateStringFrom, setDateStringFrom] = useState<string>(todayDate.format(dateFormat));
+    // const LastMounth = moment().subtract(1, 'months').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    const lastYear = moment().subtract(1, 'years').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    const [dateStringFrom, setDateStringFrom] = useState<string>((reportForUser?lastYear:todayDate).format(dateFormat));
     const [dateStringTo, setDateStringTo] = useState<string>(todayDate.format(dateFormat));
     useEffect(() => {
         // const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
