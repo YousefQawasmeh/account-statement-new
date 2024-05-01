@@ -13,17 +13,17 @@ type Props = {
 }
 
 const RecordsList = (props: Props) => {
-    const [recordsRows, setRecordsRows] = useState<IRecord[]>([]);
+    const [recordsRows, setRecordsRows] = useState<(IRecord & {subTotal?: any})[] >([]);
     const [columns, setColumns] = useState<GridColDef[]>([]);
-    const [displayedColumns, setDisplayedColumns] = useState<any>({ createdAt: false });
     const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
     const { filters } = props || {}
     const reportForUser = Object.keys(filters).length > 0
+    const [displayedColumns, setDisplayedColumns] = useState<any>({ createdAt: false, userName: !reportForUser, typeTitle: false, cardId: !reportForUser });
     const dateFormat = "YYYY-MM-DD";
     const todayDate = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     // const LastMounth = moment().subtract(1, 'months').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     const lastYear = moment().subtract(1, 'years').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-    const [dateStringFrom, setDateStringFrom] = useState<string>((reportForUser?lastYear:todayDate).format(dateFormat));
+    const [dateStringFrom, setDateStringFrom] = useState<string>((reportForUser ? lastYear : todayDate).format(dateFormat));
     const [dateStringTo, setDateStringTo] = useState<string>(todayDate.format(dateFormat));
     useEffect(() => {
         // const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
@@ -40,8 +40,27 @@ const RecordsList = (props: Props) => {
         });
     })
     const getRecordsFromDB = () => {
-        getRecords({...filters, date:{from: dateStringFrom, to: dateStringTo}}).then((res) => {
-            setRecordsRows(res.data.map((record: IRecord) => {
+        getRecords({ ...filters, date: { from: dateStringFrom, to: dateStringTo } }).then((res) => {
+            let preTotal: number = res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0)
+
+            const tempRecord: IRecord = {...res.data[0]}
+            const firstRecord = {
+                subTotal: preTotal,
+                amount: '',
+                notes: 'رصيد سابق',
+                id: 'firstRecord',
+                date: tempRecord.date,
+                type: tempRecord.type,
+                typeTitle: tempRecord.type?.title,
+                user: tempRecord.user,
+                userName: tempRecord.user?.name,
+                cardId: tempRecord.user?.cardId,
+                createdAt: tempRecord.createdAt,
+                deletedAt: tempRecord.deletedAt,
+            }
+
+            const recordsRows = res.data.map((record: IRecord) => {
+                preTotal += record.amount
                 return {
                     id: record.id,
                     date: record.date,
@@ -54,9 +73,11 @@ const RecordsList = (props: Props) => {
                     cardId: record.user?.cardId,
                     createdAt: record.createdAt,
                     deletedAt: record.deletedAt,
+                    subTotal: preTotal
 
                 }
-            }))
+            })
+            setRecordsRows([firstRecord, ...recordsRows])
         })
     }
     useEffect(() => {
@@ -70,6 +91,7 @@ const RecordsList = (props: Props) => {
                 width: 110,
                 editable: false,
                 type: 'date',
+                sortable: false,
                 valueFormatter(params) {
                     return moment(params.value)?.format("YYYY-MM-DD");
                 }
@@ -81,6 +103,7 @@ const RecordsList = (props: Props) => {
                 editable: true,
                 type: 'date',
                 disableColumnMenu: true,
+                sortable: false,
                 valueFormatter(params) {
                     return moment(params.value)?.format("YYYY-MM-DD");
                 }
@@ -91,7 +114,7 @@ const RecordsList = (props: Props) => {
                 width: 80,
                 editable: false,
                 disableColumnMenu: true,
-                // sortable: false,
+                sortable: false,
                 // valueFormatter(params) {
                 //     return params.value?.title
                 // },
@@ -103,6 +126,19 @@ const RecordsList = (props: Props) => {
                 type: 'number',
                 editable: true,
                 disableColumnMenu: true,
+                sortable: false,
+                renderCell(params) {
+                    return <span style={{ color: params.value < 0 ? 'red' : 'green' }}>{params.value}</span>
+                },
+            },
+            {
+                field: 'subTotal',
+                headerName: 'المجموع',
+                width: 100,
+                type: 'number',
+                editable: false,
+                disableColumnMenu: true,
+                sortable: false,
                 renderCell(params) {
                     return <span style={{ color: params.value < 0 ? 'red' : 'green' }}>{params.value}</span>
                 },
@@ -208,7 +244,7 @@ const RecordsList = (props: Props) => {
                 density="compact"
                 slots={{
                     toolbar: (props) => {
-                        const recordsTotal = recordsRows?.reduce((total, record) => total + record.amount, 0)
+                        const recordsTotal = recordsRows?.reduce((total, record) => total + +record.amount, 0)
                         return <>
                             <Box sx={{ textAlign: 'left', paddingLeft: '10px' }}>
                                 <Box
@@ -274,7 +310,7 @@ const RecordsList = (props: Props) => {
                     toolbar: {
                         showQuickFilter: true,
                         printOptions: {
-                            fields: reportForUser ? ['date', 'amount', 'notes'] : ['date', 'amount', 'notes', 'userName', 'cardId'],
+                            fields: reportForUser ? ['date', 'amount','subTotal', 'notes'] : ['date', 'amount','subTotal', 'notes', 'userName', 'cardId'],
                             hideFooter: true
                         }
                     },
