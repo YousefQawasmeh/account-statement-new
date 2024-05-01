@@ -13,7 +13,7 @@ type Props = {
 }
 
 const RecordsList = (props: Props) => {
-    const [recordsRows, setRecordsRows] = useState<(IRecord & {subTotal?: any})[] >([]);
+    const [recordsRows, setRecordsRows] = useState<(IRecord & { subTotal?: any })[]>([]);
     const [columns, setColumns] = useState<GridColDef[]>([]);
     const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
     const { filters } = props || {}
@@ -43,7 +43,7 @@ const RecordsList = (props: Props) => {
         getRecords({ ...filters, date: { from: dateStringFrom, to: dateStringTo } }).then((res) => {
             let preTotal: number = res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0)
 
-            const tempRecord: IRecord = {...res.data[0]}
+            const tempRecord: IRecord = { ...res.data[0] }
             const firstRecord = {
                 subTotal: preTotal,
                 amount: '',
@@ -196,12 +196,12 @@ const RecordsList = (props: Props) => {
                         '@media print': {
                             marginBottom: 'auto !important',
                             '.MuiDataGrid-main': {
-                                width: reportForUser ? '8cm !important' : '100%',
-                                border: 'solid 2px rgba(0, 0, 0, 0.87) !important',
-                                marginLeft: 'auto',
+                                // width: reportForUser ? '8cm !important' : '100%',
+                                // border: 'solid 2px rgba(0, 0, 0, 0.87) !important',
+                                // marginLeft: 'auto',
                             },
                             '.MuiDataGrid-cellContent': {
-                                maxWidth: '80px !important',
+                                // maxWidth: '80px !important',
                                 textWrap: 'wrap !important',
                             },
                             "*": {
@@ -244,14 +244,14 @@ const RecordsList = (props: Props) => {
                 density="compact"
                 slots={{
                     toolbar: (props) => {
-                        const recordsTotal = recordsRows?.reduce((total, record) => total + +record.amount, 0)
+                        // const recordsTotal = recordsRows?.reduce((total, record) => total + +record.amount, 0)
                         return <>
                             <Box sx={{ textAlign: 'left', paddingLeft: '10px' }}>
                                 <Box
                                     sx={
                                         {
                                             '@media print': {
-                                                "*": { display: 'none !important', }
+                                                // "*": { display: 'none !important', }
                                             }
                                         }
                                     }
@@ -282,7 +282,17 @@ const RecordsList = (props: Props) => {
                                         />
                                     </Box>
                                 </Box>
+                                <Box sx={{ display: 'flex', gap: '50px' }}>
+                                    {
+                                    reportForUser && <>
+                                        <p style={{ fontSize: '18px' }}> الاسم : {recordsRows?.[0]?.user?.name}</p>
+                                        <p style={{ fontSize: '18px' }}>رقم البطاقة : {recordsRows?.[0]?.user?.cardId}</p>
+                                    </>
+                                    }
+                                    <p style={{ fontSize: '18px' }}>المجموع  : {recordsRows?.[0]?.user?.total}</p>
+                                </Box>
                                 {
+                                /* {
                                     reportForUser ? <>
                                         <p>كشف حساب من سوبر ماركت ابودعجان</p>
                                         <p>من تاريخ: {dateStringFrom}</p>
@@ -297,6 +307,7 @@ const RecordsList = (props: Props) => {
                                             <p>من تاريخ: {dateStringFrom}</p>
                                             <p>الي تاريخ: {dateStringTo}</p>
                                         </>
+                                 */
                                 }
                             </Box>
                             <Box sx={{ displayPrint: 'none' }}>
@@ -310,7 +321,7 @@ const RecordsList = (props: Props) => {
                     toolbar: {
                         showQuickFilter: true,
                         printOptions: {
-                            fields: reportForUser ? ['date', 'amount','subTotal', 'notes'] : ['date', 'amount','subTotal', 'notes', 'userName', 'cardId'],
+                            fields: reportForUser ? ['date', 'amount', 'subTotal', 'notes'] : ['date', 'amount', 'subTotal', 'notes', 'userName', 'cardId'],
                             hideFooter: true
                         }
                     },
