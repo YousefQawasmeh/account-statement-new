@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Box from '@mui/material/Box';
-import { DataGrid, GridColDef, GridDeleteIcon } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridDeleteIcon, GridToolbarQuickFilter, GridToolbarContainer, GridToolbarExport, GridToolbarColumnsButton } from '@mui/x-data-grid';
 import Switch from '@mui/material/Switch';
 
 import { IUser } from "../../../types.ts";
@@ -12,12 +12,12 @@ const UsersList = () => {
     const [columns, setColumns] = useState<GridColDef[]>([]);
 
     useEffect(() => {
-        const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
-        Array.from(elements).forEach((element: any) => {
-            if (element?.innerText) {
-                element.innerText = "عدد الصفوف بالصفحة"
-            }
-        });
+        // const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
+        // Array.from(elements).forEach((element: any) => {
+        //     if (element?.innerText) {
+        //         element.innerText = "عدد الصفوف بالصفحة"
+        //     }
+        // });
         const elements2 = document.getElementsByClassName("MuiTablePagination-displayedRows");
         Array.from(elements2).forEach((element: any) => {
             if (element?.innerText) {
@@ -138,6 +138,19 @@ const UsersList = () => {
             <DataGrid
                 sx={
                     {
+                        '@media print': {
+                            marginBottom: 'auto !important',
+                            '.MuiDataGrid-main': {
+                                margin: 'auto',
+                            },
+                            '.MuiDataGrid-cellContent': {
+                                textWrap: 'wrap !important',
+                            },
+                            "*": {
+                                direction: 'ltr !important',
+                                textWrap: 'wrap !important',
+                            }
+                        },
                         "& .MuiDataGrid-row:nth-of-type(even)": {
                             backgroundColor: '#f9f9f9',
                         },
@@ -166,6 +179,30 @@ const UsersList = () => {
                 }}
                 density="compact"
                 disableRowSelectionOnClick
+                slots={{
+                    toolbar: (props) => {
+                        return <>
+                            <Box sx={{ displayPrint: 'none' }}>
+                                <GridToolbarContainer {...props}>
+                                    <GridToolbarColumnsButton/>
+                                    <GridToolbarExport/>
+                                <GridToolbarQuickFilter sx={{ ml: 'auto' }} />
+                            </GridToolbarContainer>
+                            </Box>
+                        </>
+                    }
+                }}
+                slotProps={{
+                    toolbar: {
+                        printOptions: {
+                            hideFooter: true
+                        }
+                    },
+                    pagination: {
+                        labelRowsPerPage: 'عدد الصوف في الصفحة',
+                    },
+
+                }}
             />
         </Box>
 
