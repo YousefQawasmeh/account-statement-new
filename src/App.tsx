@@ -6,6 +6,7 @@ import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { HomePage, UsersPage, RecordsPage } from "./pages";
+import { Link } from "react-router-dom";
 import './App.css'
 
 const cacheRtl = createCache({
@@ -60,12 +61,20 @@ const router = createBrowserRouter([
   //   // ]
   // },
   {
+    path: "/",
+    element: <HomePage />,
+  },
+  {
     path: "/home",
     element: <HomePage />,
   },
   {
     path: "/users",
     element: <UsersPage />,
+  },
+  {
+    path: "/records",
+    element: <RecordsPage />,
   },
   // {
   //   path: "/users/new",
@@ -109,7 +118,14 @@ const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <div>Error!</div>,
+    element: 
+    <div>
+    <div>Error! 404</div>
+    <Link style={{ display: "flex", fontSize: "14px" }} to="/account-statement-new/">
+        الصفحة الرئيسية
+        </Link>
+    </div>
+    ,
   }
 ]);
 
