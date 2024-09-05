@@ -1,6 +1,67 @@
 import Axios from 'axios'
 // const API_URL = process.env.API_URL || `${API_URL}/api`
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+// const init = async () => {    
+    // const res0 = await Axios.post(`${API_URL}/usertypes`, {id: 1, title: 'زبون'})
+    // const res1 = await Axios.post(`${API_URL}/usertypes`, {id: 2, title: 'تاجر'})
+    // const res00 = await Axios.post(`${API_URL}/recordtypes`, {id: 1, title: 'زبون'})
+    // const res11 = await Axios.post(`${API_URL}/recordtypes`, {id: 2, title: 'دين'})
+    // const res12 = await Axios.post(`${API_URL}/recordtypes`, {id: 3, title: 'تاجر'})
+    // const res13 = await Axios.post(`${API_URL}/recordtypes`, {id: 4, title: 'تاجر'})
+    // const res14 = await Axios.post(`${API_URL}/recordtypes`, {id: 5, title: 'تاجر'})
+    // const res15 = await Axios.post(`${API_URL}/recordtypes`, {id: 6, title: 'تاجر'})
+// }
+// init()
+    // const a = [
+    //     {
+    //         label: "نقدي",
+    //         value: 0,
+    //         color: "primary",
+    //         variant: "contained",
+    //         id: 4,
+    //     },
+    //     {
+    //         label: "مشتريات",
+    //         value: -1,
+    //         color: "secondary",
+    //         variant: "contained",
+    //         id: 5,
+    //     },
+    //     {
+    //         label: "صرف له",
+    //         value: 1,
+    //         color: "primary",
+    //         variant: "outlined",
+    //         id: 6,
+    //     },
+    //     {
+    //         label: "نقدي",
+    //         value: 0,
+    //         color: "primary",
+    //         variant: "contained",
+    //         id: 1,
+    //     },
+    //     {
+    //         label: "دين",
+    //         value: 1,
+    //         color: "secondary",
+    //         variant: "contained",
+    //         id: 2,
+    //     },
+    //     {
+    //         label: "دفعة",
+    //         value: -1,
+    //         color: "primary",
+    //         variant: "outlined",
+    //         id: 3,
+    //     },
+    // ].forEach(recordType => {
+    //     // if(recordType.id >= 3)
+    //     Axios.post(`${API_URL}/recordtypes`, {
+    //         id: recordType.id,
+    //         title: recordType.label
+    //     })
+    // });
 export const createNewUser = async (newUser: any) => {
     const res = await Axios.post(`${API_URL}/users`, newUser)
     
