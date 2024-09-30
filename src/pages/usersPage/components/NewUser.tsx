@@ -37,7 +37,7 @@ const Users = () => {
   const [newUser, setNewUser] = useState<IUser>({
     total: 0,
     name: query.get('name') || "",
-    phone: "",
+    phone: query.get('phone') || "",
     type: 0,
     notes: "",
     id: "",

@@ -7,7 +7,7 @@ import { Link, useLocation } from "react-router-dom";
 const UsersPage = () => {
     const { search } = useLocation();
     const query: any = new URLSearchParams(search);
-    const [openAddUserPopup, setOpenAddUserPopup] = useState<boolean>(!!query.get('name'));
+    const [openAddUserPopup, setOpenAddUserPopup] = useState<boolean>(!!query.get('name') || !!query.get('phone'));
 
     return (
         <Box>

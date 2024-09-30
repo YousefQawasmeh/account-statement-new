@@ -56,6 +56,7 @@ const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [cardId, setCardId] = useState<string>("");
   const [searchName, setSearchName] = useState<string>("");
+  const [searchPhoneNo, setSearchPhoneNo] = useState<string>("");
   const [values, setValues] = useState<any>({})
   const [autoFocusId, setAutoFocusId] = useState<number>(0)
 
@@ -176,13 +177,24 @@ const navigate = useNavigate();
           <Typography variant='body1' sx={{ mr: "8px" }}>
             رقم التلفون :
           </Typography>
-          <TextField
-            autoComplete={"off"}
-            value={selectedUser?.phone || ""}
+          <Autocomplete
+            disablePortal
+            options={Object.values(users || {})}
+            noOptionsText={<StyledNoOptions 
+              onClick={() =>navigate(`/account-statement-new/users?phone=${searchPhoneNo}`)} >
+                غير موجود، إضغط للإضافة
+                </StyledNoOptions>}
+            // noOptionsText="لا يوجد رقم مشابه"
+            getOptionLabel={(option) => option.phone}
             size='small'
             fullWidth
-            placeholder='رقم التلفون'
-            disabled
+            value={selectedUser}
+            onChange={(_, value) => {
+              setSelectedUser(value || null)
+              setCardId((value?.cardId || "").toString())
+            }
+            }
+            renderInput={(params) => <TextField onChange={(e) => setSearchPhoneNo(e.target.value)} {...params} label="رقم التلفون" />}
           />
         </Box>
 
