@@ -16,7 +16,7 @@ import { createNewRecord } from "../../apis/record.ts";
 import { AxiosResponse } from "axios";
 import Operations from "./components/Operations.tsx";
 import styled from "styled-components";
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const styles = {
   flex: {
@@ -48,7 +48,7 @@ const StyledNoOptions = styled(Typography)`
 `;
 
 const Home = () => {
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const todayDate = moment().format("YYYY-MM-DD");
   const [dateString, setDateString] = useState<string>(todayDate);
@@ -149,22 +149,41 @@ const navigate = useNavigate();
           <Autocomplete
             disablePortal
             options={Object.values(users || {})}
-            noOptionsText={<StyledNoOptions 
-              onClick={() =>navigate(`/account-statement-new/users?name=${searchName}`)} >
+            noOptionsText={
+              <StyledNoOptions onClick={() => navigate(`/account-statement-new/users?name=${searchName}`)}>
                 غير موجود، إضغط للإضافة
-                </StyledNoOptions>}
-            // noOptionsText="لا يوجد بيانات"
+              </StyledNoOptions>
+            }
             getOptionLabel={(option) => option.name}
             size='small'
             fullWidth
             value={selectedUser}
             onChange={(_, value) => {
-              setSelectedUser(value || null)
-              setCardId((value?.cardId || "").toString())
-            }
-            }
-            renderInput={(params) => <TextField onChange={(e) => setSearchName(e.target.value)} {...params} label="الاسم" />}
+              setSelectedUser(value || null);
+              setCardId((value?.cardId || "").toString());
+            }}
+            filterOptions={(options, { inputValue }) => {
+              const words = inputValue.toLowerCase().split(" ").filter(Boolean);
+              if (words.length === 0) return options;
+            
+              return options.filter((option) => {
+                const normalizedName = option.name.toLowerCase();
+                return words.every(word => normalizedName.includes(word));
+              });
+            }}
+            
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="الاسم"
+                onChange={(e) => {
+                  setSearchName(e.target.value);
+                  // You can also call setSelectedUser here if needed to reset selection
+                }}
+              />
+            )}
           />
+
           {/* <TextField
             value={selectedUser?.name || ""}
             size='small'
@@ -180,10 +199,10 @@ const navigate = useNavigate();
           <Autocomplete
             disablePortal
             options={Object.values(users || {})}
-            noOptionsText={<StyledNoOptions 
-              onClick={() =>navigate(`/account-statement-new/users?phone=${searchPhoneNo}`)} >
-                غير موجود، إضغط للإضافة
-                </StyledNoOptions>}
+            noOptionsText={<StyledNoOptions
+              onClick={() => navigate(`/account-statement-new/users?phone=${searchPhoneNo}`)} >
+              غير موجود، إضغط للإضافة
+            </StyledNoOptions>}
             // noOptionsText="لا يوجد رقم مشابه"
             getOptionLabel={(option) => option.phone}
             size='small'
@@ -241,7 +260,7 @@ const navigate = useNavigate();
           />
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>
-          <Button sx={{ width: "100%" }} variant='outlined' color='primary' component={Link} href={`/account-statement-new/records${selectedUser?.cardId ? ("?cardId=" + selectedUser?.cardId):""}`}>
+          <Button sx={{ width: "100%" }} variant='outlined' color='primary' component={Link} href={`/account-statement-new/records${selectedUser?.cardId ? ("?cardId=" + selectedUser?.cardId) : ""}`}>
             كشف حساب
           </Button>
         </Box>
