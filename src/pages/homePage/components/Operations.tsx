@@ -112,7 +112,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                     onSubmit={(e) => onSubmit(e, {
                                         type: button.id,
                                         amount: +values[button.id] * button.value,
-                                        notes: values?.notes || button.label
+                                        notes: values?.notes //|| button.label
                                     })}
                                     name={button.id.toString()}
                                     style={{ display: "flex" }}
@@ -159,7 +159,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                     onSubmit={(e) => onSubmit(e, {
                                         type: button.id,
                                         amount: values[button.id] * button.value,
-                                        notes: values?.notes || button.label
+                                        notes: values?.notes //|| button.label
                                     })}
                                     name={button.id.toString()}
                                     style={{ display: "flex" }}
