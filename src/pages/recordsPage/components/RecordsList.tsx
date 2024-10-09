@@ -18,7 +18,7 @@ const RecordsList = (props: Props) => {
     const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
     const { filters } = props || {}
     const reportForUser = Object.keys(filters).length > 0
-    const [displayedColumns, setDisplayedColumns] = useState<any>({ createdAt: false, userName: !reportForUser, typeTitle: false, cardId: !reportForUser });
+    const [displayedColumns, setDisplayedColumns] = useState<any>({ createdAt: false, fullName: !reportForUser, typeTitle: false, cardId: !reportForUser });
     const dateFormat = "YYYY-MM-DD";
     const todayDate = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     // const LastMounth = moment().subtract(1, 'months').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
@@ -44,6 +44,7 @@ const RecordsList = (props: Props) => {
             let preTotal: number = res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0)
 
             const tempRecord: IRecord = { ...res.data[0] }
+            const fullName = res.data[0].user?.subName ? `${res.data[0].user.name} (${res.data[0].user.subName})` : res.data[0].user.name
             const firstRecord = {
                 subTotal: preTotal,
                 amount: '',
@@ -53,7 +54,7 @@ const RecordsList = (props: Props) => {
                 type: tempRecord.type,
                 typeTitle: tempRecord.type?.title,
                 user: tempRecord.user,
-                userName: tempRecord.user?.name,
+                fullName: fullName,
                 cardId: tempRecord.user?.cardId,
                 createdAt: tempRecord.createdAt,
                 deletedAt: tempRecord.deletedAt,
@@ -61,6 +62,7 @@ const RecordsList = (props: Props) => {
 
             const recordsRows = res.data.map((record: IRecord) => {
                 preTotal += record.amount
+                const fullName = record.user?.subName ? `${record.user.name} (${record.user.subName})` : record.user.name
                 return {
                     id: record.id,
                     date: record.date,
@@ -69,7 +71,7 @@ const RecordsList = (props: Props) => {
                     amount: record.amount,
                     notes: record.notes,
                     user: record.user,
-                    userName: record.user?.name,
+                    fullName: fullName,
                     cardId: record.user?.cardId,
                     createdAt: record.createdAt,
                     deletedAt: record.deletedAt,
@@ -125,8 +127,8 @@ const RecordsList = (props: Props) => {
                 width: 100,
                 type: 'number',
                 editable: true,
-                disableColumnMenu: true,
-                sortable: false,
+                // disableColumnMenu: true,
+                // sortable: false,
                 renderCell(params) {
                     return <span style={{ color: params.value < 0 ? 'red' : 'green' }}>{params.value}</span>
                 },
@@ -158,7 +160,7 @@ const RecordsList = (props: Props) => {
                 disableColumnMenu: true,
             },
             {
-                field: 'userName',
+                field: 'fullName',
                 headerName: 'اسم صاحب البطاقة',
                 width: 180,
                 disableColumnMenu: true,
@@ -285,7 +287,7 @@ const RecordsList = (props: Props) => {
                                 <Box sx={{ display: 'flex', gap: '50px' }}>
                                     {
                                     reportForUser && <>
-                                        <p style={{ fontSize: '18px' }}> الاسم : {recordsRows?.[0]?.user?.name}</p>
+                                        <p style={{ fontSize: '18px' }}> الاسم : {recordsRows?.[0]?.user?.fullName}</p>
                                         <p style={{ fontSize: '18px' }}>رقم البطاقة : {recordsRows?.[0]?.user?.cardId}</p>
                                     </>
                                     }
@@ -321,7 +323,7 @@ const RecordsList = (props: Props) => {
                     toolbar: {
                         showQuickFilter: true,
                         printOptions: {
-                            fields: reportForUser ? ['date', 'amount', 'subTotal', 'notes'] : ['date', 'amount', 'subTotal', 'notes', 'userName', 'cardId'],
+                            fields: reportForUser ? ['date', 'amount', 'subTotal', 'notes'] : ['date', 'amount', 'subTotal', 'notes', 'fullName', 'cardId'],
                             hideFooter: true
                         }
                     },

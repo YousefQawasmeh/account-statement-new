@@ -72,6 +72,9 @@ export const createNewUser = async (newUser: any) => {
 export const getUsers = async () => {
     
     const res = await Axios.get(`${API_URL}/users`)
+    res.data.forEach((user: any) => {
+        user.fullName = user.subName ? `${user.name} (${user.subName})` : user.name
+    })
     return res
 }
 

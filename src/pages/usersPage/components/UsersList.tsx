@@ -40,6 +40,12 @@ const UsersList = () => {
                 editable: true,
             },
             {
+                field: 'subName',
+                headerName: 'الاسم الفرعي',
+                width: 170,
+                editable: true,
+            },
+            {
                 field: 'phone',
                 headerName: 'رقم التلفون',
                 sortable: false,
@@ -122,6 +128,7 @@ const UsersList = () => {
                     id: user.id,
                     cardId: user.cardId,
                     name: user.name,
+                    subName: user.subName,
                     phone: user.phone,
                     type: user.type,
                     notes: user.notes,

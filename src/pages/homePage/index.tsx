@@ -154,7 +154,7 @@ const Home = () => {
                 غير موجود، إضغط للإضافة
               </StyledNoOptions>
             }
-            getOptionLabel={(option) => option.name}
+            getOptionLabel={(option) => (option.fullName || option.name || "")}
             size='small'
             fullWidth
             value={selectedUser}
@@ -167,7 +167,7 @@ const Home = () => {
               if (words.length === 0) return options;
             
               return options.filter((option) => {
-                const normalizedName = option.name.toLowerCase();
+                const normalizedName = (option.fullName || option.name || "").toLowerCase();
                 return words.every(word => normalizedName.includes(word));
               });
             }}

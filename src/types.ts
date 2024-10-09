@@ -9,6 +9,8 @@ export type IUser = {
   [x: string]: any;
   total: number;
   name: string;
+  subName?: string;
+  fullName?: string
   phone: string;
   type: UserType;
   notes: string;
