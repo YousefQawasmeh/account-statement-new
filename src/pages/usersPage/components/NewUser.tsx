@@ -167,7 +167,6 @@ const Users = () => {
             fullWidth
             placeholder='الاسم الفرعي'
             autoFocus
-            required
             autoComplete="off"
             name="subName"
           />

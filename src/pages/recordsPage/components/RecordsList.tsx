@@ -18,7 +18,14 @@ const RecordsList = (props: Props) => {
     const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
     const { filters } = props || {}
     const reportForUser = Object.keys(filters).length > 0
-    const [displayedColumns, setDisplayedColumns] = useState<any>({ createdAt: false, fullName: !reportForUser, typeTitle: false, cardId: !reportForUser });
+    const [displayedColumns, setDisplayedColumns] = useState<any>({
+        createdAt: false,
+        fullName: !reportForUser,
+        typeTitle: false,
+        cardId: !reportForUser,
+        subTotal: !!reportForUser,
+        '': false
+    });
     const dateFormat = "YYYY-MM-DD";
     const todayDate = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     // const LastMounth = moment().subtract(1, 'months').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
@@ -45,6 +52,7 @@ const RecordsList = (props: Props) => {
 
             const tempRecord: IRecord = { ...res.data[0] }
             const fullName = res.data[0].user?.subName ? `${res.data[0].user.name} (${res.data[0].user.subName})` : res.data[0].user.name
+            tempRecord.user.fullName = fullName
             const firstRecord = {
                 subTotal: preTotal,
                 amount: '',
@@ -148,7 +156,7 @@ const RecordsList = (props: Props) => {
             {
                 field: 'notes',
                 headerName: 'ملاحظات',
-                width: 180,
+                width: 400,
                 editable: true,
                 sortable: false,
                 disableColumnMenu: true,
@@ -248,7 +256,7 @@ const RecordsList = (props: Props) => {
                     toolbar: (props) => {
                         // const recordsTotal = recordsRows?.reduce((total, record) => total + +record.amount, 0)
                         return <>
-                            <Box sx={{ textAlign: 'left', paddingLeft: '10px' }}>
+                            <Box sx={{ textAlign: 'left', padding: '0 10px' }}>
                                 <Box
                                     sx={
                                         {
@@ -288,10 +296,11 @@ const RecordsList = (props: Props) => {
                                     {
                                     reportForUser && <>
                                         <p style={{ fontSize: '18px' }}> الاسم : {recordsRows?.[0]?.user?.fullName}</p>
+                                        <p style={{ fontSize: '18px' }}>رقم التلفون : {recordsRows?.[0]?.user?.phone}</p>
                                         <p style={{ fontSize: '18px' }}>رقم البطاقة : {recordsRows?.[0]?.user?.cardId}</p>
+                                        <p style={{ fontSize: '18px' }}>المجموع  : {recordsRows?.[0]?.user?.total}</p>
                                     </>
                                     }
-                                    <p style={{ fontSize: '18px' }}>المجموع  : {recordsRows?.[0]?.user?.total}</p>
                                 </Box>
                                 {
                                 /* {
