@@ -4,7 +4,7 @@ import { DataGrid, GridColDef, GridDeleteIcon, GridToolbar } from '@mui/x-data-g
 
 import { IRecord } from "../../../types.ts";
 import { deleteRecordById, getRecords, updateRecordById } from "../../../apis/record.ts";
-import { Button, IconButton, TextField, Typography } from "@mui/material";
+import { IconButton, TextField, Typography } from "@mui/material";
 import DeleteDialog from "./DeleteDialog.tsx";
 import ChecksTable from "../../../components/sharedComponents/ChecksTable.tsx";
 import moment from "moment";
