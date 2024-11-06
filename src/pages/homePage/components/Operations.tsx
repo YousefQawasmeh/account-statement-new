@@ -1,13 +1,12 @@
-import React, { useRef, useEffect } from "react";
-// import React, { /useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
     Box,
     Button,
-    // Card,
-    // Chip,
     TextField,
-    // Typography,
 } from "@mui/material";
+import CheckForm from "./CheckForm";
+import { getBanks } from "../../../apis/bank";
+import { IBank } from "../../../types.ts";
 
 type ButtonType = {
     label: string;
@@ -72,8 +71,22 @@ const styles = {
         },
     }
 }
-// const Operations = ({createNewRecord}:  {createNewRecord: (data: any)=>void}) => {
-const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId: number, onSubmit: any, values: any, setValues: React.Dispatch<React.SetStateAction<any>> }) => {
+
+type OperationsProps = {
+    values: any;
+    setValues: React.Dispatch<React.SetStateAction<any>>;
+    onSubmit: any;
+    autoFocusId: number;
+}
+
+const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProps) => {
+    const [banks, setBanks] = useState<IBank[]>([]);
+    useEffect(() => {
+        getBanks().then((res: any) => {
+            setBanks(res.data)
+        }).catch(err => alert(err.message || err))
+    }, [])
+
     const inputRef = useRef()
     useEffect(() => {
         const inputElm: any = inputRef.current;
@@ -82,6 +95,34 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
 
     const onInputChange = (e: any) => {
         setValues({ ...values, [e.target.name]: e.target.value })
+    }
+
+    const handleDeleteCheck = (checkIndexToDelete: number) => {
+        onInputChange({
+            target: {
+                name: "checks", value: values?.checks?.filter((_: any, index: any) => index !== checkIndexToDelete)
+            }
+        })
+    }
+
+    const setCheckDetails = (checkDetails: any, checkIndex: number) => {
+        onInputChange({
+            target: {
+                name: "checks", value: values?.checks?.map((check: any, index: number) => index === checkIndex ? checkDetails : check)
+            }
+        })
+    }
+
+    const createNewCheck = () => {
+        onInputChange({
+            target: {
+                name: "checks", value: [...(values?.checks || []), {
+                    checkNumber: '',
+                    amount: '',
+                    dueDate: ''
+                }]
+            }
+        })
     }
 
     return (
@@ -112,7 +153,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                     onSubmit={(e) => onSubmit(e, {
                                         type: button.id,
                                         amount: +values[button.id] * button.value,
-                                        notes: values?.notes //|| button.label
                                     })}
                                     name={button.id.toString()}
                                     style={{ display: "flex" }}
@@ -126,8 +166,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                         {button.label}
                                     </Button>
                                     <TextField
-                                        // type="number"
-                                        // step="0.01"
                                         inputRef={autoFocusId === button.id ? inputRef : null}
                                         autoComplete={"off"}
                                         value={(values[button.id]) || ""}
@@ -159,7 +197,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                     onSubmit={(e) => onSubmit(e, {
                                         type: button.id,
                                         amount: values[button.id] * button.value,
-                                        notes: values?.notes //|| button.label
                                     })}
                                     name={button.id.toString()}
                                     style={{ display: "flex" }}
@@ -173,8 +210,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                         {button.label}
                                     </Button>
                                     <TextField
-                                        // type="number"
-                                        // step="0.01"
                                         inputRef={autoFocusId === button.id ? inputRef : null}
                                         autoComplete={"off"}
                                         value={(values[button.id]) || ""}
@@ -189,17 +224,34 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                         })}
                     </>
                 </Box>
-
             </Box>
-            <TextField
-                autoComplete={"off"}
-                value={values["notes"] || ""}
-                onChange={onInputChange}
-                size='small'
-                fullWidth
-                placeholder='ملاحظات ...'
-                name="notes"
-            />
+
+            <Box sx={{ display: "flex" }} >
+                <TextField
+                    autoComplete={"off"}
+                    value={values["notes"] || ""}
+                    onChange={onInputChange}
+                    size='small'
+                    fullWidth
+                    placeholder='ملاحظات ...'
+                    name="notes"
+                />
+                <Button sx={{ minWidth: "100px", mr: "8px" }} onClick={createNewCheck} >
+                    إضافة شيك
+                </Button>
+            </Box>
+            <Box sx={{ mt: 4, display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "space-between" }}>
+                {values?.checks?.map && values.checks?.map((checkDetails: any, i: number) =>
+                    <CheckForm
+                        key={i}
+                        checkDetails={checkDetails}
+                        setCheckDetails={(checkDetails: any) => setCheckDetails(checkDetails, i)}
+                        handleDelete={() => handleDeleteCheck(i)}
+                        banks={banks}
+                    />
+                )
+                }
+            </Box>
         </>
     )
 

@@ -22,6 +22,23 @@ export type IUsers = {
   [key: string]: IUser;
 };
 
+export type ICheck = {
+  record: IRecord;
+  id: number;
+  bank: IBank;
+  checkNumber?: string;
+  amount: number;
+  dueDate: string;
+  available: boolean;
+  deletedAt: string;
+  updatedAt: string;
+}
+
+export type IBank = {
+  id: number;
+  name: string;
+}
+
 export type IRecord = {
   id: string;
   user: IUser;
@@ -32,4 +49,5 @@ export type IRecord = {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  checks?: ICheck[]
 }

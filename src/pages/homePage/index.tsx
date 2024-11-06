@@ -77,16 +77,16 @@ const Home = () => {
   const onSubmit = (e: any, data: {
     type: number
     amount: number
-    notes: string
   }) => {
     e.preventDefault();
-    const { type, amount, notes } = data
+    const { type, amount } = data
     createNewRecord({
       user: selectedUser?.id,
       date: dateString,
       type,
       amount,
-      notes,
+      notes: values?.notes,
+      checks: values?.checks
     }).then(() => {
       if (!selectedUser?.cardId) return
       setUsers({ ...users, [selectedUser?.cardId]: { ...selectedUser, total: selectedUser?.total + amount } })
@@ -146,43 +146,43 @@ const Home = () => {
           <Typography variant='body1' sx={{ mr: "8px" }}>
             الاسم :
           </Typography>
-          <Autocomplete
-            disablePortal
-            options={Object.values(users || {})}
-            noOptionsText={
-              <StyledNoOptions onClick={() => navigate(`/account-statement-new/users?name=${searchName}`)}>
-                غير موجود، إضغط للإضافة
-              </StyledNoOptions>
-            }
-            getOptionLabel={(option) => (option.fullName || option.name || "")}
-            size='small'
-            fullWidth
-            value={selectedUser}
-            onChange={(_, value) => {
-              setSelectedUser(value || null);
-              setCardId((value?.cardId || "").toString());
-            }}
-            filterOptions={(options, { inputValue }) => {
-              const words = inputValue.toLowerCase().split(" ").filter(Boolean);
-              if (words.length === 0) return options;
-            
-              return options.filter((option) => {
-                const normalizedName = (option.fullName || option.name || "").toLowerCase();
-                return words.every(word => normalizedName.includes(word));
-              });
-            }}
-            
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="الاسم"
-                onChange={(e) => {
-                  setSearchName(e.target.value);
-                  // You can also call setSelectedUser here if needed to reset selection
-                }}
-              />
-            )}
-          />
+            <Autocomplete
+              disablePortal
+              options={Object.values(users || {})}
+              noOptionsText={
+                <StyledNoOptions onClick={() => navigate(`/account-statement-new/users?name=${searchName}`)}>
+                  غير موجود، إضغط للإضافة
+                </StyledNoOptions>
+              }
+              getOptionLabel={(option) => (option.fullName || option.name || "")}
+              size='small'
+              fullWidth
+              value={selectedUser}
+              onChange={(_, value) => {
+                setSelectedUser(value || null);
+                setCardId((value?.cardId || "").toString());
+              }}
+              filterOptions={(options, { inputValue }) => {
+                const words = inputValue.toLowerCase().split(" ").filter(Boolean);
+                if (words.length === 0) return options;
+              
+                return options.filter((option) => {
+                  const normalizedName = (option.fullName || option.name || "").toLowerCase();
+                  return words.every(word => normalizedName.includes(word));
+                });
+              }}
+              
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="الاسم"
+                  onChange={(e) => {
+                    setSearchName(e.target.value);
+                    // You can also call setSelectedUser here if needed to reset selection
+                  }}
+                />
+              )}
+            />
 
           {/* <TextField
             value={selectedUser?.name || ""}

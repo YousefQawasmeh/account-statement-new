@@ -4,8 +4,9 @@ import { DataGrid, GridColDef, GridDeleteIcon, GridToolbar } from '@mui/x-data-g
 
 import { IRecord } from "../../../types.ts";
 import { deleteRecordById, getRecords, updateRecordById } from "../../../apis/record.ts";
-import { IconButton, TextField, Typography } from "@mui/material";
+import { Button, IconButton, TextField, Typography } from "@mui/material";
 import DeleteDialog from "./DeleteDialog.tsx";
+import ChecksTable from "../../../components/sharedComponents/ChecksTable.tsx";
 import moment from "moment";
 
 type Props = {
@@ -32,20 +33,6 @@ const RecordsList = (props: Props) => {
     const lastYear = moment().subtract(1, 'years').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     const [dateStringFrom, setDateStringFrom] = useState<string>((reportForUser ? lastYear : todayDate).format(dateFormat));
     const [dateStringTo, setDateStringTo] = useState<string>(todayDate.format(dateFormat));
-    useEffect(() => {
-        // const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
-        // Array.from(elements).forEach((element: any) => {
-        //     if (element?.innerText) {
-        //         // element.innerText = "عدد الصفوف بالصفحة"
-        //     }
-        // });
-        const elements2 = document.getElementsByClassName("MuiTablePagination-displayedRows");
-        Array.from(elements2).forEach((element: any) => {
-            if (element?.innerText) {
-                element.innerText = element?.innerText.replace("of", "من")
-            }
-        });
-    })
     const getRecordsFromDB = () => {
         getRecords({ ...filters, date: { from: dateStringFrom, to: dateStringTo } }).then((res) => {
             let preTotal: number = res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0)
@@ -83,7 +70,8 @@ const RecordsList = (props: Props) => {
                     cardId: record.user?.cardId,
                     createdAt: record.createdAt,
                     deletedAt: record.deletedAt,
-                    subTotal: preTotal
+                    subTotal: preTotal,
+                    checks: record.checks
 
                 }
             })
@@ -156,10 +144,36 @@ const RecordsList = (props: Props) => {
             {
                 field: 'notes',
                 headerName: 'ملاحظات',
-                width: 400,
-                editable: true,
+                width: 600,
+                editable: false,
                 sortable: false,
                 disableColumnMenu: true,
+                renderCell: (params) => (
+                    <Box>
+                        <Typography
+                            onClick={(e) => {
+                                e.preventDefault();
+                                const target = e.target as HTMLElement;
+                                target.contentEditable = "true";
+                            }}
+                            onKeyDown={(e) => {
+                                const target = e.target as HTMLElement;
+                                if (e.key === 'Enter') {
+                                    target.contentEditable = "false";
+                                    updateRecordById(params.row.id, { notes: target.innerText })
+                                }
+                                if(e.code === 'Space'){
+                                    e.stopPropagation();
+                                }
+                            }}
+                            variant="body2"
+                            sx={{ whiteSpace: 'pre-wrap', py: "2px", minWidth: "200px", "&:focus": { outline: "solid #4caf50 1px"} }}
+                        >
+                            {params.value}
+                        </Typography>
+                        {!!params.row?.checks?.length && <ChecksTable checks={params.row?.checks} />}
+                    </Box>
+                )
             },
             {
                 field: 'cardId',
@@ -234,7 +248,13 @@ const RecordsList = (props: Props) => {
                         },
                         "& .MuiDataGrid-columnHeaders": {
                             backgroundColor: '#4caf5040',
-                        }
+                        },
+                        '& .MuiDataGrid-cell[data-field="notes"]:focus': {
+                            outline: 'none',
+                        },
+                        '& .MuiDataGrid-cell[data-field="notes"]:focus-within': {
+                            outline: 'none',
+                        },
                     }
                 }
                 rows={recordsRows}
@@ -249,6 +269,14 @@ const RecordsList = (props: Props) => {
                         updateRecordById(params.row.id, { [params.field]: value })
                             .catch(err => alert(err.message || err))
                     }
+                }}
+                getRowHeight={(params) => {
+                    const baseHeight = 32;
+                    const row = recordsRows.find((row) => row.id === params.id);
+                    const numberOfChecks = (row?.checks?.length || 0);
+                    // const lines = row?.notes?.split("\n").length || 1;
+                    const lines = Math.ceil((row?.notes?.length ?? 0) / 50) || 1;
+                    return (numberOfChecks ? numberOfChecks + 2 : 0) * 32 + (baseHeight * lines);
                 }}
                 disableRowSelectionOnClick
                 density="compact"
@@ -337,8 +365,11 @@ const RecordsList = (props: Props) => {
                         }
                     },
                     pagination: {
-                        // rowsPerPageOptions: [5, 10, 20, 50, 100],
-                        labelRowsPerPage: 'عدد الحركات في الصفحة',
+                        labelRowsPerPage: 'عدد السجلات في الصفحة',
+                        labelDisplayedRows: (paginationInfo) => {
+                          const { from, to, count } = paginationInfo;
+                          return `${to}-${from} من ${count}`;
+                        },
                     },
 
                 }}
