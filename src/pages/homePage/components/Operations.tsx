@@ -3,11 +3,14 @@ import {
     Box,
     Button,
     Dialog,
+    DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
+    IconButton,
     TextField,
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import CheckForm from "./CheckForm";
 import { getBanks } from "../../../apis/bank";
 import { IBank, ICheck } from "../../../types.ts";
@@ -152,7 +155,9 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
             }
         })
     }
-
+    const handleClose = () => {
+        setOpen(false);
+    }
     return (
         <>
             <Box
@@ -264,12 +269,12 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                     placeholder='ملاحظات ...'
                     name="notes"
                 />
-                <Button sx={{ minWidth: "100px", mr: "8px" }} onClick={()=> setShowChecksSection(!showChecksSection)} >
+                <Button sx={{ minWidth: "100px", mr: "8px" }} onClick={() => setShowChecksSection(!showChecksSection)} >
                     إضافة شيك
                 </Button>
             </Box>
             {
-                (showChecksSection || values?.checks?.length>0) && <Box sx={{ mt: 4, display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "start" }}>
+                (showChecksSection || values?.checks?.length > 0) && <Box sx={{ mt: 4, display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "start" }}>
                     <Button sx={{}} onClick={createNewCheck} >
                         انشاء شيك جديد
                     </Button>
@@ -291,14 +296,38 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                     </Box>
                 </Box>
             }
-            <Dialog open={open} sx={{ "& .MuiPaper-root": { maxWidth: "60%" } }} >
-                <DialogTitle>الشيكات المتوفرة</DialogTitle>
-                <DialogContent>
+            <Dialog open={open} onClose={handleClose} sx={{ "& .MuiPaper-root": { maxWidth: "60%" } }} >
+                <DialogTitle sx={{ m: 0, p: 2 }}>الشيكات المتوفرة</DialogTitle>
+                <IconButton
+                    aria-label="close"
+                    onClick={handleClose}
+                    sx={(theme) => ({
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                        color: theme.palette.grey[500],
+                    })}
+                >
+                    <CloseIcon />
+                </IconButton>
+                <DialogContent dividers>
                     <DialogContentText>
                         قم باختيار الشيك الذي تريده عن طريق الضغط عليه مرتين
                     </DialogContentText>
-                    <ChecksTable checks={availableChecks} columnsHidden={["record", "available", "userName"]} viewOnly onRowDoubleClick={(check: ICheck) => { setCheckDetails(check, values?.checks?.length); setOpen(false) }} />
+                    <ChecksTable
+                        checks={availableChecks}
+                        columnsHidden={["record", "available", "userName"]}
+                        viewOnly
+                        onRowDoubleClick={(check: ICheck) => {
+                            setCheckDetails(check, values?.checks?.length);
+                            setOpen(false)
+                        }} />
                 </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>
+                        الغاء
+                    </Button>
+                </DialogActions>
             </Dialog>
         </>
     )

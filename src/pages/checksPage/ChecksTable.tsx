@@ -56,7 +56,6 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
             type: "number",
             editable: true && !viewOnly,
             width: viewOnly?90:120,
-            // valueFormatter: (params) => params.value.toString(),
             valueFormatter: (params) => (+params.value),
         },
         {
