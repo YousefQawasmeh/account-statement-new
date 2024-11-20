@@ -2,11 +2,17 @@ import React, { useRef, useEffect, useState } from "react";
 import {
     Box,
     Button,
+    Dialog,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
     TextField,
 } from "@mui/material";
 import CheckForm from "./CheckForm";
 import { getBanks } from "../../../apis/bank";
-import { IBank } from "../../../types.ts";
+import { IBank, ICheck } from "../../../types.ts";
+import ChecksTable from "../../checksPage/ChecksTable.tsx";
+import { getChecks } from "../../../apis/check.ts";
 
 type ButtonType = {
     label: string;
@@ -80,8 +86,14 @@ type OperationsProps = {
 }
 
 const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProps) => {
+    const [open, setOpen] = useState<boolean>(false);
+    const [showChecksSection, setShowChecksSection] = useState<boolean>(false);
     const [banks, setBanks] = useState<IBank[]>([]);
+    const [availableChecks, setAvailableChecks] = useState<ICheck[]>([]);
     useEffect(() => {
+        getChecks().then((res: any) => {
+            setAvailableChecks(res.data?.filter((check: any) => check.available))
+        }).catch(err => alert(err.message || err))
         getBanks().then((res: any) => {
             setBanks(res.data)
         }).catch(err => alert(err.message || err))
@@ -98,29 +110,45 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
     }
 
     const handleDeleteCheck = (checkIndexToDelete: number) => {
+        const newChecks = [...values?.checks].filter((_: any, index: any) => index !== checkIndexToDelete)
         onInputChange({
             target: {
-                name: "checks", value: values?.checks?.filter((_: any, index: any) => index !== checkIndexToDelete)
+                name: "checks", value: [...newChecks]
             }
         })
     }
 
     const setCheckDetails = (checkDetails: any, checkIndex: number) => {
-        onInputChange({
-            target: {
-                name: "checks", value: values?.checks?.map((check: any, index: number) => index === checkIndex ? checkDetails : check)
-            }
-        })
+        if (checkIndex === values.checks?.length) {
+            onInputChange({
+                target: {
+                    name: "checks", value: [...(values?.checks || []), { ...checkDetails }]
+                }
+            })
+        }
+        else {
+
+            onInputChange({
+                target: {
+                    name: "checks", value: values?.checks?.map((check: any, index: number) => index === checkIndex ? checkDetails : check)
+                }
+            })
+        }
     }
 
     const createNewCheck = () => {
         onInputChange({
             target: {
-                name: "checks", value: [...(values?.checks || []), {
-                    checkNumber: '',
-                    amount: '',
-                    dueDate: ''
-                }]
+                name: "checks",
+                value: [
+                    ...(values?.checks || []),
+                    {
+                        checkNumber: '',
+                        amount: '',
+                        dueDate: '',
+                        bankId: null,
+                        notes: '',
+                    }]
             }
         })
     }
@@ -236,22 +264,42 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                     placeholder='ملاحظات ...'
                     name="notes"
                 />
-                <Button sx={{ minWidth: "100px", mr: "8px" }} onClick={createNewCheck} >
+                <Button sx={{ minWidth: "100px", mr: "8px" }} onClick={()=> setShowChecksSection(!showChecksSection)} >
                     إضافة شيك
                 </Button>
             </Box>
-            <Box sx={{ mt: 4, display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "space-between" }}>
-                {values?.checks?.map && values.checks?.map((checkDetails: any, i: number) =>
-                    <CheckForm
-                        key={i}
-                        checkDetails={checkDetails}
-                        setCheckDetails={(checkDetails: any) => setCheckDetails(checkDetails, i)}
-                        handleDelete={() => handleDeleteCheck(i)}
-                        banks={banks}
-                    />
-                )
-                }
-            </Box>
+            {
+                (showChecksSection || values?.checks?.length>0) && <Box sx={{ mt: 4, display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "start" }}>
+                    <Button sx={{}} onClick={createNewCheck} >
+                        انشاء شيك جديد
+                    </Button>
+                    <Button sx={{}} onClick={() => setOpen(true)} >
+                        اختيار شيك موجود
+                    </Button>
+                    <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "space-between" }}>
+                        {values?.checks?.map && values.checks?.map((checkDetails: any, i: number) =>
+                            <CheckForm
+                                key={`${checkDetails?.id}-${i}`}
+                                checkDetails={checkDetails}
+                                setCheckDetails={(checkDetails: any) => setCheckDetails(checkDetails, i)}
+                                handleDelete={() => handleDeleteCheck(i)}
+                                banks={banks}
+                                viewOnly={!!checkDetails?.id}
+                            />
+                        )
+                        }
+                    </Box>
+                </Box>
+            }
+            <Dialog open={open} sx={{ "& .MuiPaper-root": { maxWidth: "60%" } }} >
+                <DialogTitle>الشيكات المتوفرة</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        قم باختيار الشيك الذي تريده عن طريق الضغط عليه مرتين
+                    </DialogContentText>
+                    <ChecksTable checks={availableChecks} columnsHidden={["record", "available", "userName"]} viewOnly onRowDoubleClick={(check: ICheck) => { setCheckDetails(check, values?.checks?.length); setOpen(false) }} />
+                </DialogContent>
+            </Dialog>
         </>
     )
 
