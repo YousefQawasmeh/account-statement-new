@@ -9,6 +9,11 @@ export const getChecks = async () => {
     return res
 }
 
+export const getAvailableChecks = async () => {
+    const res = await Axios.get(`${API_URL}/checks?available=true`)
+    return res
+}
+
 export const createNewCheck = async (newCheck: any) => {
     const res = await Axios.post(`${API_URL}/checks`, newCheck)
     return res

@@ -15,7 +15,7 @@ import CheckForm from "./CheckForm";
 import { getBanks } from "../../../apis/bank";
 import { IBank, ICheck } from "../../../types.ts";
 import ChecksTable from "../../checksPage/ChecksTable.tsx";
-import { getChecks } from "../../../apis/check.ts";
+import { getAvailableChecks } from "../../../apis/check.ts";
 
 type ButtonType = {
     label: string;
@@ -93,14 +93,20 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
     const [showChecksSection, setShowChecksSection] = useState<boolean>(false);
     const [banks, setBanks] = useState<IBank[]>([]);
     const [availableChecks, setAvailableChecks] = useState<ICheck[]>([]);
+
+    const updateChecksFromDB = () => getAvailableChecks().then((res: any) => setAvailableChecks(res.data?.filter((check: any) => check.available))).catch(err => alert(err.message || err))
+    const updateBanksFromDB = () => getBanks().then((res: any) => setBanks(res.data)).catch(err => alert(err.message || err))
+
     useEffect(() => {
-        getChecks().then((res: any) => {
-            setAvailableChecks(res.data?.filter((check: any) => check.available))
-        }).catch(err => alert(err.message || err))
-        getBanks().then((res: any) => {
-            setBanks(res.data)
-        }).catch(err => alert(err.message || err))
+        updateChecksFromDB()
+        updateBanksFromDB()
     }, [])
+
+    useEffect(() => {
+        if (!values?.checks?.length){
+        updateChecksFromDB()
+    }
+    }, [values?.checks?.length])
 
     const inputRef = useRef()
     useEffect(() => {
@@ -311,17 +317,21 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                     <CloseIcon />
                 </IconButton>
                 <DialogContent dividers>
-                    <DialogContentText>
-                        قم باختيار الشيك الذي تريده عن طريق الضغط عليه مرتين
-                    </DialogContentText>
-                    <ChecksTable
-                        checks={availableChecks}
-                        columnsHidden={["record", "available", "userName"]}
-                        viewOnly
-                        onRowDoubleClick={(check: ICheck) => {
-                            setCheckDetails(check, values?.checks?.length);
-                            setOpen(false)
-                        }} />
+                    {availableChecks.length > 0 ? <>
+                        <DialogContentText>
+                            قم باختيار الشيك الذي تريده عن طريق الضغط عليه مرتين
+                        </DialogContentText>
+                        <ChecksTable
+                            checks={availableChecks}
+                            columnsHidden={["resceivedDate", "deliveredDate", "available", "userNameTo"]}
+                            viewOnly
+                            onRowDoubleClick={(check: ICheck) => {
+                                setCheckDetails(check, values?.checks?.length);
+                                setOpen(false)
+                            }} />
+                    </>
+                        : <DialogContentText sx={{ textAlign: "center", width: "300px" }}>لا يوجد شيكات متوفرة حاليا</DialogContentText>
+                    }
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>

@@ -1,4 +1,4 @@
-import { Box, Switch } from "@mui/material";
+import { Box, Switch, Typography } from "@mui/material";
 import { DataGrid, GridToolbarQuickFilter, GridToolbarContainer, GridToolbarExport, GridToolbarColumnsButton, GridColDef } from '@mui/x-data-grid';
 import { ICheck } from "../../types.ts";
 import { updateCheckById } from "../../apis/check.ts";
@@ -20,8 +20,10 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
         "dueDate": true,
         "amount": true,
         "notes": true,
-        "userName": true,
-        "record": true,
+        "userNameFrom": true,
+        "userNameTo": true,
+        "resceivedDate": false,
+        "deliveredDate": false,
         "available": true,
     });
     const columns: GridColDef[] = ([
@@ -29,17 +31,17 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
             field: "bank",
             headerName: "اسم البنك",
             valueGetter: (params) => params.value?.name,
-            width: viewOnly?150:200,
+            width: viewOnly ? 150 : 180,
             sortable: true,
             disableColumnMenu: true
         }, {
             field: "checkNumber",
             headerName: "رقم الشيك",
-            type: "number",
             editable: true && !viewOnly,
-            width: viewOnly?100:150,
+            width: viewOnly ? 100 : 100,
             sortable: false,
-            disableColumnMenu: true
+            disableColumnMenu: true,
+            renderCell: (params) => <Typography variant="body2" sx={{ width: "100%", textAlign: "end" }}>{params.value}</Typography>
         },
         {
             field: "dueDate",
@@ -47,7 +49,7 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
             type: "date",
             editable: true && !viewOnly,
             disableColumnMenu: true,
-            width: viewOnly?100:125,
+            width: viewOnly ? 100 : 100,
             valueFormatter(params) { return moment(params.value)?.format("YYYY-MM-DD"); }
         },
         {
@@ -55,7 +57,7 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
             headerName: "المبلغ",
             type: "number",
             editable: true && !viewOnly,
-            width: viewOnly?90:120,
+            width: viewOnly ? 90 : 90,
             valueFormatter: (params) => (+params.value),
         },
         {
@@ -66,17 +68,34 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
             disableColumnMenu: true
         },
         {
-            field: "userName",
-            headerName: "اسم الزبون",
-            valueGetter: (params) => params.row?.record?.user?.subName ? `${params.row?.record?.user?.name} (${params.row?.record?.user?.subName})` : params.row?.record?.user?.name,
-            width: 180,
+            field: "userNameFrom",
+            headerName: "مُسْتَلَم من",
+            valueGetter: (params) => params.row?.fromRecord?.user?.subName ? `${params.row?.fromRecord?.user?.name} (${params.row?.fromRecord?.user?.subName})` : params.row?.fromRecord?.user?.name,
+            width: 125,
             sortable: false,
             disableColumnMenu: true
         },
         {
-            field: "record",
+            field: "userNameTo",
+            headerName: "مُسَلَّم الى",
+            valueGetter: (params) => params.row?.toRecord?.user?.subName ? `${params.row?.toRecord?.user?.name} (${params.row?.toRecord?.user?.subName})` : params.row?.toRecord?.user?.name,
+            width: 125,
+            sortable: false,
+            disableColumnMenu: true
+        },
+        {
+            field: "resceivedDate",
+            type: "date",
             headerName: "تاريخ الاستلام",
-            valueGetter: (params) => moment(params.value?.date).format("YYYY-MM-DD"),
+            valueGetter: (params) => new Date(params.row?.fromRecord?.date),
+            valueFormatter: (params) => moment(params.value).format("YYYY-MM-DD"),
+        },
+        {
+            field: "deliveredDate",
+            type: "date",
+            headerName: "تاريخ التسليم",
+            valueGetter: (params) => new Date(params.row?.toRecord?.date),
+            valueFormatter: (params) => moment(params.value).format("YYYY-MM-DD"),
         },
         {
             field: "available",
