@@ -5,7 +5,7 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import { HomePage, UsersPage, RecordsPage } from "./pages";
+import { HomePage, UsersPage, RecordsPage, ChecksPage } from "./pages";
 import { Link } from "react-router-dom";
 import './App.css'
 
@@ -76,6 +76,10 @@ const router = createBrowserRouter([
     path: "/records",
     element: <RecordsPage />,
   },
+  {
+    path: "/checks",
+    element: <ChecksPage />,
+  },
   // {
   //   path: "/users/new",
   //   element: <Users />,
@@ -107,6 +111,10 @@ const router = createBrowserRouter([
   {
     path: "/account-statement-new/records",
     element: <RecordsPage />,
+  },
+  {
+    path: "/account-statement-new/checks",
+    element: <ChecksPage />,
   },
   {
     path: "/usersTypes",

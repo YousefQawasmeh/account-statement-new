@@ -1,13 +1,21 @@
-import React, { useRef, useEffect } from "react";
-// import React, { /useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
     Box,
     Button,
-    // Card,
-    // Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    IconButton,
     TextField,
-    // Typography,
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
+import CheckForm from "./CheckForm";
+import { getBanks } from "../../../apis/bank";
+import { IBank, ICheck } from "../../../types.ts";
+import ChecksTable from "../../checksPage/ChecksTable.tsx";
+import { getAvailableChecks } from "../../../apis/check.ts";
 
 type ButtonType = {
     label: string;
@@ -72,8 +80,34 @@ const styles = {
         },
     }
 }
-// const Operations = ({createNewRecord}:  {createNewRecord: (data: any)=>void}) => {
-const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId: number, onSubmit: any, values: any, setValues: React.Dispatch<React.SetStateAction<any>> }) => {
+
+type OperationsProps = {
+    values: any;
+    setValues: React.Dispatch<React.SetStateAction<any>>;
+    onSubmit: any;
+    autoFocusId: number;
+}
+
+const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProps) => {
+    const [open, setOpen] = useState<boolean>(false);
+    const [showChecksSection, setShowChecksSection] = useState<boolean>(false);
+    const [banks, setBanks] = useState<IBank[]>([]);
+    const [availableChecks, setAvailableChecks] = useState<ICheck[]>([]);
+
+    const updateChecksFromDB = () => getAvailableChecks().then((res: any) => setAvailableChecks(res.data?.filter((check: any) => check.available))).catch(err => alert(err.message || err))
+    const updateBanksFromDB = () => getBanks().then((res: any) => setBanks(res.data)).catch(err => alert(err.message || err))
+
+    useEffect(() => {
+        updateChecksFromDB()
+        updateBanksFromDB()
+    }, [])
+
+    useEffect(() => {
+        if (!values?.checks?.length){
+        updateChecksFromDB()
+    }
+    }, [values?.checks?.length])
+
     const inputRef = useRef()
     useEffect(() => {
         const inputElm: any = inputRef.current;
@@ -84,6 +118,52 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
         setValues({ ...values, [e.target.name]: e.target.value })
     }
 
+    const handleDeleteCheck = (checkIndexToDelete: number) => {
+        const newChecks = [...values?.checks].filter((_: any, index: any) => index !== checkIndexToDelete)
+        onInputChange({
+            target: {
+                name: "checks", value: [...newChecks]
+            }
+        })
+    }
+
+    const setCheckDetails = (checkDetails: any, checkIndex: number) => {
+        if (checkIndex === values.checks?.length) {
+            onInputChange({
+                target: {
+                    name: "checks", value: [...(values?.checks || []), { ...checkDetails }]
+                }
+            })
+        }
+        else {
+
+            onInputChange({
+                target: {
+                    name: "checks", value: values?.checks?.map((check: any, index: number) => index === checkIndex ? checkDetails : check)
+                }
+            })
+        }
+    }
+
+    const createNewCheck = () => {
+        onInputChange({
+            target: {
+                name: "checks",
+                value: [
+                    ...(values?.checks || []),
+                    {
+                        checkNumber: '',
+                        amount: '',
+                        dueDate: '',
+                        bankId: null,
+                        notes: '',
+                    }]
+            }
+        })
+    }
+    const handleClose = () => {
+        setOpen(false);
+    }
     return (
         <>
             <Box
@@ -112,7 +192,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                     onSubmit={(e) => onSubmit(e, {
                                         type: button.id,
                                         amount: +values[button.id] * button.value,
-                                        notes: values?.notes //|| button.label
                                     })}
                                     name={button.id.toString()}
                                     style={{ display: "flex" }}
@@ -126,8 +205,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                         {button.label}
                                     </Button>
                                     <TextField
-                                        // type="number"
-                                        // step="0.01"
                                         inputRef={autoFocusId === button.id ? inputRef : null}
                                         autoComplete={"off"}
                                         value={(values[button.id]) || ""}
@@ -159,7 +236,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                     onSubmit={(e) => onSubmit(e, {
                                         type: button.id,
                                         amount: values[button.id] * button.value,
-                                        notes: values?.notes //|| button.label
                                     })}
                                     name={button.id.toString()}
                                     style={{ display: "flex" }}
@@ -173,8 +249,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                                         {button.label}
                                     </Button>
                                     <TextField
-                                        // type="number"
-                                        // step="0.01"
                                         inputRef={autoFocusId === button.id ? inputRef : null}
                                         autoComplete={"off"}
                                         value={(values[button.id]) || ""}
@@ -189,17 +263,82 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: { autoFocusId:
                         })}
                     </>
                 </Box>
-
             </Box>
-            <TextField
-                autoComplete={"off"}
-                value={values["notes"] || ""}
-                onChange={onInputChange}
-                size='small'
-                fullWidth
-                placeholder='ملاحظات ...'
-                name="notes"
-            />
+
+            <Box sx={{ display: "flex" }} >
+                <TextField
+                    autoComplete={"off"}
+                    value={values["notes"] || ""}
+                    onChange={onInputChange}
+                    size='small'
+                    fullWidth
+                    placeholder='ملاحظات ...'
+                    name="notes"
+                />
+                <Button sx={{ minWidth: "100px", mr: "8px" }} onClick={() => setShowChecksSection(!showChecksSection)} >
+                    إضافة شيك
+                </Button>
+            </Box>
+            {
+                (showChecksSection || values?.checks?.length > 0) && <Box sx={{ mt: 4, display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "start" }}>
+                    <Button sx={{}} onClick={createNewCheck} >
+                        انشاء شيك جديد
+                    </Button>
+                    <Button sx={{}} onClick={() => setOpen(true)} >
+                        اختيار شيك موجود
+                    </Button>
+                    <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "space-between" }}>
+                        {values?.checks?.map && values.checks?.map((checkDetails: any, i: number) =>
+                            <CheckForm
+                                key={`${checkDetails?.id}-${i}`}
+                                checkDetails={checkDetails}
+                                setCheckDetails={(checkDetails: any) => setCheckDetails(checkDetails, i)}
+                                handleDelete={() => handleDeleteCheck(i)}
+                                banks={banks}
+                                viewOnly={!!checkDetails?.id}
+                            />
+                        )
+                        }
+                    </Box>
+                </Box>
+            }
+            <Dialog open={open} onClose={handleClose} sx={{ "& .MuiPaper-root": { maxWidth: "60%" } }} >
+                <DialogTitle sx={{ m: 0, p: 2 }}>الشيكات المتوفرة</DialogTitle>
+                <IconButton
+                    aria-label="close"
+                    onClick={handleClose}
+                    sx={(theme) => ({
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                        color: theme.palette.grey[500],
+                    })}
+                >
+                    <CloseIcon />
+                </IconButton>
+                <DialogContent dividers>
+                    {availableChecks.length > 0 ? <>
+                        <DialogContentText>
+                            قم باختيار الشيك الذي تريده عن طريق الضغط عليه مرتين
+                        </DialogContentText>
+                        <ChecksTable
+                            checks={availableChecks}
+                            columnsHidden={["resceivedDate", "deliveredDate", "available", "userNameTo"]}
+                            viewOnly
+                            onRowDoubleClick={(check: ICheck) => {
+                                setCheckDetails(check, values?.checks?.length);
+                                setOpen(false)
+                            }} />
+                    </>
+                        : <DialogContentText sx={{ textAlign: "center", width: "300px" }}>لا يوجد شيكات متوفرة حاليا</DialogContentText>
+                    }
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>
+                        الغاء
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 
