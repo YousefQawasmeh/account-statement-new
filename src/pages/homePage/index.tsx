@@ -39,7 +39,7 @@ const styles = {
 };
 
 const StyledNoOptions = styled(Typography)`
-  padding: 5px;
+  padding: 8px;
   margin: -5px;
   text-align: center;
   &:hover {
@@ -103,49 +103,49 @@ const Home = () => {
   }, [cardId, users]);
 
   return (
-    <Card sx={{ maxWidth: "850px", bgcolor: "#f9f9f9", padding: "50px" }}>
-      <Box sx={styles.flex}>
-        <Typography variant='body1' sx={{ mr: "8px" }}>
-          رقم البطاقة :
-        </Typography>
-        <TextField
-          autoComplete={"off"}
-          // autoFocus={false}
-          // focused={false}
-          // disabled={selectedUser?.name.length > 0}
-          size='small'
-          fullWidth
-          placeholder='رقم البطاقة ...'
-          type='search'
-          // value={123}
-          value={cardId}
-          onChange={(e) => {
-            setCardId(e.target.value);
-          }}
-        />
-        <Chip
-          variant='outlined'
-          sx={{ ...styles.chip, opacity: selectedUser?.type === 1 ? 1 : 0.3 }}
-          label='زبون'
-        />
-        <Chip
-          variant='outlined'
-          sx={{ ...styles.chip, opacity: selectedUser?.type === 2 ? 1 : 0.3 }}
-          label='تاجر'
-        />
-      </Box>
-
-      <Box
-        sx={{
-          ...styles.flex,
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-        }}
-      >
-        <Box sx={{ ...styles.flex, width: "45%" }}>
+      <Card sx={{ maxWidth: "850px", bgcolor: "#f9f9f9", padding: "50px" }}>
+        <Box sx={styles.flex}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
-            الاسم :
+            رقم البطاقة :
           </Typography>
+          <TextField
+            autoComplete={"off"}
+            // autoFocus={false}
+            // focused={false}
+            // disabled={selectedUser?.name.length > 0}
+            size='small'
+            fullWidth
+            placeholder='رقم البطاقة ...'
+            type='search'
+            // value={123}
+            value={cardId}
+            onChange={(e) => {
+              setCardId(e.target.value);
+            }}
+          />
+          <Chip
+            variant='outlined'
+            sx={{ ...styles.chip, opacity: selectedUser?.type === 1 ? 1 : 0.3 }}
+            label='زبون'
+          />
+          <Chip
+            variant='outlined'
+            sx={{ ...styles.chip, opacity: selectedUser?.type === 2 ? 1 : 0.3 }}
+            label='تاجر'
+          />
+        </Box>
+
+        <Box
+          sx={{
+            ...styles.flex,
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ ...styles.flex, width: "45%" }}>
+            <Typography variant='body1' sx={{ mr: "8px" }}>
+              الاسم :
+            </Typography>
             <Autocomplete
               disablePortal
               options={Object.values(users || {})}
@@ -165,13 +165,13 @@ const Home = () => {
               filterOptions={(options, { inputValue }) => {
                 const words = inputValue.toLowerCase().split(" ").filter(Boolean);
                 if (words.length === 0) return options;
-              
+
                 return options.filter((option) => {
                   const normalizedName = (option.fullName || option.name || "").toLowerCase();
                   return words.every(word => normalizedName.includes(word));
                 });
               }}
-              
+
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -184,89 +184,89 @@ const Home = () => {
               )}
             />
 
-          {/* <TextField
+            {/* <TextField
             value={selectedUser?.name || ""}
             size='small'
             fullWidth
             placeholder='الاسم'
           /> */}
-        </Box>
+          </Box>
 
-        <Box sx={{ ...styles.flex, width: "45%" }}>
-          <Typography variant='body1' sx={{ mr: "8px" }}>
-            رقم التلفون :
-          </Typography>
-          <Autocomplete
-            disablePortal
-            options={Object.values(users || {})}
-            noOptionsText={<StyledNoOptions
-              onClick={() => navigate(`/account-statement-new/users?phone=${searchPhoneNo}`)} >
-              غير موجود، إضغط للإضافة
-            </StyledNoOptions>}
-            // noOptionsText="لا يوجد رقم مشابه"
-            getOptionLabel={(option) => option.phone}
-            size='small'
-            fullWidth
-            value={selectedUser}
-            onChange={(_, value) => {
-              setSelectedUser(value || null)
-              setCardId((value?.cardId || "").toString())
-            }
-            }
-            renderInput={(params) => <TextField onChange={(e) => setSearchPhoneNo(e.target.value)} {...params} label="رقم التلفون" />}
-          />
-        </Box>
+          <Box sx={{ ...styles.flex, width: "45%" }}>
+            <Typography variant='body1' sx={{ mr: "8px" }}>
+              رقم التلفون :
+            </Typography>
+            <Autocomplete
+              disablePortal
+              options={Object.values(users || {})}
+              noOptionsText={<StyledNoOptions
+                onClick={() => navigate(`/account-statement-new/users?phone=${searchPhoneNo}`)} >
+                غير موجود، إضغط للإضافة
+              </StyledNoOptions>}
+              // noOptionsText="لا يوجد رقم مشابه"
+              getOptionLabel={(option) => option.phone}
+              size='small'
+              fullWidth
+              value={selectedUser}
+              onChange={(_, value) => {
+                setSelectedUser(value || null)
+                setCardId((value?.cardId || "").toString())
+              }
+              }
+              renderInput={(params) => <TextField onChange={(e) => setSearchPhoneNo(e.target.value)} {...params} label="رقم التلفون" />}
+            />
+          </Box>
 
-        <Box sx={{ ...styles.flex, width: "45%" }}>
-          <Typography variant='body1' sx={{ mr: "8px" }}>
-            الرصيد :
-          </Typography>
-          <TextField
-            autoComplete={"off"}
-            value={selectedUser?.total || ""}
-            size='small'
-            fullWidth
-            placeholder='الرصيد'
-            disabled
-          />
-        </Box>
+          <Box sx={{ ...styles.flex, width: "45%" }}>
+            <Typography variant='body1' sx={{ mr: "8px" }}>
+              الرصيد :
+            </Typography>
+            <TextField
+              autoComplete={"off"}
+              value={selectedUser?.total || ""}
+              size='small'
+              fullWidth
+              placeholder='الرصيد'
+              disabled
+            />
+          </Box>
 
-        <Box sx={{ ...styles.flex, width: "45%" }}>
-          <Typography variant='body1' sx={{ mr: "8px" }}>
-            ملاحظات :
-          </Typography>
-          <TextField
-            autoComplete={"off"}
-            value={selectedUser?.notes || ""}
-            size='small'
-            fullWidth
-            placeholder='ملاحظات'
-            disabled
+          <Box sx={{ ...styles.flex, width: "45%" }}>
+            <Typography variant='body1' sx={{ mr: "8px" }}>
+              ملاحظات :
+            </Typography>
+            <TextField
+              autoComplete={"off"}
+              value={selectedUser?.notes || ""}
+              size='small'
+              fullWidth
+              placeholder='ملاحظات'
+              disabled
 
-          />
+            />
+          </Box>
+          <Box sx={{ ...styles.flex, width: "45%" }}>
+            <Typography variant='body1' sx={{ mr: "8px" }}>
+              التاريخ :
+            </Typography>
+            <TextField
+              autoComplete={"off"}
+              type='date'
+              sx={{ width: "100%" }}
+              // sx={{ width: 220 }}
+              size='small'
+              value={dateString}
+              onChange={(e) => setDateString(e.target.value)}
+            />
+          </Box>
+          <Box sx={{ ...styles.flex, width: "45%" }}>
+            <Button sx={{ width: "100%" }} variant='outlined' color='primary' component={Link} href={`/account-statement-new/records${selectedUser?.cardId ? ("?cardId=" + selectedUser?.cardId) : ""}`}>
+              كشف حساب
+            </Button>
+          </Box>
         </Box>
-        <Box sx={{ ...styles.flex, width: "45%" }}>
-          <Typography variant='body1' sx={{ mr: "8px" }}>
-            التاريخ :
-          </Typography>
-          <TextField
-            autoComplete={"off"}
-            type='date'
-            sx={{ width: "100%" }}
-            // sx={{ width: 220 }}
-            size='small'
-            value={dateString}
-            onChange={(e) => setDateString(e.target.value)}
-          />
-        </Box>
-        <Box sx={{ ...styles.flex, width: "45%" }}>
-          <Button sx={{ width: "100%" }} variant='outlined' color='primary' component={Link} href={`/account-statement-new/records${selectedUser?.cardId ? ("?cardId=" + selectedUser?.cardId) : ""}`}>
-            كشف حساب
-          </Button>
-        </Box>
-      </Box>
-      <Operations autoFocusId={autoFocusId} values={values} setValues={setValues} onSubmit={onSubmit} />
-    </Card>
+        <Operations autoFocusId={autoFocusId} values={values} setValues={setValues} onSubmit={onSubmit} />
+      </Card>
   );
 };
 export default Home;
