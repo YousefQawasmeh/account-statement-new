@@ -32,6 +32,7 @@ export type ICheck = {
   available: boolean;
   deletedAt: string;
   updatedAt: string;
+  images?: string[];
 }
 
 export type IBank = {
@@ -49,5 +50,7 @@ export type IRecord = {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
-  checks?: ICheck[]
+  checks?: ICheck[];
+  images?: string[];
+
 }

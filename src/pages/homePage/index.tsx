@@ -86,6 +86,7 @@ const Home = () => {
       type,
       amount,
       notes: values?.notes,
+      images: values?.images,
       checks: values?.checks
     }).then(() => {
       if (!selectedUser?.cardId) return

@@ -1,4 +1,6 @@
 import Axios from 'axios'
+import {objectToFormData} from '../utils'
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 type Ifilters = {
     date?: string
@@ -7,10 +9,14 @@ type Ifilters = {
     cardId?: number
     phone?: string
     name?: string
-}
+}  
 
 export const createNewRecord = async (newRecord: any) => {
-    const res = await Axios.post(`${API_URL}/records`, newRecord)
+    const res = await Axios.post(`${API_URL}/records`, objectToFormData(newRecord), {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+    })
     return res
 }
 

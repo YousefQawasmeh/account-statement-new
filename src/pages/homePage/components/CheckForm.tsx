@@ -1,8 +1,10 @@
-import { Autocomplete, TextField } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Autocomplete, IconButton, TextField } from '@mui/material';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useEffect, useState } from 'react'
 import { IBank } from '../../../types';
+import { AddedImagesViewer, AddImageIconButton } from "../../../components/sharedComponents/AddedImagesViewer.tsx";
 import moment from 'moment';
+
 type CheckFormProps = {
     handleDelete: () => void,
     checkDetails: any,
@@ -13,9 +15,13 @@ type CheckFormProps = {
 
 const CheckForm = ({ handleDelete, checkDetails, setCheckDetails, banks, viewOnly }: CheckFormProps) => {
 
-    const handleChange = (e: { target: { name: string; value: string | number; }; }) => {
+    const handleChange = (e: { target: { name: string; value: any; }; }) => {
         if (viewOnly) return
         setCheckDetails({ ...checkDetails, [e.target.name]: e.target.value });
+    };
+
+    const handleImagesChange = (newImages: any) => {
+        handleChange({ target: { name: "images", value: newImages } })
     };
 
     // const banks = [
@@ -47,7 +53,7 @@ const CheckForm = ({ handleDelete, checkDetails, setCheckDetails, banks, viewOnl
     }, [checkDetails.bank, checkDetails.bankId])
 
     return (
-        <form autoComplete="off" style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center", border: "1px dashed #ccc", padding: "12px" }}>
+        <form autoComplete="off" style={{ border: "1px dashed #ccc", padding: "12px", position: "relative" }}>
             <fieldset disabled={viewOnly} style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center", margin: 0, padding: 0, border: 0, }}>
                 <Autocomplete
                     disablePortal
@@ -109,8 +115,27 @@ const CheckForm = ({ handleDelete, checkDetails, setCheckDetails, banks, viewOnl
                     size="small"
                     margin="normal"
                 />
+                <AddImageIconButton handleImagesChange={handleImagesChange} />
             </fieldset>
-            <CloseIcon fontSize="small" color="error" sx={{ cursor: "pointer", ":hover": { backgroundColor: "#eee" }, borderRadius: "50%" }} onClick={handleDelete} />
+            <IconButton
+                size="small"
+                sx={(theme) => ({
+                    position: "absolute",
+                    top: -5,
+                    right: -5,
+                    backgroundColor: theme.palette.error.main,
+                    color: "#fff",
+                    "&:hover": { opacity: 1, backgroundColor: theme.palette.error.main + "88", color: "#fff" },
+                    outline: "none !important",
+                    zIndex: 10,
+                    width: "8px",
+                    height: "8px",
+                })}
+                onClick={handleDelete}
+            >
+                <CancelIcon />
+            </IconButton>
+            {checkDetails.images?.length > 0 && <AddedImagesViewer images={checkDetails.images} setNewImages={handleImagesChange} />}
         </form>
     );
 };

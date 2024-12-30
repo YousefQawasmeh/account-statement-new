@@ -16,6 +16,7 @@ import { getBanks } from "../../../apis/bank";
 import { IBank, ICheck } from "../../../types.ts";
 import ChecksTable from "../../checksPage/ChecksTable.tsx";
 import { getAvailableChecks } from "../../../apis/check.ts";
+import {AddedImagesViewer, AddImageIconButton} from "../../../components/sharedComponents/AddedImagesViewer.tsx";
 
 type ButtonType = {
     label: string;
@@ -26,13 +27,13 @@ type ButtonType = {
 };
 
 const buttons: ButtonType[] = [
-    {
-        label: "نقدي",
-        value: 0,
-        color: "primary",
-        variant: "contained",
-        id: 4,
-    },
+    // {
+    //     label: "نقدي",
+    //     value: 0,
+    //     color: "primary",
+    //     variant: "contained",
+    //     id: 4,
+    // },
     {
         label: "مشتريات",
         value: -1,
@@ -47,13 +48,13 @@ const buttons: ButtonType[] = [
         variant: "outlined",
         id: 6,
     },
-    {
-        label: "نقدي",
-        value: 0,
-        color: "primary",
-        variant: "contained",
-        id: 1,
-    },
+    // {
+    //     label: "نقدي",
+    //     value: 0,
+    //     color: "primary",
+    //     variant: "contained",
+    //     id: 1,
+    // },
     {
         label: "دين",
         value: 1,
@@ -103,9 +104,9 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
     }, [])
 
     useEffect(() => {
-        if (!values?.checks?.length){
-        updateChecksFromDB()
-    }
+        if (!values?.checks?.length) {
+            updateChecksFromDB()
+        }
     }, [values?.checks?.length])
 
     const inputRef = useRef()
@@ -164,6 +165,11 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
     const handleClose = () => {
         setOpen(false);
     }
+
+    const handleImagesChange = (newImages: any) => {
+        onInputChange({ target: { name: "images", value: newImages } })
+    };
+
     return (
         <>
             <Box
@@ -185,7 +191,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                     }}
                 >
                     <>
-                        {buttons.slice(0, 3).map((button) => {
+                        {buttons.slice(0, buttons.length/2).map((button) => {
                             return (
                                 <form
                                     key={button.id}
@@ -229,7 +235,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                     }}
                 >
                     <>
-                        {buttons.slice(3).map((button) => {
+                        {buttons.slice(buttons.length/2).map((button) => {
                             return (
                                 <form
                                     key={button.id}
@@ -275,10 +281,14 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                     placeholder='ملاحظات ...'
                     name="notes"
                 />
-                <Button sx={{ minWidth: "100px", mr: "8px" }} onClick={() => setShowChecksSection(!showChecksSection)} >
+                <AddImageIconButton handleImagesChange={handleImagesChange} />
+                <Button sx={{ minWidth: "100px", ml: "8px" }} onClick={() => setShowChecksSection(!showChecksSection)} >
                     إضافة شيك
                 </Button>
             </Box>
+
+            {values.images?.length > 0 && <AddedImagesViewer images={values.images} setNewImages={(newImages)=>onInputChange({ target: { name: "images", value: newImages } })} />}
+
             {
                 (showChecksSection || values?.checks?.length > 0) && <Box sx={{ mt: 4, display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "start" }}>
                     <Button sx={{}} onClick={createNewCheck} >

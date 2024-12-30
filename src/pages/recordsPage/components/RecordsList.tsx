@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import Box from '@mui/material/Box';
 import { DataGrid, GridColDef, GridDeleteIcon, GridToolbar } from '@mui/x-data-grid';
-
 import { IRecord } from "../../../types.ts";
 import { deleteRecordById, getRecords, updateRecordById } from "../../../apis/record.ts";
 import { IconButton, TextField, Typography } from "@mui/material";
 import DeleteDialog from "./DeleteDialog.tsx";
 import ChecksTable from "../../../components/sharedComponents/ChecksTable.tsx";
+import { Gallery, GalleryIcon } from "../../../components/sharedComponents/Gallery.tsx";
 import moment from "moment";
 
 type Props = {
@@ -33,6 +33,7 @@ const RecordsList = (props: Props) => {
     const lastYear = moment().subtract(1, 'years').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     const [dateStringFrom, setDateStringFrom] = useState<string>((reportForUser ? lastYear : todayDate).format(dateFormat));
     const [dateStringTo, setDateStringTo] = useState<string>(todayDate.format(dateFormat));
+    const [imagesToShow, setImagesToShow] = useState<any[]>([]);
     const getRecordsFromDB = () => {
         getRecords({ ...filters, date: { from: dateStringFrom, to: dateStringTo } }).then((res) => {
             let preTotal: number = res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0)
@@ -71,7 +72,8 @@ const RecordsList = (props: Props) => {
                     createdAt: record.createdAt,
                     deletedAt: record.deletedAt,
                     subTotal: preTotal,
-                    checks: record.checks
+                    checks: record.checks,
+                    images: record.images
 
                 }
             })
@@ -162,12 +164,12 @@ const RecordsList = (props: Props) => {
                                     target.contentEditable = "false";
                                     updateRecordById(params.row.id, { notes: target.innerText })
                                 }
-                                if(e.code === 'Space'){
+                                if (e.code === 'Space') {
                                     e.stopPropagation();
                                 }
                             }}
                             variant="body2"
-                            sx={{ whiteSpace: 'pre-wrap', py: "2px", minWidth: "200px", "&:focus": { outline: "solid #4caf50 1px"} }}
+                            sx={{ whiteSpace: 'pre-wrap', py: "2px", minWidth: "200px", "&:focus": { outline: "solid #4caf50 1px" } }}
                         >
                             {params.value}
                         </Typography>
@@ -191,6 +193,17 @@ const RecordsList = (props: Props) => {
                 // }
             },
             {
+                field: 'images',
+                headerName: 'صور',
+                width: 50,
+                disableColumnMenu: true,
+                sortable: false,
+                renderCell: (params) => {
+                    const imagesLength = params.value?.length || 0
+                    return imagesLength ? <GalleryIcon no={params.value?.length} hiddenNo={!imagesLength} onClick={() => { setImagesToShow(params.value) }} /> : ''
+                }
+            },
+            {
                 field: '',
                 headerName: '',
                 width: 110,
@@ -198,7 +211,6 @@ const RecordsList = (props: Props) => {
                 filterable: false,
                 disableColumnMenu: true,
                 renderCell: (params) => {
-                    console.log(params.row)
                     return params.row.deletedAt ? <span>محذوف</span> : <IconButton
                         size="small"
                         onClick={() => { setRecordToDelete(params.row) }}
@@ -322,31 +334,31 @@ const RecordsList = (props: Props) => {
                                 </Box>
                                 <Box sx={{ display: 'flex', gap: '50px' }}>
                                     {
-                                    reportForUser && <>
-                                        <p style={{ fontSize: '18px' }}> الاسم : {recordsRows?.[0]?.user?.fullName}</p>
-                                        <p style={{ fontSize: '18px' }}>رقم التلفون : {recordsRows?.[0]?.user?.phone}</p>
-                                        <p style={{ fontSize: '18px' }}>رقم البطاقة : {recordsRows?.[0]?.user?.cardId}</p>
-                                        <p style={{ fontSize: '18px' }}>المجموع  : {recordsRows?.[0]?.user?.total}</p>
-                                    </>
+                                        reportForUser && <>
+                                            <p style={{ fontSize: '18px' }}> الاسم : {recordsRows?.[0]?.user?.fullName}</p>
+                                            <p style={{ fontSize: '18px' }}>رقم التلفون : {recordsRows?.[0]?.user?.phone}</p>
+                                            <p style={{ fontSize: '18px' }}>رقم البطاقة : {recordsRows?.[0]?.user?.cardId}</p>
+                                            <p style={{ fontSize: '18px' }}>المجموع  : {recordsRows?.[0]?.user?.total}</p>
+                                        </>
                                     }
                                 </Box>
                                 {
-                                /* {
-                                    reportForUser ? <>
-                                        <p>كشف حساب من سوبر ماركت ابودعجان</p>
-                                        <p>من تاريخ: {dateStringFrom}</p>
-                                        <p>الي تاريخ: {dateStringTo}</p>
-                                        <p>الاسم: {recordsRows?.[0]?.user?.name}</p>
-                                        <p>رقم البطاقة: {recordsRows?.[0]?.user?.cardId}</p>
-                                        <p>مجموع قبل {dateStringFrom}: {recordsRows?.[0]?.user?.total - recordsTotal}</p>
-                                        <p>مجموع الحركات: {recordsTotal}</p>
-                                        <p>المجموع النهائي : {recordsRows?.[0]?.user?.total}</p>
-                                    </>
-                                        : <>
+                                    /* {
+                                        reportForUser ? <>
+                                            <p>كشف حساب من سوبر ماركت ابودعجان</p>
                                             <p>من تاريخ: {dateStringFrom}</p>
                                             <p>الي تاريخ: {dateStringTo}</p>
+                                            <p>الاسم: {recordsRows?.[0]?.user?.name}</p>
+                                            <p>رقم البطاقة: {recordsRows?.[0]?.user?.cardId}</p>
+                                            <p>مجموع قبل {dateStringFrom}: {recordsRows?.[0]?.user?.total - recordsTotal}</p>
+                                            <p>مجموع الحركات: {recordsTotal}</p>
+                                            <p>المجموع النهائي : {recordsRows?.[0]?.user?.total}</p>
                                         </>
-                                 */
+                                            : <>
+                                                <p>من تاريخ: {dateStringFrom}</p>
+                                                <p>الي تاريخ: {dateStringTo}</p>
+                                            </>
+                                     */
                                 }
                             </Box>
                             <Box sx={{ displayPrint: 'none' }}>
@@ -367,8 +379,8 @@ const RecordsList = (props: Props) => {
                     pagination: {
                         labelRowsPerPage: 'عدد السجلات في الصفحة',
                         labelDisplayedRows: (paginationInfo) => {
-                          const { from, to, count } = paginationInfo;
-                          return `${to}-${from} من ${count}`;
+                            const { from, to, count } = paginationInfo;
+                            return `${to}-${from} من ${count}`;
                         },
                     },
 
@@ -382,6 +394,7 @@ const RecordsList = (props: Props) => {
                     .catch(err => alert(err.message || err))
                 }
             />}
+            {imagesToShow?.length > 0 && <Gallery images={imagesToShow} onClose={() => setImagesToShow([])} />}
         </Box>
 
     )

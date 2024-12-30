@@ -5,6 +5,7 @@ import { updateCheckById } from "../../apis/check.ts";
 import { AxiosResponse } from "axios";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import { Gallery, GalleryIcon } from "../../components/sharedComponents/Gallery.tsx";
 
 type ChecksTableProps = {
     checks: ICheck[];
@@ -14,6 +15,7 @@ type ChecksTableProps = {
     onRowDoubleClick?: any;
 };
 const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRowDoubleClick }: ChecksTableProps) => {
+    const [imagesToShow, setImagesToShow] = useState<any[]>([]);
     const [displayedColumns, setDisplayedColumns] = useState<any>({
         "bank": true,
         "checkNumber": true,
@@ -25,6 +27,7 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
         "resceivedDate": false,
         "deliveredDate": false,
         "available": true,
+        "images": true
     });
     const columns: GridColDef[] = ([
         {
@@ -98,6 +101,17 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
             valueFormatter: (params) => moment(params.value).format("YYYY-MM-DD"),
         },
         {
+            field: 'images',
+            headerName: 'صور',
+            width: 50,
+            disableColumnMenu: true,
+            sortable: false,
+            renderCell: (params) => {
+                const imagesLength = params.value?.length || 0
+                return imagesLength ? <GalleryIcon no={params.value?.length} hiddenNo={!imagesLength} onClick={() => { setImagesToShow(params.value) }} /> : ''
+            }
+        },
+        {
             field: "available",
             headerName: "متوفر",
             type: "boolean",
@@ -123,88 +137,91 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
         }
         setDisplayedColumns(newDisplayedColumns)
     }, [])
-    return <DataGrid
-        rows={checks}
-        columns={columns}
-        disableRowSelectionOnClick
-        density="compact"
-        slots={{
-            toolbar: (props) => {
-                return <>
-                    <Box sx={{ displayPrint: 'none' }}>
-                        <GridToolbarContainer {...props}>
-                            {viewOnly ?
-                                <GridToolbarQuickFilter sx={{ width: '100%' }} />
-                                : <>
-                                    <GridToolbarColumnsButton />
-                                    <GridToolbarExport />
-                                    <GridToolbarQuickFilter sx={{ ml: 'auto' }} />
-                                </>
-                            }
-                        </GridToolbarContainer>
-                    </Box>
-                </>
-            }
-        }}
-        slotProps={{
-            toolbar: {
-                printOptions: {
-                    hideFooter: true
+    return <>
+        <DataGrid
+            rows={checks}
+            columns={columns}
+            disableRowSelectionOnClick
+            density="compact"
+            slots={{
+                toolbar: (props) => {
+                    return <>
+                        <Box sx={{ displayPrint: 'none' }}>
+                            <GridToolbarContainer {...props}>
+                                {viewOnly ?
+                                    <GridToolbarQuickFilter sx={{ width: '100%' }} />
+                                    : <>
+                                        <GridToolbarColumnsButton />
+                                        <GridToolbarExport />
+                                        <GridToolbarQuickFilter sx={{ ml: 'auto' }} />
+                                    </>
+                                }
+                            </GridToolbarContainer>
+                        </Box>
+                    </>
                 }
-            },
-            pagination: {
-                labelRowsPerPage: 'عدد الشيكات في الصفحة',
-                labelDisplayedRows: (paginationInfo) => {
-                    const { from, to, count } = paginationInfo;
-                    return `${to}-${from} من ${count}`;
-                },
-            },
-
-        }}
-        sx={
-            {
-                '@media print': {
-                    marginBottom: 'auto !important',
-                    '.MuiDataGrid-main': {
-                        margin: 'auto',
-                    },
-                    '.MuiDataGrid-cellContent': {
-                        textWrap: 'wrap !important',
-                    },
-                    "*": {
-                        direction: 'ltr !important',
-                        textWrap: 'wrap !important',
+            }}
+            slotProps={{
+                toolbar: {
+                    printOptions: {
+                        hideFooter: true
                     }
                 },
-                "& .MuiDataGrid-row:nth-of-type(even)": {
-                    backgroundColor: '#f9f9f9',
+                pagination: {
+                    labelRowsPerPage: 'عدد الشيكات في الصفحة',
+                    labelDisplayedRows: (paginationInfo) => {
+                        const { from, to, count } = paginationInfo;
+                        return `${to}-${from} من ${count}`;
+                    },
                 },
-                "& .MuiDataGrid-aggregationColumnHeader": {
-                    backgroundColor: '#f9f9f9',
-                },
-                "& .MuiDataGrid-columnHeaderTitle": {
-                    fontWeight: 700,
-                },
-                "& .MuiDataGrid-withBorderColor": {
-                    borderColor: '#4caf5050',
-                },
-                "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: '#4caf5040',
+
+            }}
+            sx={
+                {
+                    '@media print': {
+                        marginBottom: 'auto !important',
+                        '.MuiDataGrid-main': {
+                            margin: 'auto',
+                        },
+                        '.MuiDataGrid-cellContent': {
+                            textWrap: 'wrap !important',
+                        },
+                        "*": {
+                            direction: 'ltr !important',
+                            textWrap: 'wrap !important',
+                        }
+                    },
+                    "& .MuiDataGrid-row:nth-of-type(even)": {
+                        backgroundColor: '#f9f9f9',
+                    },
+                    "& .MuiDataGrid-aggregationColumnHeader": {
+                        backgroundColor: '#f9f9f9',
+                    },
+                    "& .MuiDataGrid-columnHeaderTitle": {
+                        fontWeight: 700,
+                    },
+                    "& .MuiDataGrid-withBorderColor": {
+                        borderColor: '#4caf5050',
+                    },
+                    "& .MuiDataGrid-columnHeaders": {
+                        backgroundColor: '#4caf5040',
+                    }
                 }
             }
-        }
-        onCellEditStop={(params, event: any) => {
-            if (viewOnly || !setChecks) return
-            const value = event.target?.value
-            if (value !== params.value) {
-                updateCheckById(params.row?.id, { [params.field]: value }).then((res: AxiosResponse<ICheck>) => {
-                    setChecks(checks.map((check: ICheck) => check.id === res.data.id ? { ...check, ...res.data } : check))
-                }).catch(err => alert(err.message || err))
-            }
-        }}
-        columnVisibilityModel={displayedColumns}
-        onColumnVisibilityModelChange={(model) => setDisplayedColumns(model)}
-        onRowDoubleClick={({ row }) => { onRowDoubleClick(row) }}
-    />
+            onCellEditStop={(params, event: any) => {
+                if (viewOnly || !setChecks) return
+                const value = event.target?.value
+                if (value !== params.value) {
+                    updateCheckById(params.row?.id, { [params.field]: value }).then((res: AxiosResponse<ICheck>) => {
+                        setChecks(checks.map((check: ICheck) => check.id === res.data.id ? { ...check, ...res.data } : check))
+                    }).catch(err => alert(err.message || err))
+                }
+            }}
+            columnVisibilityModel={displayedColumns}
+            onColumnVisibilityModelChange={(model) => setDisplayedColumns(model)}
+            onRowDoubleClick={({ row }) => { onRowDoubleClick(row) }}
+        />
+        {imagesToShow?.length > 0 && <Gallery images={imagesToShow} onClose={() => setImagesToShow([])} />}
+    </>
 };
 export default ChecksTable

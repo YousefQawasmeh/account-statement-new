@@ -21,6 +21,41 @@ const theme = createTheme({
     secondary: purple,
   },
   direction: 'rtl',
+  typography: {
+    fontFamily: 'Almarai, sans-serif',
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: `
+        @font-face {
+          font-family: 'Almarai';
+          font-style: normal;
+          font-display: swap;
+          font-weight: 400;
+          src: url('https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap') format('woff2');
+          unicodeRange: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F-2053, U+2E41, U+FB1D-FB4F;
+        }
+      `,
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          ":focus": {
+            outline: "none",
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          ":focus": {
+            outline: "none",
+          },
+        },
+      },
+    },
+  },
 });
 
 const NavWrapper = styled(Box)`
