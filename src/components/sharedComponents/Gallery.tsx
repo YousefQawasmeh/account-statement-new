@@ -19,10 +19,10 @@ const Gallery = ({ images, onClose }: PropsGallery) => {
         {images.map((imageURL: string) => (
             <ImageListItem key={imageURL}>
                 <img
-                    onDoubleClick={showOrginalImage(`${window?.location?.origin.replace("5173", "3000")}/api/images/${imageURL}`)}
+                    onDoubleClick={showOrginalImage(`${window?.location?.origin.replace(":5173", ":3000")}/api/images?name=${imageURL}`)}
                     style={{ objectFit: "fill" }}
-                    srcSet={`${window?.location?.origin.replace("5173", "3000")}/api/images/${imageURL}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                    src={`${window?.location?.origin.replace("5173", "3000")}/api/images/${imageURL}?w=164&h=164&fit=crop&auto=format`}
+                    srcSet={`${window?.location?.origin.replace(":5173", ":3000")}/api/images?name=${imageURL}`}
+                    src={`${window?.location?.origin.replace(":5173", ":3000")}/api/images?name=${imageURL}`}
                     //   alt={item.title}
                     loading="lazy"
                 />
