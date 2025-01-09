@@ -16,7 +16,7 @@ import { getBanks } from "../../../apis/bank";
 import { IBank, ICheck } from "../../../types.ts";
 import ChecksTable from "../../checksPage/ChecksTable.tsx";
 import { getAvailableChecks } from "../../../apis/check.ts";
-import {AddedImagesViewer, AddImageIconButton} from "../../../components/sharedComponents/AddedImagesViewer.tsx";
+import { AddedImagesViewer, AddImageIconButton } from "../../../components/sharedComponents/AddedImagesViewer.tsx";
 
 type ButtonType = {
     label: string;
@@ -44,7 +44,7 @@ const buttons: ButtonType[] = [
     {
         label: "صرف له",
         value: 1,
-        color: "primary",
+        color: "secondary",
         variant: "outlined",
         id: 6,
     },
@@ -58,7 +58,7 @@ const buttons: ButtonType[] = [
     {
         label: "دين",
         value: 1,
-        color: "secondary",
+        color: "primary",
         variant: "contained",
         id: 2,
     },
@@ -191,7 +191,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                     }}
                 >
                     <>
-                        {buttons.slice(0, buttons.length/2).map((button) => {
+                        {buttons.slice(0, buttons.length / 2).map((button) => {
                             return (
                                 <form
                                     key={button.id}
@@ -235,7 +235,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                     }}
                 >
                     <>
-                        {buttons.slice(buttons.length/2).map((button) => {
+                        {buttons.slice(buttons.length / 2).map((button) => {
                             return (
                                 <form
                                     key={button.id}
@@ -287,7 +287,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                 </Button>
             </Box>
 
-            {values.images?.length > 0 && <AddedImagesViewer images={values.images} setNewImages={(newImages)=>onInputChange({ target: { name: "images", value: newImages } })} />}
+            {values.images?.length > 0 && <AddedImagesViewer images={values.images} setNewImages={(newImages) => onInputChange({ target: { name: "images", value: newImages } })} />}
 
             {
                 (showChecksSection || values?.checks?.length > 0) && <Box sx={{ mt: 4, display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "8px", justifyContent: "start" }}>

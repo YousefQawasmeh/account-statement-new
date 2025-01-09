@@ -44,6 +44,9 @@ const theme = createTheme({
             outline: "none",
           },
         },
+        contained: {
+          color: "white",
+        }
       },
     },
     MuiIconButton: {
@@ -52,6 +55,18 @@ const theme = createTheme({
           ":focus": {
             outline: "none",
           },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        filled: {
+          color: 'white',
+          border: "solid"
+        },
+        label: {
+          paddingRight: "11px",
+          paddingLeft: "11px",
         },
       },
     },
