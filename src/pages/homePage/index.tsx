@@ -84,6 +84,11 @@ const Home = () => {
     amount: number
   }) => {
     e.preventDefault();
+    if (!selectedUser?.cardId)
+    {
+      alert("ادخل رقم البطاقة")
+      return
+    }
     const { type, amount } = data
     createNewRecord({
       user: selectedUser?.id,
