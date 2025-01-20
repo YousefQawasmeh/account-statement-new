@@ -37,7 +37,8 @@ const Users = () => {
   const [newUser, setNewUser] = useState<IUser>({
     total: 0,
     name: query.get('name') || "",
-    phone: "",
+    subName: "",
+    phone: query.get('phone') || "",
     type: 0,
     notes: "",
     id: "",
@@ -157,17 +158,17 @@ const Users = () => {
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
-            الرصيد :
+             الاسم الفرعي :
           </Typography>
           <TextField
             onChange={onInputChange}
-            value={newUser?.total || ""}
+            value={newUser?.subName || ""}
             size='small'
             fullWidth
-            placeholder='الرصيد'
+            placeholder='الاسم الفرعي'
+            autoFocus
             autoComplete="off"
-            type="number"
-            name="total"
+            name="subName"
           />
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>

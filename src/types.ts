@@ -9,6 +9,8 @@ export type IUser = {
   [x: string]: any;
   total: number;
   name: string;
+  subName?: string;
+  fullName?: string
   phone: string;
   type: UserType;
   notes: string;
@@ -20,6 +22,24 @@ export type IUsers = {
   [key: string]: IUser;
 };
 
+export type ICheck = {
+  record: IRecord;
+  id: number;
+  bank: IBank;
+  checkNumber?: string;
+  amount: number;
+  dueDate: string;
+  available: boolean;
+  deletedAt: string;
+  updatedAt: string;
+  images?: string[];
+}
+
+export type IBank = {
+  id: number;
+  name: string;
+}
+
 export type IRecord = {
   id: string;
   user: IUser;
@@ -30,4 +50,7 @@ export type IRecord = {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  checks?: ICheck[];
+  images?: string[];
+
 }

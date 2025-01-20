@@ -16,7 +16,7 @@ import { createNewRecord } from "../../apis/record.ts";
 import { AxiosResponse } from "axios";
 import Operations from "./components/Operations.tsx";
 import styled from "styled-components";
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const styles = {
   flex: {
@@ -29,17 +29,16 @@ const styles = {
   },
   chip: {
     width: "70px",
-    height: "40px",
+    height: "32px",
     m: "5px",
-    borderColor: "green",
     borderWidth: "2px",
-    color: "black",
     fontSize: "16px",
+    alignItems: "baseline"
   },
 };
 
 const StyledNoOptions = styled(Typography)`
-  padding: 5px;
+  padding: 8px;
   margin: -5px;
   text-align: center;
   &:hover {
@@ -47,15 +46,22 @@ const StyledNoOptions = styled(Typography)`
   }
 `;
 
+const usersTypes: { [key: number]: string } = {
+  1: "زبون",
+  2: "تاجر",
+}
+
 const Home = () => {
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const todayDate = moment().format("YYYY-MM-DD");
   const [dateString, setDateString] = useState<string>(todayDate);
   const [users, setUsers] = useState<IUsers | null>(null);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+  const [selectedUserType, setSelectedUserType] = useState<number | null>(null);
   const [cardId, setCardId] = useState<string>("");
   const [searchName, setSearchName] = useState<string>("");
+  const [searchPhoneNo, setSearchPhoneNo] = useState<string>("");
   const [values, setValues] = useState<any>({})
   const [autoFocusId, setAutoFocusId] = useState<number>(0)
 
@@ -76,16 +82,22 @@ const navigate = useNavigate();
   const onSubmit = (e: any, data: {
     type: number
     amount: number
-    notes: string
   }) => {
     e.preventDefault();
-    const { type, amount, notes } = data
+    if (!selectedUser?.cardId)
+    {
+      alert("ادخل رقم البطاقة")
+      return
+    }
+    const { type, amount } = data
     createNewRecord({
       user: selectedUser?.id,
       date: dateString,
       type,
       amount,
-      notes,
+      notes: values?.notes,
+      images: values?.images,
+      checks: values?.checks
     }).then(() => {
       if (!selectedUser?.cardId) return
       setUsers({ ...users, [selectedUser?.cardId]: { ...selectedUser, total: selectedUser?.total + amount } })
@@ -123,14 +135,18 @@ const navigate = useNavigate();
           }}
         />
         <Chip
-          variant='outlined'
-          sx={{ ...styles.chip, opacity: selectedUser?.type === 1 ? 1 : 0.3 }}
-          label='زبون'
+          variant={selectedUserType === 1 ? 'filled' : 'outlined'}
+          color={'primary'}
+          sx={{ ...styles.chip }}
+          label={usersTypes[1]}
+          onClick={() => setSelectedUserType(selectedUserType === 1 ? null : 1)}
         />
         <Chip
-          variant='outlined'
-          sx={{ ...styles.chip, opacity: selectedUser?.type === 2 ? 1 : 0.3 }}
-          label='تاجر'
+          variant={selectedUserType === 2 ? 'filled' : 'outlined'}
+          color={'secondary'}
+          sx={{ ...styles.chip }}
+          label={usersTypes[2]}
+          onClick={() => setSelectedUserType(selectedUserType === 2 ? null : 2)}
         />
       </Box>
 
@@ -148,22 +164,55 @@ const navigate = useNavigate();
           <Autocomplete
             disablePortal
             options={Object.values(users || {})}
-            noOptionsText={<StyledNoOptions 
-              onClick={() =>navigate(`/account-statement-new/users?name=${searchName}`)} >
+            noOptionsText={
+              <StyledNoOptions onClick={() => navigate(`/account-statement-new/users?name=${searchName}`)}>
                 غير موجود، إضغط للإضافة
-                </StyledNoOptions>}
-            // noOptionsText="لا يوجد بيانات"
-            getOptionLabel={(option) => option.name}
+              </StyledNoOptions>
+            }
+            getOptionLabel={(option) => (option.fullName || option.name || "")}
+            renderOption={(props, option: IUser) => (
+              <Box component="li" {...props} sx={{ display: "flex", justifyContent: "space-between", paddingRight: "0px !important" }} >
+                <Typography sx={{ textAlign: "start", flex: 1 }}>{option.fullName || option.name}</Typography>
+                <Chip
+                  variant='outlined'
+                  sx={{ ...styles.chip, fontSize: "11px", width: "48px", height: "21px", ml: 0, fontWeight: "bold" }}
+                  size='small'
+                  color={option.type === 1 ? "primary" : "secondary"}
+                  label={usersTypes[option.type]}
+                />
+              </Box>
+            )}
             size='small'
             fullWidth
             value={selectedUser}
             onChange={(_, value) => {
-              setSelectedUser(value || null)
-              setCardId((value?.cardId || "").toString())
-            }
-            }
-            renderInput={(params) => <TextField onChange={(e) => setSearchName(e.target.value)} {...params} label="الاسم" />}
+              setSelectedUser(value || null);
+              setCardId((value?.cardId || "").toString());
+            }}
+            filterOptions={(options, { inputValue }) => {
+              const filteredOptions = selectedUserType ? options.filter((option) => option.type === selectedUserType) : options
+
+              const words = inputValue.toLowerCase().split(" ").filter(Boolean);
+              if (words.length === 0) return filteredOptions;
+
+              return filteredOptions.filter((option) => {
+                const normalizedName = (option.fullName || option.name || "").toLowerCase();
+                return words.every(word => normalizedName.includes(word));
+              });
+            }}
+
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="الاسم"
+                onChange={(e) => {
+                  setSearchName(e.target.value);
+                  // You can also call setSelectedUser here if needed to reset selection
+                }}
+              />
+            )}
           />
+
           {/* <TextField
             value={selectedUser?.name || ""}
             size='small'
@@ -176,13 +225,24 @@ const navigate = useNavigate();
           <Typography variant='body1' sx={{ mr: "8px" }}>
             رقم التلفون :
           </Typography>
-          <TextField
-            autoComplete={"off"}
-            value={selectedUser?.phone || ""}
+          <Autocomplete
+            disablePortal
+            options={Object.values(users || {})}
+            noOptionsText={<StyledNoOptions
+              onClick={() => navigate(`/account-statement-new/users?phone=${searchPhoneNo}`)} >
+              غير موجود، إضغط للإضافة
+            </StyledNoOptions>}
+            // noOptionsText="لا يوجد رقم مشابه"
+            getOptionLabel={(option) => option.phone}
             size='small'
             fullWidth
-            placeholder='رقم التلفون'
-            disabled
+            value={selectedUser}
+            onChange={(_, value) => {
+              setSelectedUser(value || null)
+              setCardId((value?.cardId || "").toString())
+            }
+            }
+            renderInput={(params) => <TextField onChange={(e) => setSearchPhoneNo(e.target.value)} {...params} label="رقم التلفون" />}
           />
         </Box>
 
@@ -229,7 +289,7 @@ const navigate = useNavigate();
           />
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>
-          <Button sx={{ width: "100%" }} variant='outlined' color='primary' component={Link} href={`/account-statement-new/records${selectedUser?.cardId ? ("?cardId=" + selectedUser?.cardId):""}`}>
+          <Button sx={{ width: "100%" }} variant='outlined' color='primary' component={Link} href={`/account-statement-new/records${selectedUser?.cardId ? ("?cardId=" + selectedUser?.cardId) : ""}`}>
             كشف حساب
           </Button>
         </Box>

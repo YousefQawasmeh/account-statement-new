@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import Box from '@mui/material/Box';
 import { DataGrid, GridColDef, GridDeleteIcon, GridToolbar } from '@mui/x-data-grid';
-
 import { IRecord } from "../../../types.ts";
 import { deleteRecordById, getRecords, updateRecordById } from "../../../apis/record.ts";
 import { IconButton, TextField, Typography } from "@mui/material";
 import DeleteDialog from "./DeleteDialog.tsx";
+import ChecksTable from "../../../components/sharedComponents/ChecksTable.tsx";
+import { Gallery, GalleryIcon } from "../../../components/sharedComponents/Gallery.tsx";
 import moment from "moment";
 
 type Props = {
@@ -18,32 +19,28 @@ const RecordsList = (props: Props) => {
     const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
     const { filters } = props || {}
     const reportForUser = Object.keys(filters).length > 0
-    const [displayedColumns, setDisplayedColumns] = useState<any>({ createdAt: false, userName: !reportForUser, typeTitle: false, cardId: !reportForUser });
+    const [displayedColumns, setDisplayedColumns] = useState<any>({
+        createdAt: false,
+        fullName: !reportForUser,
+        typeTitle: false,
+        cardId: !reportForUser,
+        subTotal: !!reportForUser,
+        '': false
+    });
     const dateFormat = "YYYY-MM-DD";
     const todayDate = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     // const LastMounth = moment().subtract(1, 'months').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     const lastYear = moment().subtract(1, 'years').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     const [dateStringFrom, setDateStringFrom] = useState<string>((reportForUser ? lastYear : todayDate).format(dateFormat));
     const [dateStringTo, setDateStringTo] = useState<string>(todayDate.format(dateFormat));
-    useEffect(() => {
-        // const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
-        // Array.from(elements).forEach((element: any) => {
-        //     if (element?.innerText) {
-        //         // element.innerText = "عدد الصفوف بالصفحة"
-        //     }
-        // });
-        const elements2 = document.getElementsByClassName("MuiTablePagination-displayedRows");
-        Array.from(elements2).forEach((element: any) => {
-            if (element?.innerText) {
-                element.innerText = element?.innerText.replace("of", "من")
-            }
-        });
-    })
+    const [imagesToShow, setImagesToShow] = useState<any[]>([]);
     const getRecordsFromDB = () => {
         getRecords({ ...filters, date: { from: dateStringFrom, to: dateStringTo } }).then((res) => {
             let preTotal: number = res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0)
 
             const tempRecord: IRecord = { ...res.data[0] }
+            const fullName = res.data[0].user?.subName ? `${res.data[0].user.name} (${res.data[0].user.subName})` : res.data[0].user.name
+            tempRecord.user.fullName = fullName
             const firstRecord = {
                 subTotal: preTotal,
                 amount: '',
@@ -53,7 +50,7 @@ const RecordsList = (props: Props) => {
                 type: tempRecord.type,
                 typeTitle: tempRecord.type?.title,
                 user: tempRecord.user,
-                userName: tempRecord.user?.name,
+                fullName: fullName,
                 cardId: tempRecord.user?.cardId,
                 createdAt: tempRecord.createdAt,
                 deletedAt: tempRecord.deletedAt,
@@ -61,6 +58,7 @@ const RecordsList = (props: Props) => {
 
             const recordsRows = res.data.map((record: IRecord) => {
                 preTotal += record.amount
+                const fullName = record.user?.subName ? `${record.user.name} (${record.user.subName})` : record.user.name
                 return {
                     id: record.id,
                     date: record.date,
@@ -69,11 +67,13 @@ const RecordsList = (props: Props) => {
                     amount: record.amount,
                     notes: record.notes,
                     user: record.user,
-                    userName: record.user?.name,
+                    fullName: fullName,
                     cardId: record.user?.cardId,
                     createdAt: record.createdAt,
                     deletedAt: record.deletedAt,
-                    subTotal: preTotal
+                    subTotal: preTotal,
+                    checks: record.checks,
+                    images: record.images
 
                 }
             })
@@ -125,8 +125,8 @@ const RecordsList = (props: Props) => {
                 width: 100,
                 type: 'number',
                 editable: true,
-                disableColumnMenu: true,
-                sortable: false,
+                // disableColumnMenu: true,
+                // sortable: false,
                 renderCell(params) {
                     return <span style={{ color: params.value < 0 ? 'red' : 'green' }}>{params.value}</span>
                 },
@@ -146,10 +146,36 @@ const RecordsList = (props: Props) => {
             {
                 field: 'notes',
                 headerName: 'ملاحظات',
-                width: 180,
-                editable: true,
+                width: 600,
+                editable: false,
                 sortable: false,
                 disableColumnMenu: true,
+                renderCell: (params) => (
+                    <Box>
+                        <Typography
+                            onClick={(e) => {
+                                e.preventDefault();
+                                const target = e.target as HTMLElement;
+                                target.contentEditable = "true";
+                            }}
+                            onKeyDown={(e) => {
+                                const target = e.target as HTMLElement;
+                                if (e.key === 'Enter') {
+                                    target.contentEditable = "false";
+                                    updateRecordById(params.row.id, { notes: target.innerText })
+                                }
+                                if (e.code === 'Space') {
+                                    e.stopPropagation();
+                                }
+                            }}
+                            variant="body2"
+                            sx={{ whiteSpace: 'pre-wrap', py: "2px", minWidth: "200px", "&:focus": { outline: "solid #4caf50 1px" } }}
+                        >
+                            {params.value}
+                        </Typography>
+                        {!!params.row?.checks?.length && <ChecksTable checks={params.row?.checks} />}
+                    </Box>
+                )
             },
             {
                 field: 'cardId',
@@ -158,13 +184,24 @@ const RecordsList = (props: Props) => {
                 disableColumnMenu: true,
             },
             {
-                field: 'userName',
+                field: 'fullName',
                 headerName: 'اسم صاحب البطاقة',
                 width: 180,
                 disableColumnMenu: true,
                 // valueFormatter(params) {
                 //     return params.value?.name
                 // }
+            },
+            {
+                field: 'images',
+                headerName: 'صور',
+                width: 50,
+                disableColumnMenu: true,
+                sortable: false,
+                renderCell: (params) => {
+                    const imagesLength = params.value?.length || 0
+                    return imagesLength ? <GalleryIcon no={params.value?.length} hiddenNo={!imagesLength} onClick={() => { setImagesToShow(params.value) }} /> : ''
+                }
             },
             {
                 field: '',
@@ -174,7 +211,6 @@ const RecordsList = (props: Props) => {
                 filterable: false,
                 disableColumnMenu: true,
                 renderCell: (params) => {
-                    console.log(params.row)
                     return params.row.deletedAt ? <span>محذوف</span> : <IconButton
                         size="small"
                         onClick={() => { setRecordToDelete(params.row) }}
@@ -224,7 +260,13 @@ const RecordsList = (props: Props) => {
                         },
                         "& .MuiDataGrid-columnHeaders": {
                             backgroundColor: '#4caf5040',
-                        }
+                        },
+                        '& .MuiDataGrid-cell[data-field="notes"]:focus': {
+                            outline: 'none',
+                        },
+                        '& .MuiDataGrid-cell[data-field="notes"]:focus-within': {
+                            outline: 'none',
+                        },
                     }
                 }
                 rows={recordsRows}
@@ -240,13 +282,21 @@ const RecordsList = (props: Props) => {
                             .catch(err => alert(err.message || err))
                     }
                 }}
+                getRowHeight={(params) => {
+                    const baseHeight = 32;
+                    const row = recordsRows.find((row) => row.id === params.id);
+                    const numberOfChecks = (row?.checks?.length || 0);
+                    // const lines = row?.notes?.split("\n").length || 1;
+                    const lines = Math.ceil((row?.notes?.length ?? 0) / 50) || 1;
+                    return (numberOfChecks ? numberOfChecks + 2 : 0) * 32 + (baseHeight * lines);
+                }}
                 disableRowSelectionOnClick
                 density="compact"
                 slots={{
                     toolbar: (props) => {
                         // const recordsTotal = recordsRows?.reduce((total, record) => total + +record.amount, 0)
                         return <>
-                            <Box sx={{ textAlign: 'left', paddingLeft: '10px' }}>
+                            <Box sx={{ textAlign: 'left', padding: '0 10px' }}>
                                 <Box
                                     sx={
                                         {
@@ -284,30 +334,31 @@ const RecordsList = (props: Props) => {
                                 </Box>
                                 <Box sx={{ display: 'flex', gap: '50px' }}>
                                     {
-                                    reportForUser && <>
-                                        <p style={{ fontSize: '18px' }}> الاسم : {recordsRows?.[0]?.user?.name}</p>
-                                        <p style={{ fontSize: '18px' }}>رقم البطاقة : {recordsRows?.[0]?.user?.cardId}</p>
-                                    </>
+                                        reportForUser && <>
+                                            <p style={{ fontSize: '18px' }}> الاسم : {recordsRows?.[0]?.user?.fullName}</p>
+                                            <p style={{ fontSize: '18px' }}>رقم التلفون : {recordsRows?.[0]?.user?.phone}</p>
+                                            <p style={{ fontSize: '18px' }}>رقم البطاقة : {recordsRows?.[0]?.user?.cardId}</p>
+                                            <p style={{ fontSize: '18px' }}>المجموع  : {recordsRows?.[0]?.user?.total}</p>
+                                        </>
                                     }
-                                    <p style={{ fontSize: '18px' }}>المجموع  : {recordsRows?.[0]?.user?.total}</p>
                                 </Box>
                                 {
-                                /* {
-                                    reportForUser ? <>
-                                        <p>كشف حساب من سوبر ماركت ابودعجان</p>
-                                        <p>من تاريخ: {dateStringFrom}</p>
-                                        <p>الي تاريخ: {dateStringTo}</p>
-                                        <p>الاسم: {recordsRows?.[0]?.user?.name}</p>
-                                        <p>رقم البطاقة: {recordsRows?.[0]?.user?.cardId}</p>
-                                        <p>مجموع قبل {dateStringFrom}: {recordsRows?.[0]?.user?.total - recordsTotal}</p>
-                                        <p>مجموع الحركات: {recordsTotal}</p>
-                                        <p>المجموع النهائي : {recordsRows?.[0]?.user?.total}</p>
-                                    </>
-                                        : <>
+                                    /* {
+                                        reportForUser ? <>
+                                            <p>كشف حساب من سوبر ماركت ابودعجان</p>
                                             <p>من تاريخ: {dateStringFrom}</p>
                                             <p>الي تاريخ: {dateStringTo}</p>
+                                            <p>الاسم: {recordsRows?.[0]?.user?.name}</p>
+                                            <p>رقم البطاقة: {recordsRows?.[0]?.user?.cardId}</p>
+                                            <p>مجموع قبل {dateStringFrom}: {recordsRows?.[0]?.user?.total - recordsTotal}</p>
+                                            <p>مجموع الحركات: {recordsTotal}</p>
+                                            <p>المجموع النهائي : {recordsRows?.[0]?.user?.total}</p>
                                         </>
-                                 */
+                                            : <>
+                                                <p>من تاريخ: {dateStringFrom}</p>
+                                                <p>الي تاريخ: {dateStringTo}</p>
+                                            </>
+                                     */
                                 }
                             </Box>
                             <Box sx={{ displayPrint: 'none' }}>
@@ -321,13 +372,16 @@ const RecordsList = (props: Props) => {
                     toolbar: {
                         showQuickFilter: true,
                         printOptions: {
-                            fields: reportForUser ? ['date', 'amount', 'subTotal', 'notes'] : ['date', 'amount', 'subTotal', 'notes', 'userName', 'cardId'],
+                            fields: reportForUser ? ['date', 'amount', 'subTotal', 'notes'] : ['date', 'amount', 'subTotal', 'notes', 'fullName', 'cardId'],
                             hideFooter: true
                         }
                     },
                     pagination: {
-                        // rowsPerPageOptions: [5, 10, 20, 50, 100],
-                        labelRowsPerPage: 'عدد الحركات في الصفحة',
+                        labelRowsPerPage: 'عدد السجلات في الصفحة',
+                        labelDisplayedRows: (paginationInfo) => {
+                            const { from, to, count } = paginationInfo;
+                            return `${to}-${from} من ${count}`;
+                        },
                     },
 
                 }}
@@ -340,6 +394,7 @@ const RecordsList = (props: Props) => {
                     .catch(err => alert(err.message || err))
                 }
             />}
+            {imagesToShow?.length > 0 && <Gallery images={imagesToShow} onClose={() => setImagesToShow([])} />}
         </Box>
 
     )

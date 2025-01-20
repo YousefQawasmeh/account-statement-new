@@ -2,21 +2,18 @@ import { useState } from "react";
 import UsersList from "./components/UsersList";
 import NewUser from "./components/NewUser";
 import { Box, Button, Popover, Typography } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const UsersPage = () => {
     const { search } = useLocation();
     const query: any = new URLSearchParams(search);
-    const [openAddUserPopup, setOpenAddUserPopup] = useState<boolean>(!!query.get('name'));
+    const [openAddUserPopup, setOpenAddUserPopup] = useState<boolean>(!!query.get('name') || !!query.get('phone'));
 
     return (
         <Box>
             <Box sx={{ m: "20px", display: "flex", justifyContent: "space-between" }} >
                 <Typography variant="h5">
                     البطاقات
-      <Link style={{ display: "flex", fontSize: "14px" }} to="/account-statement-new/">
-        الصفحة الرئيسية
-        </Link>
       
       </Typography>
                 <Button

@@ -12,20 +12,6 @@ const UsersList = () => {
     const [columns, setColumns] = useState<GridColDef[]>([]);
 
     useEffect(() => {
-        // const elements = document.getElementsByClassName("MuiTablePagination-selectLabel");
-        // Array.from(elements).forEach((element: any) => {
-        //     if (element?.innerText) {
-        //         element.innerText = "عدد الصفوف بالصفحة"
-        //     }
-        // });
-        const elements2 = document.getElementsByClassName("MuiTablePagination-displayedRows");
-        Array.from(elements2).forEach((element: any) => {
-            if (element?.innerText) {
-                element.innerText = element?.innerText.replace("of", "من")
-            }
-        });
-    })
-    useEffect(() => {
         const columns: GridColDef[] = [
             {
                 field: 'cardId',
@@ -36,6 +22,12 @@ const UsersList = () => {
             {
                 field: 'name',
                 headerName: 'الاسم',
+                width: 170,
+                editable: true,
+            },
+            {
+                field: 'subName',
+                headerName: 'الاسم الفرعي',
                 width: 170,
                 editable: true,
             },
@@ -122,6 +114,7 @@ const UsersList = () => {
                     id: user.id,
                     cardId: user.cardId,
                     name: user.name,
+                    subName: user.subName,
                     phone: user.phone,
                     type: user.type,
                     notes: user.notes,
@@ -199,7 +192,11 @@ const UsersList = () => {
                         }
                     },
                     pagination: {
-                        labelRowsPerPage: 'عدد الصوف في الصفحة',
+                        labelRowsPerPage: 'عدد الزبائن في الصفحة',
+                        labelDisplayedRows: (paginationInfo) => {
+                          const { from, to, count } = paginationInfo;
+                          return `${to}-${from} من ${count}`;
+                        },
                     },
 
                 }}
