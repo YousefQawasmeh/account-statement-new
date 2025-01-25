@@ -47,8 +47,8 @@ const StyledNoOptions = styled(Typography)`
 `;
 
 const usersTypes: { [key: number]: string } = {
-  1: "زبون",
-  2: "تاجر",
+  1: "مدين",
+  2: "دائن",
 }
 
 const Home = () => {
@@ -175,7 +175,7 @@ const Home = () => {
                 <Typography sx={{ textAlign: "start", flex: 1 }}>{option.fullName || option.name}</Typography>
                 <Chip
                   variant='outlined'
-                  sx={{ ...styles.chip, fontSize: "11px", width: "48px", height: "21px", ml: 0, fontWeight: "bold" }}
+                  sx={{ ...styles.chip, fontSize: "11px", width: "49px", height: "21px", ml: 0, fontWeight: "bold" }}
                   size='small'
                   color={option.type === 1 ? "primary" : "secondary"}
                   label={usersTypes[option.type]}

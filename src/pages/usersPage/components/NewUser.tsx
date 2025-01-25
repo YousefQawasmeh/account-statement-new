@@ -106,13 +106,13 @@ const Users = () => {
         <Chip
           variant='outlined'
           sx={{ ...styles.chip, opacity: newUser?.type === 1 ? 1 : 0.3 }}
-          label='زبون'
+          label='مدين'
           onClick={() => { setNewUser({ ...newUser, type: 1, }); }}
         />
         <Chip
           variant='outlined'
           sx={{ ...styles.chip, opacity: newUser?.type === 2 ? 1 : 0.3 }}
-          label='تاجر'
+          label='دائن'
           onClick={() => { setNewUser({ ...newUser, type: 2, }); }}
         />
 
