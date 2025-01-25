@@ -109,6 +109,44 @@ const RecordsList = (props: Props) => {
                 }
             },
             {
+                field: 'subTotal',
+                headerName: 'الرصيد',
+                width: 100,
+                type: 'number',
+                editable: false,
+                disableColumnMenu: true,
+                sortable: false,
+                renderCell(params) {
+                    return <span style={{ color: params.value < 0 ? 'red' : 'green' }}>{params.value}</span>
+                },
+            },
+            {
+                field: 'debtor',
+                headerName: 'مدين',
+                width: 100,
+                type: 'number',
+                editable: true,
+                // disableColumnMenu: true,
+                // sortable: false,
+                renderCell(params) {
+                    const val = params.row.amount
+                    return val > 0 ? val : ''
+                }
+            },
+            {
+                field: 'creditor',
+                headerName: 'دائن',
+                width: 100,
+                type: 'number',
+                editable: true,
+                // disableColumnMenu: true,
+                // sortable: false,
+                renderCell(params) {
+                    const val = params.row.amount
+                    return val < 0 ? val : ''
+                }
+            },
+            {
                 field: 'typeTitle',
                 headerName: 'النوع',
                 width: 80,
@@ -120,28 +158,13 @@ const RecordsList = (props: Props) => {
                 // },
             },
             {
-                field: 'amount',
-                headerName: 'المبلغ',
-                width: 100,
-                type: 'number',
-                editable: true,
-                // disableColumnMenu: true,
-                // sortable: false,
-                renderCell(params) {
-                    return <span style={{ color: params.value < 0 ? 'red' : 'green' }}>{params.value}</span>
-                },
-            },
-            {
-                field: 'subTotal',
-                headerName: 'المجموع',
-                width: 100,
-                type: 'number',
-                editable: false,
+                field: 'fullName',
+                headerName: 'اسم صاحب البطاقة',
+                width: 180,
                 disableColumnMenu: true,
-                sortable: false,
-                renderCell(params) {
-                    return <span style={{ color: params.value < 0 ? 'red' : 'green' }}>{params.value}</span>
-                },
+                // valueFormatter(params) {
+                //     return params.value?.name
+                // }
             },
             {
                 field: 'notes',
@@ -182,15 +205,6 @@ const RecordsList = (props: Props) => {
                 headerName: 'رقم البطاقة',
                 width: 100,
                 disableColumnMenu: true,
-            },
-            {
-                field: 'fullName',
-                headerName: 'اسم صاحب البطاقة',
-                width: 180,
-                disableColumnMenu: true,
-                // valueFormatter(params) {
-                //     return params.value?.name
-                // }
             },
             {
                 field: 'images',
@@ -372,7 +386,7 @@ const RecordsList = (props: Props) => {
                     toolbar: {
                         showQuickFilter: true,
                         printOptions: {
-                            fields: reportForUser ? ['date', 'amount', 'subTotal', 'notes'] : ['date', 'amount', 'subTotal', 'notes', 'fullName', 'cardId'],
+                            fields: reportForUser ? ['date', 'subTotal', 'debtor', 'creditor', 'notes'] : ['date', 'subTotal', 'debtor', 'creditor', 'fullName', 'notes', 'cardId'],
                             hideFooter: true
                         }
                     },
