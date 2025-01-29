@@ -89,7 +89,7 @@ type OperationsProps = {
     setValues: React.Dispatch<React.SetStateAction<any>>;
     onSubmit: any;
     autoFocusId: number;
-    selectedUser: IUser;
+    selectedUser: IUser | null;
 }
 
 const Operations = ({ values, setValues, onSubmit, autoFocusId, selectedUser }: OperationsProps) => {
@@ -161,6 +161,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId, selectedUser }: 
                         dueDate: '',
                         bankId: null,
                         notes: '',
+                        currency: selectedUser?.currency
                     }]
             }
         })
@@ -317,7 +318,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId, selectedUser }: 
                                 handleDelete={() => handleDeleteCheck(i)}
                                 banks={banks}
                                 viewOnly={!!checkDetails?.id}
-                                selectedUser={selectedUser}
                             />
                         )
                         }
