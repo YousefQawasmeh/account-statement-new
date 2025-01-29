@@ -1,7 +1,7 @@
 import { Autocomplete, IconButton, InputAdornment, TextField } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useEffect, useState } from 'react'
-import { IBank, IUser } from '../../../types';
+import { IBank } from '../../../types';
 import { AddedImagesViewer, AddImageIconButton } from "../../../components/sharedComponents/AddedImagesViewer.tsx";
 import moment from 'moment';
 import { allCurrencies } from '../../../utils.ts';
