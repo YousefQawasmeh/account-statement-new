@@ -202,7 +202,7 @@ const Home = () => {
                 <Typography sx={{ textAlign: "start", flex: 1 }}>{option.fullName || option.name}</Typography>
                 <Chip
                   variant='outlined'
-                  sx={{ ...styles.chipInList, width: "49px",}}
+                  sx={{ ...styles.chipInList, width: "49px", }}
                   size='small'
                   color={option.type === 1 ? "primary" : "secondary"}
                   label={usersTypesShort[option.type]}
@@ -224,8 +224,12 @@ const Home = () => {
               setCardId((value?.cardId || "").toString());
             }}
             filterOptions={(options, { inputValue }) => {
-              const filteredOptions = selectedUserType ? options.filter((option) => option.type === selectedUserType) : options
-
+              const filteredOptions = (selectedUserType || selectedUserCurrency) ? options.filter((option) => {
+                if (selectedUserCurrency && !selectedUserType) return option.currency === selectedUserCurrency
+                if (!selectedUserCurrency && selectedUserType) return option.type === selectedUserType
+                return option.currency === selectedUserCurrency && option.type === selectedUserType
+              })
+                : options
               const words = inputValue.toLowerCase().split(" ").filter(Boolean);
               if (words.length === 0) return filteredOptions;
 
@@ -292,7 +296,7 @@ const Home = () => {
             placeholder='الرصيد'
             disabled
             InputProps={{
-              startAdornment: <InputAdornment sx={{ "> p": {minWidth: "16px"} }} position="start">{getCurrencySymbol(selectedUser?.currency || "شيكل")}</InputAdornment>
+              startAdornment: <InputAdornment sx={{ "> p": { minWidth: "16px" } }} position="start">{getCurrencySymbol(selectedUser?.currency || "شيكل")}</InputAdornment>
             }}
           />
         </Box>
