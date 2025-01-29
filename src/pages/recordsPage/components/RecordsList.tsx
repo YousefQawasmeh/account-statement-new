@@ -3,18 +3,33 @@ import Box from '@mui/material/Box';
 import { DataGrid, GridColDef, GridDeleteIcon, GridToolbar } from '@mui/x-data-grid';
 import { IRecord } from "../../../types.ts";
 import { deleteRecordById, getRecords, updateRecordById } from "../../../apis/record.ts";
-import { IconButton, TextField, Typography } from "@mui/material";
+import { IUser } from "../../../types.ts";
+import { getUserByCardId } from "../../../apis/user.ts"
+import { Chip, IconButton, TextField, Typography } from "@mui/material";
 import DeleteDialog from "./DeleteDialog.tsx";
 import ChecksTable from "../../../components/sharedComponents/ChecksTable.tsx";
 import { Gallery, GalleryIcon } from "../../../components/sharedComponents/Gallery.tsx";
 import moment from "moment";
+import { getCurrencySymbol, usersTypes } from "../../../utils.ts";
 
 type Props = {
     filters?: any
 }
 
+const styles = {
+    chip: {
+      width: "110px",
+      height: "32px",
+      m: "5px",
+      borderWidth: "2px",
+      fontSize: "18px",
+      alignItems: "baseline"
+    }
+  };
+
 const RecordsList = (props: Props) => {
     const [recordsRows, setRecordsRows] = useState<(IRecord & { subTotal?: any })[]>([]);
+    const [user, setUser] = useState<IUser | null>(null);
     const [columns, setColumns] = useState<GridColDef[]>([]);
     const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
     const { filters } = props || {}
@@ -143,7 +158,7 @@ const RecordsList = (props: Props) => {
                 // sortable: false,
                 renderCell(params) {
                     const val = params.row.amount
-                    return val < 0 ? val : ''
+                    return val < 0 ? val * -1 : ''
                 }
             },
             {
@@ -192,7 +207,7 @@ const RecordsList = (props: Props) => {
                                 }
                             }}
                             variant="body2"
-                            sx={{ whiteSpace: 'pre-wrap', py: "2px", minWidth: "200px", "&:focus": { outline: "solid #4caf50 1px" } }}
+                            sx={{ whiteSpace: 'pre-wrap', py: "2px", minWidth: "200px", textAlign: "justify", "&:focus": { outline: "solid #4caf50 1px" } }}
                         >
                             {params.value}
                         </Typography>
@@ -236,6 +251,7 @@ const RecordsList = (props: Props) => {
         ]
         setColumns(columns)
         // getRecordsFromDB()
+        getUserByCardId(filters.cardId).then(res => setUser(res.data))
     }, [])
 
     return (
@@ -346,13 +362,28 @@ const RecordsList = (props: Props) => {
                                         />
                                     </Box>
                                 </Box>
-                                <Box sx={{ display: 'flex', gap: '50px' }}>
+                                <Box sx={{ display: 'flex', gap: '50px', alignItems: 'center' }}>
                                     {
                                         reportForUser && <>
-                                            <p style={{ fontSize: '18px' }}> الاسم : {recordsRows?.[0]?.user?.fullName}</p>
-                                            <p style={{ fontSize: '18px' }}>رقم التلفون : {recordsRows?.[0]?.user?.phone}</p>
-                                            <p style={{ fontSize: '18px' }}>رقم البطاقة : {recordsRows?.[0]?.user?.cardId}</p>
-                                            <p style={{ fontSize: '18px' }}>المجموع  : {recordsRows?.[0]?.user?.total}</p>
+                                            <p style={{ fontSize: '18px' }}> الاسم : {user?.fullName}</p>
+                                            <p style={{ fontSize: '18px' }}>رقم التلفون : {user?.phone}</p>
+                                            <p style={{ fontSize: '18px' }}>رقم البطاقة : {user?.cardId}</p>
+                                            <p style={{ fontSize: '18px' }}>المجموع  : {user?.total}</p>
+                                            <p>
+
+                                            <Chip
+                                                variant={'outlined'}
+                                                color={(user?.type as any)?.id === 1 ? 'primary' : 'secondary'}
+                                                sx={{ ...styles.chip }}
+                                                label={usersTypes[+(user?.type as any)?.id]}
+                                                />
+                                            <Chip
+                                                variant={'outlined'}
+                                                color={'info'}
+                                                sx={{ ...styles.chip, width: '60px', "> span": { scale: user?.currency === 'شيكل' ? "1.7" : "1.1"  } }}
+                                                label={getCurrencySymbol(user?.currency)}
+                                                />
+                                                </p>
                                         </>
                                     }
                                 </Box>

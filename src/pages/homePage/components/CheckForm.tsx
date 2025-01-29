@@ -1,9 +1,10 @@
-import { Autocomplete, IconButton, TextField } from '@mui/material';
+import { Autocomplete, IconButton, InputAdornment, TextField } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useEffect, useState } from 'react'
-import { IBank } from '../../../types';
+import { IBank, IUser } from '../../../types';
 import { AddedImagesViewer, AddImageIconButton } from "../../../components/sharedComponents/AddedImagesViewer.tsx";
 import moment from 'moment';
+import { allCurrencies } from '../../../utils.ts';
 
 type CheckFormProps = {
     handleDelete: () => void,
@@ -22,6 +23,20 @@ const CheckForm = ({ handleDelete, checkDetails, setCheckDetails, banks, viewOnl
 
     const handleImagesChange = (newImages: any) => {
         handleChange({ target: { name: "images", value: newImages } })
+    };
+
+
+    const [selectedCurrency, setSelectedCurrency] = useState(allCurrencies.find((currency) => currency.name === checkDetails.currency));
+    const [currencyOpen, setCurrencyOpen] = useState(false);
+
+    const handleCurrencyClick = () => {
+        setCurrencyOpen(true);
+    };
+
+    const handleCurrencyChange = (_: any, value: any) => {
+        setSelectedCurrency(value);
+        setCurrencyOpen(false);
+        setCheckDetails({ ...checkDetails, currency: value.name });
     };
 
     // const banks = [
@@ -55,6 +70,44 @@ const CheckForm = ({ handleDelete, checkDetails, setCheckDetails, banks, viewOnl
     return (
         <form autoComplete="off" style={{ border: "1px dashed #ccc", padding: "12px", position: "relative" }}>
             <fieldset disabled={viewOnly} style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center", margin: 0, padding: 0, border: 0, }}>
+
+                <TextField
+                    label="المبلغ"
+                    name="amount"
+                    value={checkDetails.amount}
+                    onChange={handleChange}
+                    sx={{ m: 0, width: "150px" }}
+                    size="small"
+                    margin="normal"
+                    InputProps={{
+                        startAdornment: currencyOpen ? <Autocomplete
+                            disablePortal
+                            size='small'
+                            open={currencyOpen}
+                            onClose={() => setCurrencyOpen(false)}
+                            onChange={handleCurrencyChange}
+                            options={allCurrencies}
+                            getOptionLabel={(option) => (option.symbol)}
+                            renderInput={(params) => (
+                                <TextField sx={{ background: "transparent" }} {...params} label="العملة" />
+                            )}
+                            value={selectedCurrency}
+                            sx={{ width: "100%", m: 0, p: 0, height: "100%", "*": { border: 0 } }}
+                        />
+                            : <InputAdornment onClick={handleCurrencyClick} sx={{ width: "16px", minWidth: "16px", cursor: "pointer" }} position="start">{selectedCurrency?.symbol || " - "}</InputAdornment>
+                    }}
+                />
+                <TextField
+                    label="تاريخ الاستحقاق"
+                    name="dueDate"
+                    type="date"
+                    value={moment(checkDetails.dueDate).format("YYYY-MM-DD")}
+                    onChange={handleChange}
+                    sx={{ width: "210px", m: 0 }}
+                    size="small"
+                    margin="normal"
+                    InputLabelProps={{ shrink: true }}
+                />
                 <Autocomplete
                     disablePortal
                     options={banks}
@@ -69,42 +122,13 @@ const CheckForm = ({ handleDelete, checkDetails, setCheckDetails, banks, viewOnl
                     noOptionsText="لا يوجد بنوك"
                     getOptionLabel={(option) => (option.name)}
                     size='small'
-                    sx={{ width: 360 }}
+                    sx={{ width: 270 }}
                     renderInput={(params: any) => (
                         <TextField
                             {...params}
                             label="اسم البنك"
                         />
                     )}
-                />
-                <TextField
-                    label="رقم الشيك"
-                    name="checkNumber"
-                    value={checkDetails.checkNumber}
-                    onChange={handleChange}
-                    size="small"
-                    sx={{ m: 0 }}
-                    margin="normal"
-                />
-                <TextField
-                    label="المبلغ"
-                    name="amount"
-                    value={checkDetails.amount}
-                    onChange={handleChange}
-                    sx={{ m: 0, width: "150px" }}
-                    size="small"
-                    margin="normal"
-                />
-                <TextField
-                    label="تاريخ الاستحقاق"
-                    name="dueDate"
-                    type="date"
-                    value={moment(checkDetails.dueDate).format("YYYY-MM-DD")}
-                    onChange={handleChange}
-                    sx={{ width: "210px", m: 0 }}
-                    size="small"
-                    margin="normal"
-                    InputLabelProps={{ shrink: true }}
                 />
                 <TextField
                     label="ملاحظات"

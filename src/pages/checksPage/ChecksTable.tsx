@@ -1,11 +1,12 @@
 import { Box, Switch, Typography } from "@mui/material";
 import { DataGrid, GridToolbarQuickFilter, GridToolbarContainer, GridToolbarExport, GridToolbarColumnsButton, GridColDef } from '@mui/x-data-grid';
-import { ICheck } from "../../types.ts";
+import { IBank, ICheck } from "../../types.ts";
 import { updateCheckById } from "../../apis/check.ts";
 import { AxiosResponse } from "axios";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { Gallery, GalleryIcon } from "../../components/sharedComponents/Gallery.tsx";
+import { allCurrencies, getCurrencySymbol } from "../../utils.ts";
 
 type ChecksTableProps = {
     checks: ICheck[];
@@ -13,14 +14,16 @@ type ChecksTableProps = {
     viewOnly?: boolean;
     columnsHidden?: string[];
     onRowDoubleClick?: any;
+    allBanks?: IBank[]
 };
-const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRowDoubleClick }: ChecksTableProps) => {
+const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRowDoubleClick, allBanks }: ChecksTableProps) => {
     const [imagesToShow, setImagesToShow] = useState<any[]>([]);
     const [displayedColumns, setDisplayedColumns] = useState<any>({
         "bank": true,
         "checkNumber": true,
         "dueDate": true,
         "amount": true,
+        "currency": true,
         "notes": true,
         "userNameFrom": true,
         "userNameTo": true,
@@ -33,17 +36,18 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
         {
             field: "bank",
             headerName: "اسم البنك",
-            valueGetter: (params) => params.value?.name,
+            valueGetter: (params) => params.value?.name || allBanks?.find((bank: IBank) => bank.id === params.value)?.name,
             width: viewOnly ? 150 : 180,
             sortable: true,
-            disableColumnMenu: true
+            type: "singleSelect",
+            editable: true && !viewOnly,
+            valueOptions: allBanks?.map((bank: IBank) => bank.name)
         }, {
             field: "checkNumber",
             headerName: "رقم الشيك",
             editable: true && !viewOnly,
-            width: viewOnly ? 100 : 100,
+            width: viewOnly ? 95 : 95,
             sortable: false,
-            disableColumnMenu: true,
             renderCell: (params) => <Typography variant="body2" sx={{ width: "100%", textAlign: "end" }}>{params.value}</Typography>
         },
         {
@@ -51,8 +55,7 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
             headerName: "تاريخ الاستحقاق",
             type: "date",
             editable: true && !viewOnly,
-            disableColumnMenu: true,
-            width: viewOnly ? 100 : 100,
+            width: viewOnly ? 110 : 110,
             valueFormatter(params) { return moment(params.value)?.format("YYYY-MM-DD"); }
         },
         {
@@ -62,12 +65,23 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
             editable: true && !viewOnly,
             width: viewOnly ? 90 : 90,
             valueFormatter: (params) => (+params.value),
+            // renderCell: (params) => <Typography variant="body2">{params.value} {getCurrencySymbol(params.row?.currency || "شيكل")}</Typography>
+        },
+        {
+            field: "currency",
+            headerName: "العملة",
+            valueGetter: (params) => getCurrencySymbol(params.value || "شيكل"),
+            width: 10,
+            editable: true && !viewOnly,
+            type: "singleSelect",
+            valueOptions: allCurrencies.map((c) => c.name),
         },
         {
             field: "notes",
             headerName: "ملاحظات",
             editable: true && !viewOnly,
             width: 250,
+            sortable: false,
             disableColumnMenu: true
         },
         {
@@ -210,7 +224,9 @@ const ChecksTable = ({ checks, setChecks, viewOnly = false, columnsHidden, onRow
             }
             onCellEditStop={(params, event: any) => {
                 if (viewOnly || !setChecks) return
-                const value = event.target?.value
+                let value = event.target?.value
+                if(params.field === "currency") value = event.target.innerText
+                if(params.field === "bank") value = allBanks?.find((bank: IBank) => bank.name === event.target.innerText)?.id
                 if (value !== params.value) {
                     updateCheckById(params.row?.id, { [params.field]: value }).then((res: AxiosResponse<ICheck>) => {
                         setChecks(checks.map((check: ICheck) => check.id === res.data.id ? { ...check, ...res.data } : check))

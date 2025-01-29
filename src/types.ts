@@ -5,6 +5,8 @@ export type IRecordType = {
   title: string;
 };
 
+export type ICurrency = 'دولار' | 'دينار' | 'شيكل'
+
 export type IUser = {
   [x: string]: any;
   total: number;
@@ -15,7 +17,8 @@ export type IUser = {
   type: UserType;
   notes: string;
   id: string;
-  cardId: number
+  cardId: number;
+  currency: ICurrency;
 };
 
 export type IUsers = {
@@ -33,6 +36,7 @@ export type ICheck = {
   deletedAt: string;
   updatedAt: string;
   images?: string[];
+  currency: ICurrency;
 }
 
 export type IBank = {
@@ -52,5 +56,4 @@ export type IRecord = {
   deletedAt: string;
   checks?: ICheck[];
   images?: string[];
-
 }

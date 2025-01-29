@@ -8,15 +8,17 @@ import {
     DialogContentText,
     DialogTitle,
     IconButton,
+    InputAdornment,
     TextField,
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import CheckForm from "./CheckForm";
 import { getBanks } from "../../../apis/bank";
-import { IBank, ICheck } from "../../../types.ts";
+import { IBank, ICheck, IUser } from "../../../types.ts";
 import ChecksTable from "../../checksPage/ChecksTable.tsx";
 import { getAvailableChecks } from "../../../apis/check.ts";
 import { AddedImagesViewer, AddImageIconButton } from "../../../components/sharedComponents/AddedImagesViewer.tsx";
+import { getCurrencySymbol } from "../../../utils.ts";
 
 type ButtonType = {
     label: string;
@@ -87,9 +89,10 @@ type OperationsProps = {
     setValues: React.Dispatch<React.SetStateAction<any>>;
     onSubmit: any;
     autoFocusId: number;
+    selectedUser: IUser;
 }
 
-const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProps) => {
+const Operations = ({ values, setValues, onSubmit, autoFocusId, selectedUser }: OperationsProps) => {
     const [open, setOpen] = useState<boolean>(false);
     const [showChecksSection, setShowChecksSection] = useState<boolean>(false);
     const [banks, setBanks] = useState<IBank[]>([]);
@@ -186,7 +189,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: "space-between",
-                        width: "45%",
+                        width: "50%",
                         gap: "6px",
                     }}
                 >
@@ -219,6 +222,10 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                                         fullWidth
                                         placeholder='...'
                                         name={`${button.id}`}
+                                        disabled={selectedUser?.type === 1}
+                                        InputProps={{
+                                            startAdornment: <InputAdornment sx={{ width: "16px", "> p": { minWidth: "16px" } }} position="start">{getCurrencySymbol(selectedUser?.currency)}</InputAdornment>
+                                        }}
                                     />
                                 </form>
                             );
@@ -263,6 +270,10 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                                         fullWidth
                                         placeholder='...'
                                         name={`${button.id}`}
+                                        disabled={selectedUser?.type === 2}
+                                        InputProps={{
+                                            startAdornment: <InputAdornment sx={{ width: "16px", "> p": { minWidth: "16px" } }} position="start">{getCurrencySymbol(selectedUser?.currency)}</InputAdornment>
+                                        }}
                                     />
                                 </form>
                             );
@@ -306,6 +317,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId }: OperationsProp
                                 handleDelete={() => handleDeleteCheck(i)}
                                 banks={banks}
                                 viewOnly={!!checkDetails?.id}
+                                selectedUser={selectedUser}
                             />
                         )
                         }

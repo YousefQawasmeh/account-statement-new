@@ -5,11 +5,26 @@ import Switch from '@mui/material/Switch';
 
 import { IUser } from "../../../types.ts";
 import { getUsers, updateUserById } from "../../../apis/user.ts";
-import { IconButton } from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
+import { allCurrencies, getCurrencySymbol } from "../../../utils.ts";
 
 const UsersList = () => {
     const [usersRows, setUsersRows] = useState<IUser[]>([]);
     const [columns, setColumns] = useState<GridColDef[]>([]);
+    const savedDisplayedColumns = localStorage.getItem('displayedColumns');
+    const parsedDisplayedColumns = savedDisplayedColumns ? JSON.parse(savedDisplayedColumns) : {
+        'cardId': true,
+        'name': true,
+        'subName': true,
+        'phone': true,
+        'type': true,
+        'notes': true,
+        'total': true,
+        'currency': false,
+        'limit': false,
+        'active': false,
+    };
+    const [displayedColumns, setDisplayedColumns] = useState<any>(parsedDisplayedColumns);
 
     useEffect(() => {
         const columns: GridColDef[] = [
@@ -18,6 +33,23 @@ const UsersList = () => {
                 headerName: 'رقم البطاقة',
                 width: 110,
                 sortable: false,
+            },
+            {
+                field: 'total',
+                headerName: 'الرصيد',
+                width: 130,
+                type: 'number',
+                renderCell: (params) => <Typography variant="body2">{params.value} {!displayedColumns.currency && getCurrencySymbol(params.row?.currency || "شيكل")}</Typography>
+            },
+            {
+                field: 'currency',
+                headerName: 'العملة',
+                width: 30,
+                type: 'singleSelect',
+                valueOptions: allCurrencies.map((currency) => ({ label: currency.name + " (" + currency.symbol + ")", value: currency.name })),
+                valueFormatter(params) {
+                    return getCurrencySymbol(params.value || "شيكل")
+                },
             },
             {
                 field: 'name',
@@ -56,12 +88,6 @@ const UsersList = () => {
                 editable: true,
                 sortable: false,
 
-            },
-            {
-                field: 'total',
-                headerName: 'الرصيد',
-                width: 130,
-                type: 'number',
             },
             {
                 field: 'limit',
@@ -120,11 +146,16 @@ const UsersList = () => {
                     notes: user.notes,
                     total: user.total,
                     limit: user.limit,
-                    active: user.active
+                    active: user.active,
+                    currency: user.currency
                 }
             }))
         })
     }, [])
+
+    useEffect(() => {
+        localStorage.setItem('displayedColumns', JSON.stringify(displayedColumns));
+    }, [displayedColumns])
 
     return (
         <Box sx={{ width: '100%', height: 'calc(100vh - 150px)' }}>
@@ -177,10 +208,10 @@ const UsersList = () => {
                         return <>
                             <Box sx={{ displayPrint: 'none' }}>
                                 <GridToolbarContainer {...props}>
-                                    <GridToolbarColumnsButton/>
-                                    <GridToolbarExport/>
-                                <GridToolbarQuickFilter sx={{ ml: 'auto' }} />
-                            </GridToolbarContainer>
+                                    <GridToolbarColumnsButton />
+                                    <GridToolbarExport />
+                                    <GridToolbarQuickFilter sx={{ ml: 'auto' }} />
+                                </GridToolbarContainer>
                             </Box>
                         </>
                     }
@@ -194,12 +225,14 @@ const UsersList = () => {
                     pagination: {
                         labelRowsPerPage: 'عدد الزبائن في الصفحة',
                         labelDisplayedRows: (paginationInfo) => {
-                          const { from, to, count } = paginationInfo;
-                          return `${to}-${from} من ${count}`;
+                            const { from, to, count } = paginationInfo;
+                            return `${to}-${from} من ${count}`;
                         },
                     },
 
                 }}
+                columnVisibilityModel={displayedColumns}
+                onColumnVisibilityModelChange={(model) => setDisplayedColumns(model)}
             />
         </Box>
 
