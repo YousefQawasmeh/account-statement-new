@@ -6,17 +6,19 @@ import {
   TextField,
   Typography,
   Autocomplete,
-  Link
+  Link,
+  InputAdornment
 } from "@mui/material";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { IUser, IUsers } from "../../types.ts";
+import { ICurrency, IUser, IUsers } from "../../types.ts";
 import { getUsers } from "../../apis/user.ts";
 import { createNewRecord } from "../../apis/record.ts";
 import { AxiosResponse } from "axios";
 import Operations from "./components/Operations.tsx";
 import styled from "styled-components";
 import { useNavigate } from 'react-router-dom';
+import { allCurrencies, getCurrencySymbol, usersTypes, usersTypesShort } from "../../utils.ts";
 
 const styles = {
   flex: {
@@ -28,13 +30,23 @@ const styles = {
     },
   },
   chip: {
-    width: "70px",
+    width: "110px",
     height: "32px",
     m: "5px",
     borderWidth: "2px",
     fontSize: "16px",
     alignItems: "baseline"
   },
+  chipInList: {
+    m: "5px",
+    borderWidth: "2px",
+    alignItems: "baseline",
+    fontSize: "11px",
+    width: "38px",
+    height: "21px",
+    ml: 0,
+    fontWeight: "bold"
+  }
 };
 
 const StyledNoOptions = styled(Typography)`
@@ -46,11 +58,6 @@ const StyledNoOptions = styled(Typography)`
   }
 `;
 
-const usersTypes: { [key: number]: string } = {
-  1: "مدين",
-  2: "دائن",
-}
-
 const Home = () => {
   const navigate = useNavigate();
 
@@ -59,6 +66,7 @@ const Home = () => {
   const [users, setUsers] = useState<IUsers | null>(null);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [selectedUserType, setSelectedUserType] = useState<number | null>(null);
+  const [selectedUserCurrency, setSelectedUserCurrency] = useState<ICurrency | null>(null);
   const [cardId, setCardId] = useState<string>("");
   const [searchName, setSearchName] = useState<string>("");
   const [searchPhoneNo, setSearchPhoneNo] = useState<string>("");
@@ -84,8 +92,7 @@ const Home = () => {
     amount: number
   }) => {
     e.preventDefault();
-    if (!selectedUser?.cardId)
-    {
+    if (!selectedUser?.cardId) {
       alert("ادخل رقم البطاقة")
       return
     }
@@ -115,39 +122,59 @@ const Home = () => {
 
   return (
     <Card sx={{ maxWidth: "850px", bgcolor: "#f9f9f9", padding: "50px" }}>
-      <Box sx={styles.flex}>
-        <Typography variant='body1' sx={{ mr: "8px" }}>
-          رقم البطاقة :
-        </Typography>
-        <TextField
-          autoComplete={"off"}
-          // autoFocus={false}
-          // focused={false}
-          // disabled={selectedUser?.name.length > 0}
-          size='small'
-          fullWidth
-          placeholder='رقم البطاقة ...'
-          type='search'
-          // value={123}
-          value={cardId}
-          onChange={(e) => {
-            setCardId(e.target.value);
-          }}
-        />
-        <Chip
-          variant={selectedUserType === 1 ? 'filled' : 'outlined'}
-          color={'primary'}
-          sx={{ ...styles.chip }}
-          label={usersTypes[1]}
-          onClick={() => setSelectedUserType(selectedUserType === 1 ? null : 1)}
-        />
-        <Chip
-          variant={selectedUserType === 2 ? 'filled' : 'outlined'}
-          color={'secondary'}
-          sx={{ ...styles.chip }}
-          label={usersTypes[2]}
-          onClick={() => setSelectedUserType(selectedUserType === 2 ? null : 2)}
-        />
+      <Box sx={{ ...styles.flex, justifyContent: "space-between" }}>
+        <Box sx={{ ...styles.flex, width: "50%" }} >
+          <Typography variant='body1' sx={{ mr: "8px" }}>
+            رقم البطاقة :
+          </Typography>
+          <TextField
+            autoComplete={"off"}
+            // autoFocus={false}
+            // focused={false}
+            // disabled={selectedUser?.name.length > 0}
+            size='small'
+            fullWidth
+            placeholder='رقم البطاقة ...'
+            type='search'
+            // value={123}
+            value={cardId}
+            onChange={(e) => {
+              setCardId(e.target.value);
+            }}
+          />
+        </Box>
+        <Box sx={{ ...styles.flex, width: "45%" }} >
+          {Object.keys(usersTypes).map((key) => {
+            const isSelected = selectedUserType === +key;
+            const isPrimary = +key === 1;
+            return (
+              <Chip
+                key={key}
+                variant={isSelected ? 'filled' : 'outlined'}
+                color={isPrimary ? 'primary' : 'secondary'}
+                sx={{ ...styles.chip, ...(isSelected ? { border: 0, padding: "2px" } : {}) }}
+                label={usersTypes[+key]}
+                onClick={() => setSelectedUserType(isSelected ? null : +key)}
+              />
+            )
+          })}
+          <Box sx={{ width: "2px", height: "40px", bgcolor: "green" }} />
+          {
+            allCurrencies.map((currency, index) => {
+              const isSelected = selectedUserCurrency === currency.name
+              return (
+                <Chip
+                  key={index}
+                  variant={selectedUserCurrency === currency.name ? 'filled' : 'outlined'}
+                  color={'info'}
+                  sx={{ ...styles.chip, ...(isSelected ? { border: 0, padding: "2px" } : {}) }}
+                  label={currency.symbol}
+                  onClick={() => setSelectedUserCurrency(isSelected ? null : currency.name)}
+                />
+              )
+            })
+          }
+        </Box>
       </Box>
 
       <Box
@@ -157,7 +184,7 @@ const Home = () => {
           justifyContent: "space-between",
         }}
       >
-        <Box sx={{ ...styles.flex, width: "45%" }}>
+        <Box sx={{ ...styles.flex, width: "50%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
             الاسم :
           </Typography>
@@ -175,10 +202,17 @@ const Home = () => {
                 <Typography sx={{ textAlign: "start", flex: 1 }}>{option.fullName || option.name}</Typography>
                 <Chip
                   variant='outlined'
-                  sx={{ ...styles.chip, fontSize: "11px", width: "49px", height: "21px", ml: 0, fontWeight: "bold" }}
+                  sx={{ ...styles.chipInList, width: "49px", }}
                   size='small'
                   color={option.type === 1 ? "primary" : "secondary"}
-                  label={usersTypes[option.type]}
+                  label={usersTypesShort[option.type]}
+                />
+                <Chip
+                  variant='outlined'
+                  sx={{ ...styles.chipInList, "& span": { ...(option.currency === "شيكل" ? { scale: "1.9" } : { scale: "1.4" }) } }}
+                  size='small'
+                  color={"info"}
+                  label={getCurrencySymbol(option.currency || "شيكل")}
                 />
               </Box>
             )}
@@ -190,8 +224,12 @@ const Home = () => {
               setCardId((value?.cardId || "").toString());
             }}
             filterOptions={(options, { inputValue }) => {
-              const filteredOptions = selectedUserType ? options.filter((option) => option.type === selectedUserType) : options
-
+              const filteredOptions = (selectedUserType || selectedUserCurrency) ? options.filter((option) => {
+                if (selectedUserCurrency && !selectedUserType) return option.currency === selectedUserCurrency
+                if (!selectedUserCurrency && selectedUserType) return option.type === selectedUserType
+                return option.currency === selectedUserCurrency && option.type === selectedUserType
+              })
+                : options
               const words = inputValue.toLowerCase().split(" ").filter(Boolean);
               if (words.length === 0) return filteredOptions;
 
@@ -246,7 +284,7 @@ const Home = () => {
           />
         </Box>
 
-        <Box sx={{ ...styles.flex, width: "45%" }}>
+        <Box sx={{ ...styles.flex, width: "50%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
             الرصيد :
           </Typography>
@@ -257,6 +295,9 @@ const Home = () => {
             fullWidth
             placeholder='الرصيد'
             disabled
+            InputProps={{
+              startAdornment: <InputAdornment sx={{ "> p": { minWidth: "16px" } }} position="start">{getCurrencySymbol(selectedUser?.currency || "شيكل")}</InputAdornment>
+            }}
           />
         </Box>
 
@@ -274,7 +315,7 @@ const Home = () => {
 
           />
         </Box>
-        <Box sx={{ ...styles.flex, width: "45%" }}>
+        <Box sx={{ ...styles.flex, width: "50%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
             التاريخ :
           </Typography>
@@ -294,7 +335,7 @@ const Home = () => {
           </Button>
         </Box>
       </Box>
-      <Operations autoFocusId={autoFocusId} values={values} setValues={setValues} onSubmit={onSubmit} />
+      <Operations autoFocusId={autoFocusId} values={values} setValues={setValues} onSubmit={onSubmit} selectedUser={selectedUser} />
     </Card>
   );
 };

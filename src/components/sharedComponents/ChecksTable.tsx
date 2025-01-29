@@ -3,6 +3,8 @@ import { DataGrid, GridColDef, GridToolbarContainer, GridToolbarQuickFilter } fr
 import moment from 'moment';
 import { ICheck } from '../../types.ts';
 import { GalleryIcon, Gallery } from './Gallery.tsx';
+import { Typography } from '@mui/material';
+import { getCurrencySymbol } from '../../utils.ts';
 
 type ChecksTableProps = {
     checks: ICheck[];
@@ -27,7 +29,7 @@ const ChecksTable: React.FC<ChecksTableProps> = ({ checks, onRowDoubleClick, wit
         {
             field: 'checkNumber',
             headerName: 'رقم الشيك',
-            width: 100,
+            width: 80,
             editable: false,
             type: 'number',
             disableColumnMenu: true,
@@ -36,16 +38,17 @@ const ChecksTable: React.FC<ChecksTableProps> = ({ checks, onRowDoubleClick, wit
         {
             field: 'amount',
             headerName: 'المبلغ',
-            width: 75,
+            width: 85,
             editable: false,
             type: 'number',
             disableColumnMenu: true,
             sortable: false,
+            renderCell: (params) => <Typography variant="body2" sx={{ width: "100%", textAlign: "end" }}>{+params.value} {getCurrencySymbol(params.row.currency || "شيكل")}</Typography>
         },
         {
             field: 'dueDate',
             headerName: 'تاريخ الاستحقاق',
-            width: 100,
+            width: 110,
             disableColumnMenu: true,
             sortable: false,
             valueFormatter: (params) => moment(params.value).format("YYYY-MM-DD"),
@@ -53,7 +56,7 @@ const ChecksTable: React.FC<ChecksTableProps> = ({ checks, onRowDoubleClick, wit
         {
             field: 'notes',
             headerName: 'ملاحظات',
-            width: 130,
+            width: 120,
             editable: false,
             disableColumnMenu: true,
             sortable: false,
@@ -61,7 +64,7 @@ const ChecksTable: React.FC<ChecksTableProps> = ({ checks, onRowDoubleClick, wit
         {
             field: 'images',
             headerName: '',
-            // width: 50,
+            width: 50,
             disableColumnMenu: true,
             sortable: false,
             renderCell: (params) => {

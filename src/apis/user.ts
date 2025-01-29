@@ -85,6 +85,7 @@ export const getUserById = async (id: string) => {
 
 export const getUserByCardId = async (cardId: number) => {
     const res = await Axios.get(`${API_URL}/users/card/${cardId}`)
+    res.data.fullName = res.data.subName ? `${res.data.name} (${res.data.subName})` : res.data.name
     // const res = await Axios.get(`${API_URL}/users?cardId=${cardId}`)
     return res
 }

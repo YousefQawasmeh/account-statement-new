@@ -1,3 +1,5 @@
+import { ICurrency } from "./types";
+
 export const objectToFormData = (obj: { [x: string]: any }, form = new FormData(), namespace = '') => {
     for (const key in obj) {
       const value = obj[key];
@@ -21,3 +23,38 @@ export const objectToFormData = (obj: { [x: string]: any }, form = new FormData(
     }
     return form;
   };
+
+  export const allCurrencies: { name: ICurrency, symbol: string }[] = [{
+    name: 'دولار',
+    symbol: '$'
+  },
+  {
+    name: 'دينار',
+    symbol: 'د.ا'
+  },
+  {
+    name: 'شيكل',
+    symbol: '₪'
+  }
+  ]
+  export const getCurrencySymbol = (currency?: string) => {
+    switch (currency) {
+      case 'دولار':
+        return '$';
+      case 'دينار':
+        return 'د.ا';//JD
+      case 'شيكل':
+        return '₪';
+      default:
+        return '';
+    }
+  };
+
+  export const usersTypes: { [key: number]: string } = {
+    1: "ذمم مدينة",
+    2: "ذمم دائنة",
+  }
+  export const usersTypesShort: { [key: number]: string } = {
+    1: "مدين",
+    2: "دائن",
+  }

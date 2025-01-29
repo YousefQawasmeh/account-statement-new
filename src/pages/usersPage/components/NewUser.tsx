@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { IUser } from "../../../types.ts";
 import { createNewUser, getNewCardId } from "../../../apis/user.ts";
 import { useLocation } from 'react-router-dom';
+import { allCurrencies, usersTypes } from "../../../utils.ts";
 
 const styles = {
   flex: {
@@ -21,13 +22,11 @@ const styles = {
     },
   },
   chip: {
-    width: "70px",
-    height: "40px",
+    width: "110px",
+    height: "35px",
     m: "5px",
-    borderColor: "green",
     borderWidth: "2px",
-    color: "black",
-    fontSize: "16px",
+    fontSize: "15px",
   },
 };
 
@@ -43,6 +42,7 @@ const Users = () => {
     notes: "",
     id: "",
     cardId: 0,
+    currency: "شيكل",
   });
 
   const saveUser = (e: any) => {
@@ -60,6 +60,10 @@ const Users = () => {
       alert("ادخل نوع البطاقة")
       return
     }
+    if (!newUser.currency) {
+      alert("ادخل العملة")
+      return
+    }
 
     createNewUser(newUser).then(() => {
       setNewUser({
@@ -70,6 +74,7 @@ const Users = () => {
         notes: "",
         id: "",
         cardId: 0,
+        currency: "شيكل",
       })
       setNewUserCardId()
     }).catch(err => alert(err.message || err))
@@ -89,33 +94,57 @@ const Users = () => {
 
   return (
     <Card sx={{ maxWidth: "850px", bgcolor: "#f9f9f9", padding: "50px" }}>
-      <Box sx={styles.flex}>
-        <Typography variant='body1' sx={{ mr: "8px" }}>
-          رقم البطاقة :
-        </Typography>
-        <TextField
-          onChange={onInputChange}
-          size='small'
-          fullWidth
-          placeholder='رقم البطاقة ...'
-          value={newUser.cardId || ""}
-          disabled
-          type='number'
-          name="cardId"
-        />
-        <Chip
-          variant='outlined'
-          sx={{ ...styles.chip, opacity: newUser?.type === 1 ? 1 : 0.3 }}
-          label='مدين'
-          onClick={() => { setNewUser({ ...newUser, type: 1, }); }}
-        />
-        <Chip
-          variant='outlined'
-          sx={{ ...styles.chip, opacity: newUser?.type === 2 ? 1 : 0.3 }}
-          label='دائن'
-          onClick={() => { setNewUser({ ...newUser, type: 2, }); }}
-        />
+      <Box sx={{ ...styles.flex, justifyContent: "space-between" }}>
+        <Box sx={{ ...styles.flex, width: "45%" }}>
+          <Typography variant='body1' sx={{ mr: "8px" }}>
+            رقم البطاقة :
+          </Typography>
+          <TextField
+            onChange={onInputChange}
+            size='small'
+            fullWidth
+            placeholder='رقم البطاقة ...'
+            value={newUser.cardId || ""}
+            disabled
+            type='number'
+            name="cardId"
+          />
+        </Box>
+        <Box sx={{ ...styles.flex, width: "45%", justifyContent: "space-between" }}>
+          {Object.keys(usersTypes).map((key) => {
+            const isSelected = newUser?.type === +key;
+            const isPrimary = +key === 1;
+            return (
+              <Chip
+                key={key}
+                variant={isSelected ? 'filled' : 'outlined'}
+                color={isPrimary ? 'primary' : 'secondary'}
+                sx={{ ...styles.chip, ...(isSelected ? { border: 0, padding: "2px" } : { opacity: 0.6 }) }}
+                label={usersTypes[+key]}
+                onClick={() => { setNewUser({ ...newUser, type: +key, }); }}
+              />
+            )
+          })}
 
+
+          <Box sx={{ width: "2px", height: "40px", bgcolor: "green", mx: "6px", }} />
+          {
+            allCurrencies.map((currency, index) => {
+              const isSelected = newUser?.currency === currency.name
+              return (
+                <Chip
+                  key={index}
+                  variant={isSelected ? 'filled' : 'outlined'}
+                  color={'info'}
+                  sx={{ ...styles.chip, ...(isSelected ? { border: 0, padding: "2px" } : { opacity: 0.6 }), "> span": { ...(currency.name === "شيكل" ? { scale: "1.6", alignSelf: "baseline", paddingTop: "1px" } : { scale: "1.2" }) } }}
+                  label={currency.symbol}
+                  onClick={() => { setNewUser({ ...newUser, currency: currency.name }); }}
+                />
+              )
+            })
+          }
+
+        </Box>
       </Box>
       <Box
         component={"form"}
@@ -158,7 +187,7 @@ const Users = () => {
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
-             الاسم الفرعي :
+            الاسم الفرعي :
           </Typography>
           <TextField
             onChange={onInputChange}
@@ -166,7 +195,6 @@ const Users = () => {
             size='small'
             fullWidth
             placeholder='الاسم الفرعي'
-            autoFocus
             autoComplete="off"
             name="subName"
           />
