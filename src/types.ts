@@ -13,7 +13,8 @@ export type IUser = {
   name: string;
   subName?: string;
   fullName?: string
-  phone: string;
+  phone?: string;
+  phone2?: string;
   type: UserType;
   notes: string;
   id: string;

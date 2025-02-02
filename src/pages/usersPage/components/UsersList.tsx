@@ -67,7 +67,13 @@ const UsersList = () => {
                 field: 'phone',
                 headerName: 'رقم التلفون',
                 sortable: false,
-
+                width: 130,
+                editable: true,
+            },
+            {
+                field: 'phone2',
+                headerName: 'رقم التلفون 2',
+                sortable: false,
                 width: 130,
                 editable: true,
             },
@@ -75,7 +81,6 @@ const UsersList = () => {
                 field: 'type',
                 headerName: 'فئة البطاقة',
                 sortable: false,
-
                 width: 130,
                 valueFormatter(params) {
                     return params.value?.title
@@ -132,30 +137,29 @@ const UsersList = () => {
                 },
             }
 
-        ]
-        setColumns(columns)
+        ];
+        setColumns(columns);
         getUsers().then((res) => {
-            setUsersRows(res.data.map((user: IUser) => {
-                return {
-                    id: user.id,
-                    cardId: user.cardId,
-                    name: user.name,
-                    subName: user.subName,
-                    phone: user.phone,
-                    type: user.type,
-                    notes: user.notes,
-                    total: user.total,
-                    limit: user.limit,
-                    active: user.active,
-                    currency: user.currency
-                }
-            }))
+            setUsersRows(res.data.map((user: IUser) => ({
+                id: user.id,
+                cardId: user.cardId,
+                name: user.name,
+                subName: user.subName,
+                phone: user.phone,
+                phone2: user.phone2,
+                type: user.type,
+                notes: user.notes,
+                total: user.total,
+                limit: user.limit,
+                active: user.active,
+                currency: user.currency
+            })))
         })
-    }, [])
+    }, []);
 
     useEffect(() => {
         localStorage.setItem('displayedColumns', JSON.stringify(displayedColumns));
-    }, [displayedColumns])
+    }, [displayedColumns]);
 
     return (
         <Box sx={{ width: '100%', height: 'calc(100vh - 150px)' }}>
@@ -236,7 +240,7 @@ const UsersList = () => {
             />
         </Box>
 
-    )
+    );
 }
 
-export default UsersList
+export default UsersList;

@@ -38,6 +38,7 @@ const Users = () => {
     name: query.get('name') || "",
     subName: "",
     phone: query.get('phone') || "",
+    phone2: "",
     type: 0,
     notes: "",
     id: "",
@@ -49,36 +50,39 @@ const Users = () => {
     e.preventDefault();
 
     if (!newUser.cardId) {
-      alert("ادخل رقم البطاقة")
-      return
+      alert("ادخل رقم البطاقة");
+      return;
     }
     if (!newUser.name) {
-      alert("ادخل الاسم")
-      return
+      alert("ادخل الاسم");
+      return;
     }
     if (!newUser.type) {
-      alert("ادخل نوع البطاقة")
-      return
+      alert("ادخل نوع البطاقة");
+      return;
     }
     if (!newUser.currency) {
-      alert("ادخل العملة")
-      return
+      alert("ادخل العملة");
+      return;
     }
 
-    createNewUser(newUser).then(() => {
-      setNewUser({
-        total: 0,
-        name: "",
-        phone: "",
-        type: newUser.type,
-        notes: "",
-        id: "",
-        cardId: 0,
-        currency: "شيكل",
+    createNewUser(newUser)
+      .then(() => {
+        setNewUser({
+          total: 0,
+          name: "",
+          phone: "",
+          phone2: "",
+          type: newUser.type,
+          notes: "",
+          id: "",
+          cardId: 0,
+          currency: "شيكل",
+        });
+        setNewUserCardId();
       })
-      setNewUserCardId()
-    }).catch(err => alert(err.message || err))
-  }
+      .catch((err) => alert(err.message || err));
+  };
 
   const setNewUserCardId = () => {
     newUser.type && getNewCardId(newUser.type).then((res) => {
@@ -87,7 +91,7 @@ const Users = () => {
   }
 
   const onInputChange = (e: any) => {
-    setNewUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setNewUser((prev) => ({ ...prev, [e.target.name]: e.target.value as any }));
   }
 
   useEffect(setNewUserCardId, [newUser.type]);
@@ -200,6 +204,20 @@ const Users = () => {
           />
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }}>
+          <Typography variant='body1' sx={{ mr: "8px" }}>
+            رقم التلفون 2 :
+          </Typography>
+          <TextField
+            onChange={onInputChange}
+            value={newUser?.phone2 || ""}
+            size='small'
+            fullWidth
+            placeholder='رقم التلفون 2 (اختياري)'
+            autoComplete="off"
+            name="phone2"
+          />
+        </Box>
+        <Box sx={{ ...styles.flex, width: "100%" }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
             ملاحظات :
           </Typography>
