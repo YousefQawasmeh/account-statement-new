@@ -104,7 +104,7 @@ const Home = () => {
       amount,
       notes: values?.notes,
       images: values?.images,
-      checks: values?.checks
+      checks: values?.checks?.map((check: any) => check?.id ? ({id: check?.id}) : check)
     }).then(() => {
       if (!selectedUser?.cardId) return
       setUsers({ ...users, [selectedUser?.cardId]: { ...selectedUser, total: selectedUser?.total + amount } })
