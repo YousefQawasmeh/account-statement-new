@@ -104,7 +104,7 @@ const Home = () => {
       amount,
       notes: values?.notes,
       images: values?.images,
-      checks: values?.checks
+      checks: values?.checks?.map((check: any) => check?.id ? ({id: check?.id}) : check)
     }).then(() => {
       if (!selectedUser?.cardId) return
       setUsers({ ...users, [selectedUser?.cardId]: { ...selectedUser, total: selectedUser?.total + amount } })
@@ -271,7 +271,7 @@ const Home = () => {
               غير موجود، إضغط للإضافة
             </StyledNoOptions>}
             // noOptionsText="لا يوجد رقم مشابه"
-            getOptionLabel={(option) => option.phone}
+            getOptionLabel={(option) => option.phone2 ? `${option.phone}/${option.phone2}` : `${option.phone ?? option.cardId}`}
             size='small'
             fullWidth
             value={selectedUser}

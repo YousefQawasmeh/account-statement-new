@@ -145,7 +145,7 @@ const RecordsList = (props: Props) => {
                 // sortable: false,
                 renderCell(params) {
                     const val = params.row.amount
-                    return val > 0 ? val : ''
+                    return val >= 0 ? val : ''
                 }
             },
             {
@@ -254,6 +254,13 @@ const RecordsList = (props: Props) => {
         getUserByCardId(filters.cardId).then(res => setUser(res.data))
     }, [])
 
+    const updateUserAndRecords = () => {
+        getUserByCardId(filters.cardId).then(res => {
+            setUser(res.data);
+            getRecordsFromDB();
+        })
+    }
+
     return (
         <Box sx={{ width: '100%', height: 'calc(100vh - 150px)' }}>
             <DataGrid
@@ -306,9 +313,19 @@ const RecordsList = (props: Props) => {
                 columnVisibilityModel={displayedColumns}
                 onColumnVisibilityModelChange={(model) => setDisplayedColumns(model)}
                 onCellEditStop={(params, event: any) => {
-                    const value = event.target?.value
+                    let value = event.target?.value
+                    let key = params.field
+                    if (key === "creditor") {
+                        key = "amount"
+                        value = value > 0 ? -value : value
+                    }
+                    if (key === "debtor") {
+                        key = "amount"
+                        value = value > 0 ? value : -value
+                    }
                     if (value !== params.value) {
-                        updateRecordById(params.row.id, { [params.field]: value })
+                        updateRecordById(params.row.id, { [key]: value })
+                            .then(res => { setRecordsRows(recordsRows.map((record) => record.id === res.data?.updatedRecord?.id ? { ...record, ...res.data?.updatedRecord } : record)); updateUserAndRecords() })
                             .catch(err => alert(err.message || err))
                     }
                 }}
@@ -371,19 +388,19 @@ const RecordsList = (props: Props) => {
                                             <p style={{ fontSize: '18px' }}>المجموع  : {user?.total}</p>
                                             <p>
 
-                                            <Chip
-                                                variant={'outlined'}
-                                                color={(user?.type as any)?.id === 1 ? 'primary' : 'secondary'}
-                                                sx={{ ...styles.chip }}
-                                                label={usersTypes[+(user?.type as any)?.id]}
+                                                <Chip
+                                                    variant={'outlined'}
+                                                    color={(user?.type as any)?.id === 1 ? 'primary' : 'secondary'}
+                                                    sx={{ ...styles.chip }}
+                                                    label={usersTypes[+(user?.type as any)?.id]}
                                                 />
-                                            <Chip
-                                                variant={'outlined'}
-                                                color={'info'}
-                                                sx={{ ...styles.chip, width: '60px', "> span": { scale: user?.currency === 'شيكل' ? "1.7" : "1.1"  } }}
-                                                label={getCurrencySymbol(user?.currency)}
+                                                <Chip
+                                                    variant={'outlined'}
+                                                    color={'info'}
+                                                    sx={{ ...styles.chip, width: '60px', "> span": { scale: user?.currency === 'شيكل' ? "1.7" : "1.1" } }}
+                                                    label={getCurrencySymbol(user?.currency)}
                                                 />
-                                                </p>
+                                            </p>
                                         </>
                                     }
                                 </Box>
@@ -435,7 +452,7 @@ const RecordsList = (props: Props) => {
                 open={!!recordToDelete}
                 setOpen={() => setRecordToDelete(null)}
                 handleDelete={(notes) => deleteRecordById({ id: recordToDelete?.id, notes })
-                    .then(() => setRecordsRows(recordsRows.filter(record => record.id !== recordToDelete?.id)))
+                    .then(() => { setRecordsRows(recordsRows.filter(record => record.id !== recordToDelete?.id)); updateUserAndRecords() })
                     .catch(err => alert(err.message || err))
                 }
             />}

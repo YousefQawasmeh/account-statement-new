@@ -7,7 +7,7 @@ type Props = {
     setNewImages: (images: any) => void
 };
 
-const AddedImagesViewer = ({ images , setNewImages }: Props) => {
+const AddedImagesViewer = ({ images, setNewImages }: Props) => {
     const handleDeleteImage = (index: number) => {
         const dataTransfer = new DataTransfer();
         Array.from(images).forEach((image: any, i: number) => index !== i && dataTransfer.items.add(image));
@@ -36,7 +36,7 @@ const AddedImagesViewer = ({ images , setNewImages }: Props) => {
                 <CancelIcon />
             </IconButton>
             <img
-                src={URL.createObjectURL(image as Blob)}
+                src={typeof image === "string" ? (window?.location?.origin.replace(":5173", ":3000") + "/api/images?name=" + image) : URL.createObjectURL(image as Blob)}
                 alt="Selected"
                 style={{ width: "50px", height: "50px", /*objectFit: "contain"*/ }}
             />
