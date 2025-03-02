@@ -23,53 +23,22 @@ import { getCurrencySymbol } from "../../../utils.ts";
 type ButtonType = {
     label: string;
     value: number;
-    color: "primary" | "secondary";
     variant: "contained" | "outlined" | "text";
     id: number;
 };
 
 const buttons: ButtonType[] = [
-    // {
-    //     label: "نقدي",
-    //     value: 0,
-    //     color: "primary",
-    //     variant: "contained",
-    //     id: 4,
-    // },
     {
-        label: "مشتريات",
-        value: -1,
-        color: "secondary",
-        variant: "contained",
-        id: 5,
-    },
-    {
-        label: "صرف له",
+        label: "مدين",
         value: 1,
-        color: "secondary",
-        variant: "outlined",
-        id: 6,
-    },
-    // {
-    //     label: "نقدي",
-    //     value: 0,
-    //     color: "primary",
-    //     variant: "contained",
-    //     id: 1,
-    // },
-    {
-        label: "دين",
-        value: 1,
-        color: "primary",
         variant: "contained",
         id: 2,
     },
     {
-        label: "دفعة",
+        label: "دائن",
         value: -1,
-        color: "primary",
         variant: "outlined",
-        id: 3,
+        id: 5,
     },
 ];
 
@@ -195,55 +164,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId, selectedUser }: 
                     }}
                 >
                     <>
-                        {buttons.slice(0, buttons.length / 2).map((button) => {
-                            return (
-                                <form
-                                    key={button.id}
-                                    onSubmit={(e) => onSubmit(e, {
-                                        type: button.id,
-                                        amount: +values[button.id] * button.value,
-                                    })}
-                                    name={button.id.toString()}
-                                    style={{ display: "flex" }}
-                                >
-                                    <Button
-                                        type={"submit"}
-                                        sx={{ minWidth: "100px", mr: "8px" }}
-                                        variant={button.variant}
-                                        color={button.color}
-                                    >
-                                        {button.label}
-                                    </Button>
-                                    <TextField
-                                        inputRef={autoFocusId === button.id ? inputRef : null}
-                                        autoComplete={"off"}
-                                        value={(values[button.id]) || ""}
-                                        onChange={onInputChange}
-                                        size='small'
-                                        fullWidth
-                                        placeholder='...'
-                                        name={`${button.id}`}
-                                        disabled={selectedUser?.type === 1}
-                                        InputProps={{
-                                            startAdornment: <InputAdornment sx={{ width: "16px", "> p": { minWidth: "16px" } }} position="start">{getCurrencySymbol(selectedUser?.currency)}</InputAdornment>
-                                        }}
-                                    />
-                                </form>
-                            );
-                        })}
-                    </>
-                </Box>
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        width: "45%",
-                        gap: "6px",
-                    }}
-                >
-                    <>
-                        {buttons.slice(buttons.length / 2).map((button) => {
+                        {buttons.map((button) => {
                             return (
                                 <form
                                     key={button.id}
@@ -258,7 +179,7 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId, selectedUser }: 
                                         type={"submit"}
                                         sx={{ minWidth: "100px", mr: "8px" }}
                                         variant={button.variant}
-                                        color={button.color}
+                                        color={selectedUser?.type === 2 ? "secondary" : "primary"}
                                     >
                                         {button.label}
                                     </Button>
@@ -271,7 +192,6 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId, selectedUser }: 
                                         fullWidth
                                         placeholder='...'
                                         name={`${button.id}`}
-                                        disabled={selectedUser?.type === 2}
                                         InputProps={{
                                             startAdornment: <InputAdornment sx={{ width: "16px", "> p": { minWidth: "16px" } }} position="start">{getCurrencySymbol(selectedUser?.currency)}</InputAdornment>
                                         }}
@@ -289,12 +209,12 @@ const Operations = ({ values, setValues, onSubmit, autoFocusId, selectedUser }: 
                     value={values["notes"] || ""}
                     onChange={onInputChange}
                     size='small'
-                    fullWidth
+                    sx={{ width: "50%" }}
                     placeholder='ملاحظات ...'
                     name="notes"
                 />
                 <AddImageIconButton handleImagesChange={handleImagesChange} />
-                <Button sx={{ minWidth: "100px", ml: "8px" }} onClick={() => setShowChecksSection(!showChecksSection)} >
+                <Button sx={{ minWidth: "100px", ml: "auto" }} onClick={() => setShowChecksSection(!showChecksSection)} >
                     إضافة شيك
                 </Button>
             </Box>
