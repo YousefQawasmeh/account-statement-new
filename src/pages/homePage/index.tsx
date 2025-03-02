@@ -184,7 +184,7 @@ const Home = () => {
           justifyContent: "space-between",
         }}
       >
-        <Box sx={{ ...styles.flex, width: "50%" }}>
+        <Box sx={{ ...styles.flex, width: "50%", "&  button": { zIndex: 1 } }}>
           <Typography variant='body1' sx={{ mr: "8px" }}>
             الاسم :
           </Typography>
@@ -240,23 +240,34 @@ const Home = () => {
             }}
 
             renderInput={(params) => (
-              <TextField
+              <Box sx={{position: "relative", display: "flex", alignItems: "center" }}>
+                <TextField
                 {...params}
                 label="الاسم"
                 onChange={(e) => {
                   setSearchName(e.target.value);
-                  // You can also call setSelectedUser here if needed to reset selection
                 }}
-              />
+                />
+                {selectedUser ? <Box sx={{ position: "absolute", right: "40px", display: "flex", alignItems: "center"}}>
+                <Chip
+                  variant='filled'
+                  sx={{ ...styles.chipInList, width: "49px", }}
+                  size='small'
+                  color={selectedUser.type === 1 ? "primary" : "secondary"}
+                  label={usersTypesShort[selectedUser.type]}
+                  />
+                <Chip
+                  variant='filled'
+                  sx={{ ...styles.chipInList, "& span": { ...(selectedUser.currency === "شيكل" ? { scale: "1.9" } : { scale: "1.4" }) } }}
+                  size='small'
+                  color={"info"}
+                  label={getCurrencySymbol(selectedUser.currency || "شيكل")}
+                  />
+                  </Box>: null}
+                </Box>
             )}
           />
 
-          {/* <TextField
-            value={selectedUser?.name || ""}
-            size='small'
-            fullWidth
-            placeholder='الاسم'
-          /> */}
         </Box>
 
         <Box sx={{ ...styles.flex, width: "45%" }}>
