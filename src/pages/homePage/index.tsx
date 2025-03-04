@@ -96,6 +96,10 @@ const Home = () => {
       alert("ادخل رقم البطاقة")
       return
     }
+    if(isNaN(data.amount)) {
+      alert("ادخل المبلغ")
+      return
+    }
     const { type, amount } = data
     createNewRecord({
       user: selectedUser?.id,
