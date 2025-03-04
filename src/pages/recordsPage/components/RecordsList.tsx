@@ -251,7 +251,7 @@ const RecordsList = (props: Props) => {
         ]
         setColumns(columns)
         // getRecordsFromDB()
-        getUserByCardId(filters.cardId).then(res => setUser(res.data))
+        filters.cardId && getUserByCardId(filters.cardId).then(res => setUser(res.data))
     }, [])
 
     const updateUserAndRecords = () => {
@@ -365,8 +365,9 @@ const RecordsList = (props: Props) => {
                                             type='date'
                                             sx={{ width: "150px" }}
                                             size='small'
-                                            value={dateStringFrom}
-                                            onChange={(e) => setDateStringFrom(e.target.value)}
+                                            defaultValue={dateStringFrom}
+                                            onChange={(e) => setTimeout(() => setDateStringFrom(e.target.value), 3000)}
+                                            onKeyDown={(e: any) => e.key === 'Enter' && setDateStringFrom(e.target.value)}
                                         />
                                         <Typography variant='body1' sx={{ mr: "8px", ml: "24px" }}>الى : </Typography>
                                         <TextField
@@ -374,8 +375,9 @@ const RecordsList = (props: Props) => {
                                             type='date'
                                             sx={{ width: "150px" }}
                                             size='small'
-                                            value={dateStringTo}
-                                            onChange={(e) => setDateStringTo(e.target.value)}
+                                            defaultValue={dateStringTo}
+                                            onChange={(e) => setTimeout(() => setDateStringTo(e.target.value), 3000)}
+                                            onKeyDown={(e: any) => e.key === 'Enter' && setDateStringTo(e.target.value)}
                                         />
                                     </Box>
                                 </Box>
