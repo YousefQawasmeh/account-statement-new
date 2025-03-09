@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Box from '@mui/material/Box';
-import { DataGrid, GridColDef, GridDeleteIcon, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridDeleteIcon, GridToolbar, GridFooterContainer, GridPagination } from '@mui/x-data-grid';
 import { IRecord } from "../../../types.ts";
 import { deleteRecordById, getRecords, updateRecordById } from "../../../apis/record.ts";
 import { IUser } from "../../../types.ts";
@@ -18,17 +18,20 @@ type Props = {
 
 const styles = {
     chip: {
-      width: "110px",
-      height: "32px",
-      m: "5px",
-      borderWidth: "2px",
-      fontSize: "18px",
-      alignItems: "baseline"
+        width: "110px",
+        height: "32px",
+        m: "5px",
+        borderWidth: "2px",
+        fontSize: "18px",
+        alignItems: "baseline"
     }
-  };
+};
 
 const RecordsList = (props: Props) => {
     const [recordsRows, setRecordsRows] = useState<(IRecord & { subTotal?: any })[]>([]);
+    const [debtorSum, setDebtorSum] = useState<number>(0);
+    const [creditorSum, setCreditorSum] = useState<number>(0);
+    const [checksSum, setChecksSum] = useState<number>(0);
     const [user, setUser] = useState<IUser | null>(null);
     const [columns, setColumns] = useState<GridColDef[]>([]);
     const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
@@ -70,8 +73,17 @@ const RecordsList = (props: Props) => {
                 createdAt: tempRecord.createdAt,
                 deletedAt: tempRecord.deletedAt,
             }
-
+            
+            let deptorSum: number = 0
+            let creditorSum: number = 0
+            let checksSum: number = 0
             const recordsRows = res.data.map((record: IRecord) => {
+                if (record.amount > 0) {
+                    deptorSum += record.amount
+                } else {
+                    creditorSum += record.amount
+                }
+                checksSum += record.checks?.reduce((total, check) => moment(check.dueDate).isAfter(record.date) ? (total + check.amount) : total, 0) || 0
                 preTotal += record.amount
                 const fullName = record.user?.subName ? `${record.user.name} (${record.user.subName})` : record.user.name
                 return {
@@ -93,6 +105,9 @@ const RecordsList = (props: Props) => {
                 }
             })
             setRecordsRows([firstRecord, ...recordsRows])
+            setDebtorSum(deptorSum)
+            setCreditorSum(creditorSum)
+            setChecksSum(checksSum)
         })
     }
     useEffect(() => {
@@ -143,10 +158,7 @@ const RecordsList = (props: Props) => {
                 editable: true,
                 // disableColumnMenu: true,
                 // sortable: false,
-                renderCell(params) {
-                    const val = params.row.amount
-                    return val >= 0 ? val : ''
-                }
+                valueGetter: (params) => params.row.amount >= 0 ? params.row.amount : "",
             },
             {
                 field: 'creditor',
@@ -156,10 +168,7 @@ const RecordsList = (props: Props) => {
                 editable: true,
                 // disableColumnMenu: true,
                 // sortable: false,
-                renderCell(params) {
-                    const val = params.row.amount
-                    return val < 0 ? val * -1 : ''
-                }
+                valueGetter: (params) => params.row.amount < 0 ? params.row.amount * -1 : "",
             },
             {
                 field: 'typeTitle',
@@ -430,7 +439,23 @@ const RecordsList = (props: Props) => {
                                 {/* <GridToolbarQuickFilter/> */}
                             </Box>
                         </>
-                    }
+                    },
+                    footer: () => {
+                        return (
+                            <GridFooterContainer  >
+                                <Box sx={{ px: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '18px', color: 'green', mr: '16px' }}>الذمم المدينة: {debtorSum}</Typography>
+                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '18px', color: 'red', mr: '16px' }}>الذمم الدائنة: {creditorSum * -1}</Typography>
+                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '18px'}}>شيكات غير مستحقة: {checksSum}</Typography>
+
+                                </Box>
+                                <GridPagination
+                                    labelRowsPerPage="عدد السجلات في الصفحة"
+                                    labelDisplayedRows={({ to, from, count }) => `${to}-${from} من ${count}`}
+                                />
+                            </GridFooterContainer>
+                        )
+                    },
                 }}
                 slotProps={{
                     toolbar: {
