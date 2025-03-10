@@ -1,5 +1,3 @@
-import { ICurrency } from "./types";
-
 export const objectToFormData = (obj: { [x: string]: any }, form = new FormData(), namespace = '') => {
   for (const key in obj) {
     const value = obj[key];
@@ -24,7 +22,7 @@ export const objectToFormData = (obj: { [x: string]: any }, form = new FormData(
   return form;
 };
 
-export const allCurrencies: { name: ICurrency, symbol: string }[] = [
+export const allCurrencies: { name: string, symbol: string }[] = [
   {
     name: 'شيكل',
     symbol: '₪'
@@ -59,3 +57,5 @@ export const usersTypesShort: { [key: number]: string } = {
   1: "مدين",
   2: "دائن",
 }
+
+export const baseApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';

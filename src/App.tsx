@@ -5,7 +5,7 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import { HomePage, UsersPage, RecordsPage, ChecksPage } from "./pages";
+import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage } from "./pages";
 import { Link } from "react-router-dom";
 import './App.css'
 import { Box, styled, Typography } from '@mui/material';
@@ -112,12 +112,15 @@ const Menu = ()=><NavWrapper>
   <NavLink to="/account-statement-new/checks" className={window.location.pathname === "/account-statement-new/checks" ? "active" : ""}>
     {" الشيكات "}
   </NavLink>
+  <NavLink to="/account-statement-new/reminders" className={window.location.pathname === "/account-statement-new/reminders" ? "active" : ""}>
+    {" التذكيرات "}
+  </NavLink>
 </Typography>
 </NavWrapper>
 
 const PageWithMenu = (page: JSX.Element) => {
   return (
-    <Box>
+    <Box sx={{ width: "calc(100vw - 64px) !important", height: "100vh !important", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <Menu />
       {page}
     </Box>
@@ -142,6 +145,10 @@ const router = createBrowserRouter([
     element: PageWithMenu(<ChecksPage />),
   },
   {
+    path: "/reminders",
+    element: PageWithMenu(<RemindersPage />),
+  },
+  {
     path: "/account-statement-new/",
     element: PageWithMenu(<HomePage />),
   },
@@ -156,6 +163,10 @@ const router = createBrowserRouter([
   {
     path: "/account-statement-new/checks",
     element: PageWithMenu(<ChecksPage />),
+  },
+  {
+    path: "/account-statement-new/reminders",
+    element: PageWithMenu(<RemindersPage />),
   },
   {
     path: "/usersTypes",

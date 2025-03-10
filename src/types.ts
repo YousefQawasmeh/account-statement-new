@@ -58,3 +58,11 @@ export type IRecord = {
   checks?: ICheck[];
   images?: string[];
 }
+
+export interface Reminder {
+  id: string;
+  note: string;
+  dueDate: string;
+  createdAt?: string;
+  user?: string;
+}
