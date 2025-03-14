@@ -59,3 +59,5 @@ export const usersTypesShort: { [key: number]: string } = {
   1: "مدين",
   2: "دائن",
 }
+
+export const baseApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
