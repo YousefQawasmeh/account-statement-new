@@ -271,7 +271,7 @@ const RecordsList = (props: Props) => {
     }
 
     return (
-        <Box sx={{ width: '100%', height: 'calc(100vh - 150px)' }}>
+        <Box sx={{ height: 'calc(100vh - 150px)' }}>
             <DataGrid
                 sx={
                     {

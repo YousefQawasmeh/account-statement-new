@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { IBank, ICheck } from "../../types.ts";
 import { getChecks } from "../../apis/check.ts";
 import { AxiosResponse } from "axios";
@@ -19,6 +19,11 @@ const ChecksPage = () => {
     }, [])
 
     return <Box>
+         <Box sx={{ m: "20px", display: "flex", justifyContent: "space-between" }} >
+                <Typography variant="h5">
+                    الشيكات
+                </Typography>
+            </Box>
         <ChecksTable checks={checks} setChecks={setChecks} allBanks={allBanks} />
     </Box>
 };
