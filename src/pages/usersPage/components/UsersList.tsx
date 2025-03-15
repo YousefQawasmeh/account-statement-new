@@ -10,7 +10,6 @@ import { allCurrencies, getCurrencySymbol } from "../../../utils.ts";
 
 const UsersList = () => {
     const [usersRows, setUsersRows] = useState<IUser[]>([]);
-    const [columns, setColumns] = useState<GridColDef[]>([]);
     const savedDisplayedColumns = localStorage.getItem('displayedColumns');
     const parsedDisplayedColumns = savedDisplayedColumns ? JSON.parse(savedDisplayedColumns) : {
         'cardId': true,
@@ -25,120 +24,119 @@ const UsersList = () => {
         'active': false,
     };
     const [displayedColumns, setDisplayedColumns] = useState<any>(parsedDisplayedColumns);
+    const columns: GridColDef[] = [
+        {
+            field: 'cardId',
+            headerName: 'رقم البطاقة',
+            width: 110,
+            sortable: false,
+        },
+        {
+            field: 'total',
+            headerName: 'الرصيد',
+            width: 130,
+            type: 'number',
+            renderCell: (params) => <Typography variant="body2">{params.value} {!displayedColumns.currency && getCurrencySymbol(params.row?.currency || "شيكل")}</Typography>
+        },
+        {
+            field: 'currency',
+            headerName: 'العملة',
+            width: 30,
+            type: 'singleSelect',
+            valueOptions: allCurrencies.map((currency) => ({ label: currency.name + " (" + currency.symbol + ")", value: currency.name })),
+            valueFormatter(params) {
+                return getCurrencySymbol(params.value || "شيكل")
+            },
+        },
+        {
+            field: 'name',
+            headerName: 'الاسم',
+            width: 170,
+            editable: true,
+        },
+        {
+            field: 'subName',
+            headerName: 'الاسم الفرعي',
+            width: 170,
+            editable: true,
+        },
+        {
+            field: 'phone',
+            headerName: 'رقم التلفون',
+            sortable: false,
+            width: 130,
+            editable: true,
+        },
+        {
+            field: 'phone2',
+            headerName: 'رقم التلفون 2',
+            sortable: false,
+            width: 130,
+            editable: true,
+        },
+        {
+            field: 'type',
+            headerName: 'فئة البطاقة',
+            sortable: false,
+            width: 130,
+            valueFormatter(params) {
+                return params.value?.title
+            },
+        },
+        {
+            field: 'notes',
+            headerName: 'ملاحظات',
+            width: 130,
+            editable: true,
+            sortable: false,
 
-    useEffect(() => {
-        const columns: GridColDef[] = [
-            {
-                field: 'cardId',
-                headerName: 'رقم البطاقة',
-                width: 110,
-                sortable: false,
-            },
-            {
-                field: 'total',
-                headerName: 'الرصيد',
-                width: 130,
-                type: 'number',
-                renderCell: (params) => <Typography variant="body2">{params.value} {!displayedColumns.currency && getCurrencySymbol(params.row?.currency || "شيكل")}</Typography>
-            },
-            {
-                field: 'currency',
-                headerName: 'العملة',
-                width: 30,
-                type: 'singleSelect',
-                valueOptions: allCurrencies.map((currency) => ({ label: currency.name + " (" + currency.symbol + ")", value: currency.name })),
-                valueFormatter(params) {
-                    return getCurrencySymbol(params.value || "شيكل")
-                },
-            },
-            {
-                field: 'name',
-                headerName: 'الاسم',
-                width: 170,
-                editable: true,
-            },
-            {
-                field: 'subName',
-                headerName: 'الاسم الفرعي',
-                width: 170,
-                editable: true,
-            },
-            {
-                field: 'phone',
-                headerName: 'رقم التلفون',
-                sortable: false,
-                width: 130,
-                editable: true,
-            },
-            {
-                field: 'phone2',
-                headerName: 'رقم التلفون 2',
-                sortable: false,
-                width: 130,
-                editable: true,
-            },
-            {
-                field: 'type',
-                headerName: 'فئة البطاقة',
-                sortable: false,
-                width: 130,
-                valueFormatter(params) {
-                    return params.value?.title
-                },
-            },
-            {
-                field: 'notes',
-                headerName: 'ملاحظات',
-                width: 130,
-                editable: true,
-                sortable: false,
+        },
+        {
+            field: 'limit',
+            headerName: 'اعلى حد',
+            width: 130,
+            editable: true,
+            type: 'number',
+        },
+        {
+            field: 'active',
+            headerName: 'مفعل',
+            sortable: false,
 
-            },
-            {
-                field: 'limit',
-                headerName: 'اعلى حد',
-                width: 130,
-                editable: true,
-                type: 'number',
-            },
-            {
-                field: 'active',
-                headerName: 'مفعل',
-                sortable: false,
-
-                renderCell(params) {
-                    return <Switch
-                        size="small"
-                        defaultChecked={params.value}
-                        onChange={(e) => {
-                            updateUserById(params.row.id, { active: e.target.checked }).then()
-                                .catch(err => alert(err.message || err))
-                        }}
-                    />
-                },
-            },
-            {
-                field: ' ',
-                sortable: false,
-                width: 60,
-                disableColumnMenu: true,
-                renderCell(_params) {
-                    return <IconButton size="small" onClick={() => {
-                        alert("تم ايقاف عملية الحذف، يمكنك التعديل فقط")
-                        // deleteUserById(params.row.id)
-                        // .then(()=>{
-                        //     setUsersRows(usersRows.filter(user => user.id !== params.row.id))
-                        // })
-                        //     .catch(err => alert(err.message || err))
+            renderCell(params) {
+                return <Switch
+                    size="small"
+                    defaultChecked={params.value}
+                    onChange={(e) => {
+                        updateUserById(params.row.id, { active: e.target.checked }).then()
+                            .catch(err => alert(err.message || err))
                     }}
-                    >
-                        <GridDeleteIcon sx={{ opacity: 0.7, color: 'red' }} />
-                    </IconButton>
-                },
-            }
+                />
+            },
+        },
+        {
+            field: ' ',
+            sortable: false,
+            width: 60,
+            disableColumnMenu: true,
+            renderCell(_params) {
+                return <IconButton size="small" onClick={() => {
+                    alert("تم ايقاف عملية الحذف، يمكنك التعديل فقط")
+                    // deleteUserById(params.row.id)
+                    // .then(()=>{
+                    //     setUsersRows(usersRows.filter(user => user.id !== params.row.id))
+                    // })
+                    //     .catch(err => alert(err.message || err))
+                }}
+                >
+                    <GridDeleteIcon sx={{ opacity: 0.7, color: 'red' }} />
+                </IconButton>
+            },
+        }
 
-        ];
-        setColumns(columns);
+    ];
+
+    useEffect(() => {        
         getUsers().then((res) => {
             setUsersRows(res.data.map((user: IUser) => ({
                 id: user.id,

@@ -157,6 +157,38 @@ const RemindersList = () => {
           },
 
       }}
+      sx={
+        {
+            '@media print': {
+                marginBottom: 'auto !important',
+                '.MuiDataGrid-main': {
+                    margin: 'auto',
+                },
+                '.MuiDataGrid-cellContent': {
+                    textWrap: 'wrap !important',
+                },
+                "*": {
+                    direction: 'ltr !important',
+                    textWrap: 'wrap !important',
+                }
+            },
+            "& .MuiDataGrid-row:nth-of-type(even)": {
+                backgroundColor: '#f9f9f9',
+            },
+            "& .MuiDataGrid-aggregationColumnHeader": {
+                backgroundColor: '#f9f9f9',
+            },
+            "& .MuiDataGrid-columnHeaderTitle": {
+                fontWeight: 700,
+            },
+            "& .MuiDataGrid-withBorderColor": {
+                borderColor: '#4caf5050',
+            },
+            "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: '#4caf5040',
+            }
+        }
+    }
       />
       <DeleteDialog
         open={openDeleteDialog}
