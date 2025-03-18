@@ -27,6 +27,11 @@ const styles = {
     }
 };
 
+const sortComparator = (v1: any, v2: any, param1: any, param2: any) => {
+    if (param1.id === "total" || param2.id === "total" || param1.id === "firstRecord" || param2.id === "firstRecord") return 0
+    return v1 - v2
+}
+
 const RecordsList = (props: Props) => {
     const [recordsRows, setRecordsRows] = useState<(IRecord & { subTotal?: any })[]>([]);
     const [debtorSum, setDebtorSum] = useState<number>(0);
@@ -42,7 +47,7 @@ const RecordsList = (props: Props) => {
         fullName: !reportForUser,
         typeTitle: false,
         cardId: !reportForUser,
-        subTotal: !!reportForUser,
+        // subTotal: !!reportForUser,
         '': false
     });
     const dateFormat = "YYYY-MM-DD";
@@ -54,26 +59,18 @@ const RecordsList = (props: Props) => {
     const [imagesToShow, setImagesToShow] = useState<any[]>([]);
     const getRecordsFromDB = () => {
         getRecords({ ...filters, date: { from: dateStringFrom, to: dateStringTo } }).then((res) => {
-            let preTotal: number = res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0)
+            let preTotal: number = reportForUser ? res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0) : 0
 
             const tempRecord: IRecord = { ...res.data[0] }
             const fullName = res.data[0].user?.subName ? `${res.data[0].user.name} (${res.data[0].user.subName})` : res.data[0].user.name
             tempRecord.user.fullName = fullName
             const firstRecord = {
                 subTotal: preTotal,
-                amount: '',
                 notes: 'رصيد سابق',
                 id: 'firstRecord',
                 date: tempRecord.date,
-                type: tempRecord.type,
-                typeTitle: tempRecord.type?.title,
-                user: tempRecord.user,
-                fullName: fullName,
-                cardId: tempRecord.user?.cardId,
-                createdAt: tempRecord.createdAt,
-                deletedAt: tempRecord.deletedAt,
             }
-            
+
             let deptorSum: number = 0
             let creditorSum: number = 0
             let checksSum: number = 0
@@ -104,15 +101,25 @@ const RecordsList = (props: Props) => {
 
                 }
             })
-            setRecordsRows([firstRecord, ...recordsRows])
-            setDebtorSum(deptorSum)
-            setCreditorSum(creditorSum)
-            setChecksSum(checksSum)
-        })
-    }
+
+            const totalRecord = {
+                id: 'total',
+                subTotal: debtorSum + creditorSum,
+                debtor: debtorSum,
+                creditor: creditorSum * -1,
+            };
+
+            const recordsToDisplay = reportForUser ? [firstRecord, ...recordsRows, totalRecord] : [...recordsRows, totalRecord];
+            setRecordsRows(recordsToDisplay);
+            setDebtorSum(deptorSum);
+            setCreditorSum(creditorSum);
+            setChecksSum(checksSum);
+        });
+    };
     useEffect(() => {
         getRecordsFromDB()
     }, [filters, dateStringFrom, dateStringTo])
+
     useEffect(() => {
         const columns: GridColDef[] = [
             {
@@ -123,6 +130,7 @@ const RecordsList = (props: Props) => {
                 type: 'date',
                 sortable: false,
                 valueFormatter(params) {
+                    if (!params.value) return ''
                     return moment(params.value)?.format("YYYY-MM-DD");
                 }
             },
@@ -135,6 +143,8 @@ const RecordsList = (props: Props) => {
                 disableColumnMenu: true,
                 sortable: false,
                 valueFormatter(params) {
+                    if(params.id === 'total') return "المجموع"
+                    if (!params.value) return ''
                     return moment(params.value)?.format("YYYY-MM-DD");
                 }
             },
@@ -156,9 +166,8 @@ const RecordsList = (props: Props) => {
                 width: 100,
                 type: 'number',
                 editable: true,
-                // disableColumnMenu: true,
-                // sortable: false,
-                valueGetter: (params) => params.row.amount >= 0 ? params.row.amount : "",
+                sortComparator: sortComparator,
+                valueGetter: (params) => params.value ?? (params.row.amount >= 0 ? params.row.amount : ""),
             },
             {
                 field: 'creditor',
@@ -166,9 +175,8 @@ const RecordsList = (props: Props) => {
                 width: 100,
                 type: 'number',
                 editable: true,
-                // disableColumnMenu: true,
-                // sortable: false,
-                valueGetter: (params) => params.row.amount < 0 ? params.row.amount * -1 : "",
+                sortComparator: sortComparator,
+                valueGetter: (params) => params.value ?? (params.row.amount < 0 ? params.row.amount * -1 : ""),
             },
             {
                 field: 'typeTitle',
@@ -186,6 +194,7 @@ const RecordsList = (props: Props) => {
                 headerName: 'اسم صاحب البطاقة',
                 width: 180,
                 disableColumnMenu: true,
+                sortComparator: sortComparator,
                 // valueFormatter(params) {
                 //     return params.value?.name
                 // }
@@ -229,6 +238,7 @@ const RecordsList = (props: Props) => {
                 headerName: 'رقم البطاقة',
                 width: 100,
                 disableColumnMenu: true,
+                sortComparator: sortComparator,
             },
             {
                 field: 'images',
@@ -444,9 +454,9 @@ const RecordsList = (props: Props) => {
                         return (
                             <GridFooterContainer  >
                                 <Box sx={{ px: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '18px', color: 'green', mr: '16px' }}>الذمم المدينة: {debtorSum}</Typography>
-                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '18px', color: 'red', mr: '16px' }}>الذمم الدائنة: {creditorSum * -1}</Typography>
-                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '18px'}}>شيكات غير مستحقة: {checksSum}</Typography>
+                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '16px', color: 'green', mr: '16px' }}>الذمم المدينة: {debtorSum}</Typography>
+                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '16px', color: 'red', mr: '16px' }}>الذمم الدائنة: {creditorSum * -1}</Typography>
+                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '16px' }}>شيكات غير مستحقة: {checksSum}</Typography>
 
                                 </Box>
                                 <GridPagination
