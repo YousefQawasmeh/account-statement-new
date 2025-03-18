@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Box from '@mui/material/Box';
-import { DataGrid, GridColDef, GridDeleteIcon, GridToolbar, GridFooterContainer, GridPagination } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridDeleteIcon, GridFooterContainer, GridPagination, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarExport, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import { IRecord } from "../../../types.ts";
 import { deleteRecordById, getRecords, updateRecordById } from "../../../apis/record.ts";
 import { IUser } from "../../../types.ts";
@@ -33,7 +33,7 @@ const sortComparator = (v1: any, v2: any, param1: any, param2: any) => {
 }
 
 const RecordsList = (props: Props) => {
-    const [recordsRows, setRecordsRows] = useState<(IRecord & { subTotal?: any })[]>([]);
+    const [recordsRows, setRecordsRows] = useState<IRecord[]>([]);
     const [debtorSum, setDebtorSum] = useState<number>(0);
     const [creditorSum, setCreditorSum] = useState<number>(0);
     const [checksSum, setChecksSum] = useState<number>(0);
@@ -41,6 +41,7 @@ const RecordsList = (props: Props) => {
     const [columns, setColumns] = useState<GridColDef[]>([]);
     const [recordToDelete, setRecordToDelete] = useState<IRecord | null>(null);
     const { filters } = props || {}
+    const [chipsFilters, setChipsFilters] = useState<any>({});
     const reportForUser = Object.keys(filters).length > 0
     const [displayedColumns, setDisplayedColumns] = useState<any>({
         createdAt: false,
@@ -57,6 +58,7 @@ const RecordsList = (props: Props) => {
     const [dateStringFrom, setDateStringFrom] = useState<string>((reportForUser ? lastYear : todayDate).format(dateFormat));
     const [dateStringTo, setDateStringTo] = useState<string>(todayDate.format(dateFormat));
     const [imagesToShow, setImagesToShow] = useState<any[]>([]);
+    const [filteredRecordsRows, setFilteredRecordsRows] = useState<IRecord[]>([]);
     const getRecordsFromDB = () => {
         getRecords({ ...filters, date: { from: dateStringFrom, to: dateStringTo } }).then((res) => {
             let preTotal: number = reportForUser ? res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0) : 0
@@ -111,6 +113,7 @@ const RecordsList = (props: Props) => {
 
             const recordsToDisplay = reportForUser ? [firstRecord, ...recordsRows, totalRecord] : [...recordsRows, totalRecord];
             setRecordsRows(recordsToDisplay);
+            setFilteredRecordsRows(recordsToDisplay);
             setDebtorSum(deptorSum);
             setCreditorSum(creditorSum);
             setChecksSum(checksSum);
@@ -119,6 +122,43 @@ const RecordsList = (props: Props) => {
     useEffect(() => {
         getRecordsFromDB()
     }, [filters, dateStringFrom, dateStringTo])
+
+    useEffect(() => {
+        const applyFilters = () => {
+            let filteredRecords = [...recordsRows];
+
+            if (chipsFilters.type) {
+                filteredRecords = filteredRecords.filter(record => (record.user?.type as any)?.id === chipsFilters.type || record.id === 'firstRecord' || record.id === 'total');
+            }
+
+            if (chipsFilters.currency) {
+                filteredRecords = filteredRecords.filter(record => record.user?.currency === chipsFilters.currency || record.id === 'firstRecord' || record.id === 'total');
+            }
+
+            let deptorSum: number = 0
+            let creditorSum: number = 0
+            let checksSum: number = 0
+            let preTotal = 0
+
+            filteredRecords.map(record => {
+                if (record.id === 'total' || record.id === 'firstRecord') {
+                    return record
+                }
+                if (record.amount > 0) {
+                    deptorSum += record.amount
+                } else {
+                    creditorSum += record.amount
+                }
+                preTotal += record.amount
+                checksSum += record.checks?.reduce((total, check) => moment(check.dueDate).isAfter(record.date) ? (total + check.amount) : total, 0) || 0
+                return { ...record, subTotal: preTotal, debtor: deptorSum, creditor: creditorSum * -1 }
+            })
+
+            setFilteredRecordsRows(filteredRecords);
+        };
+
+        applyFilters();
+    }, [chipsFilters]);
 
     useEffect(() => {
         const columns: GridColDef[] = [
@@ -143,7 +183,7 @@ const RecordsList = (props: Props) => {
                 disableColumnMenu: true,
                 sortable: false,
                 valueFormatter(params) {
-                    if(params.id === 'total') return "المجموع"
+                    if (params.id === 'total') return "المجموع"
                     if (!params.value) return ''
                     return moment(params.value)?.format("YYYY-MM-DD");
                 }
@@ -325,7 +365,7 @@ const RecordsList = (props: Props) => {
                         },
                     }
                 }
-                rows={recordsRows}
+                rows={filteredRecordsRows}
                 columns={columns}
                 disableDensitySelector
                 disableColumnFilter
@@ -344,7 +384,11 @@ const RecordsList = (props: Props) => {
                     }
                     if (value !== params.value) {
                         updateRecordById(params.row.id, { [key]: value })
-                            .then(res => { setRecordsRows(recordsRows.map((record) => record.id === res.data?.updatedRecord?.id ? { ...record, ...res.data?.updatedRecord } : record)); updateUserAndRecords() })
+                            .then(res => {
+                                setRecordsRows(recordsRows.map((record) => record.id === res.data?.updatedRecord?.id ? { ...record, ...res.data?.updatedRecord } : record));
+                                setFilteredRecordsRows(filteredRecordsRows.map((record) => record.id === res.data?.updatedRecord?.id ? { ...record, ...res.data?.updatedRecord } : record));
+                                updateUserAndRecords()
+                            })
                             .catch(err => alert(err.message || err))
                     }
                 }}
@@ -402,7 +446,7 @@ const RecordsList = (props: Props) => {
                                 </Box>
                                 <Box sx={{ display: 'flex', gap: '50px', alignItems: 'center' }}>
                                     {
-                                        reportForUser && <>
+                                        reportForUser ? <>
                                             <p style={{ fontSize: '18px' }}> الاسم : {user?.fullName}</p>
                                             <p style={{ fontSize: '18px' }}>رقم التلفون : {user?.phone}</p>
                                             <p style={{ fontSize: '18px' }}>رقم البطاقة : {user?.cardId}</p>
@@ -423,6 +467,7 @@ const RecordsList = (props: Props) => {
                                                 />
                                             </p>
                                         </>
+                                            : <></>
                                     }
                                 </Box>
                                 {
@@ -445,8 +490,61 @@ const RecordsList = (props: Props) => {
                                 }
                             </Box>
                             <Box sx={{ displayPrint: 'none' }}>
-                                <GridToolbar {...props} />
-                                {/* <GridToolbarQuickFilter/> */}
+                                <GridToolbarContainer {...props}>
+                                    <GridToolbarColumnsButton />
+                                    <GridToolbarExport />
+                                    {reportForUser ? <></>
+                                        : <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", margin: "auto" }}>
+                                            <Chip
+                                                label="ذمم مدينة"
+                                                onClick={() => {
+                                                    setChipsFilters({ ...chipsFilters, type: chipsFilters.type === 1 ? "" : 1 });
+                                                }}
+                                                variant={chipsFilters.type === 1 ? "filled" : "outlined"}
+                                                color="primary"
+                                                sx={{ margin: "5px", ...(chipsFilters.type === 1 ? { border: 0, padding: "2px" } : {}) }}
+                                            />
+                                            <Chip
+                                                label="ذمم دائنة"
+                                                onClick={() => {
+                                                    setChipsFilters({ ...chipsFilters, type: chipsFilters.type === 2 ? "" : 2 });
+                                                }}
+                                                variant={chipsFilters.type === 2 ? "filled" : "outlined"}
+                                                color="secondary"
+                                                sx={{ margin: "5px", ...(chipsFilters.type === 2 ? { border: 0, padding: "2px" } : {}) }}
+                                            />
+                                            <Box sx={{ width: "1px", height: "40px", bgcolor: "green", mx: "5px" }} />
+                                            <Chip
+                                                label="شيكل"
+                                                onClick={() => {
+                                                    setChipsFilters({ ...chipsFilters, currency: chipsFilters.currency === "شيكل" ? "" : "شيكل" });
+                                                }}
+                                                variant={chipsFilters.currency === "شيكل" ? "filled" : "outlined"}
+                                                color="info"
+                                                sx={{ margin: "5px", ...(chipsFilters.currency === "شيكل" ? { border: 0, padding: "2px" } : {}) }}
+                                            />
+                                            <Chip
+                                                label="دينار"
+                                                onClick={() => {
+                                                    setChipsFilters({ ...chipsFilters, currency: chipsFilters.currency === "دينار" ? "" : "دينار" });
+                                                }}
+                                                variant={chipsFilters.currency === "دينار" ? "filled" : "outlined"}
+                                                color="info"
+                                                sx={{ margin: "5px", ...(chipsFilters.currency === "دينار" ? { border: 0, padding: "2px" } : {}) }}
+                                            />
+                                            <Chip
+                                                label="دولار"
+                                                onClick={() => {
+                                                    setChipsFilters({ ...chipsFilters, currency: chipsFilters.currency === "دولار" ? "" : "دولار" });
+                                                }}
+                                                variant={chipsFilters.currency === "دولار" ? "filled" : "outlined"}
+                                                color="info"
+                                                sx={{ margin: "5px", ...(chipsFilters.currency === "دولار" ? { border: 0, padding: "2px" } : {}) }}
+                                            />
+                                        </Box>
+                                    }
+                                    <GridToolbarQuickFilter sx={{ ...(reportForUser ? { ml: 'auto' } : {}) }} />
+                                </GridToolbarContainer>
                             </Box>
                         </>
                     },
@@ -489,7 +587,11 @@ const RecordsList = (props: Props) => {
                 open={!!recordToDelete}
                 setOpen={() => setRecordToDelete(null)}
                 handleDelete={(notes) => deleteRecordById({ id: recordToDelete?.id, notes })
-                    .then(() => { setRecordsRows(recordsRows.filter(record => record.id !== recordToDelete?.id)); updateUserAndRecords() })
+                    .then(() => {
+                        setRecordsRows(recordsRows.filter(record => record.id !== recordToDelete?.id));
+                        setFilteredRecordsRows(filteredRecordsRows.filter(record => record.id !== recordToDelete?.id));
+                        updateUserAndRecords()
+                    })
                     .catch(err => alert(err.message || err))
                 }
             />}

@@ -50,6 +50,8 @@ export type IRecord = {
   user: IUser;
   date: string;
   type: IRecordType;
+  debtor?: number;
+  creditor?: number;
   amount: number;
   notes: string;
   createdAt: string;
@@ -57,6 +59,7 @@ export type IRecord = {
   deletedAt: string;
   checks?: ICheck[];
   images?: string[];
+  subTotal?: number;
 }
 
 export interface Reminder {
