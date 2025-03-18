@@ -153,7 +153,10 @@ const RecordsList = (props: Props) => {
                 checksSum += record.checks?.reduce((total, check) => moment(check.dueDate).isAfter(record.date) ? (total + check.amount) : total, 0) || 0
                 return { ...record, subTotal: preTotal, debtor: deptorSum, creditor: creditorSum * -1 }
             })
-
+            
+            setChecksSum(checksSum)
+            setDebtorSum(deptorSum)
+            setCreditorSum(creditorSum)
             setFilteredRecordsRows(filteredRecords);
         };
 
