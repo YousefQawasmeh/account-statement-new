@@ -59,31 +59,48 @@ const RecordsList = (props: Props) => {
     const [dateStringTo, setDateStringTo] = useState<string>(todayDate.format(dateFormat));
     const [imagesToShow, setImagesToShow] = useState<any[]>([]);
     const [filteredRecordsRows, setFilteredRecordsRows] = useState<IRecord[]>([]);
-    const getRecordsFromDB = () => {
-        getRecords({ ...filters, date: { from: dateStringFrom, to: dateStringTo } }).then((res) => {
-            let preTotal: number = reportForUser ? res.data?.[0]?.user?.total - res.data.reduce((a: number, b: IRecord) => a + b.amount, 0) : 0
 
-            const tempRecord: IRecord = { ...res.data[0] }
-            const fullName = res.data[0].user?.subName ? `${res.data[0].user.name} (${res.data[0].user.subName})` : res.data[0].user.name
-            tempRecord.user.fullName = fullName
-            const firstRecord = {
-                subTotal: preTotal,
-                notes: 'رصيد سابق',
-                id: 'firstRecord',
-                date: tempRecord.date,
+    const refreshTotalsValues = (recordsToDisplay?: any[]) => {
+        const records = recordsToDisplay || filteredRecordsRows
+        let preTotal: number = reportForUser && user ? user?.total - records.reduce((a: number, b: IRecord) => b.id === "firstRecord" || b.id === "total" ? a : (a + b.amount), 0) : 0
+        let deptorSum: number = 0
+        let creditorSum: number = 0
+        let checksSum: number = 0
+
+        const data = records.map((record: IRecord) => {
+            if (record.id === 'total') {
+                return { ...record, subTotal: preTotal, debtor: deptorSum, creditor: Math.abs(creditorSum) }
             }
 
-            let deptorSum: number = 0
-            let creditorSum: number = 0
-            let checksSum: number = 0
+            if (record.id === 'firstRecord') {
+                return { ...record, subTotal: preTotal }
+            }
+
+            if (record.amount > 0) {
+                deptorSum += record.amount
+            } else {
+                creditorSum += record.amount
+            }
+
+            checksSum += record.checks?.reduce((total, check) => moment(check.dueDate).isAfter(record.date) ? (total + check.amount) : total, 0) || 0
+            preTotal += record.amount
+            return { ...record, subTotal: preTotal }
+        })
+        setFilteredRecordsRows(data)
+        setDebtorSum(deptorSum);
+        setCreditorSum(creditorSum);
+        setChecksSum(checksSum);
+    }
+
+    const getRecordsFromDB = () => {
+        getRecords({ ...filters, date: { from: dateStringFrom, to: dateStringTo } }).then((res) => {
+            const firstRecord = {
+                notes: 'رصيد سابق',
+                id: 'firstRecord',
+                date: res.data?.[0]?.date || dateStringFrom,
+            }
+
             const recordsRows = res.data.map((record: IRecord) => {
-                if (record.amount > 0) {
-                    deptorSum += record.amount
-                } else {
-                    creditorSum += record.amount
-                }
-                checksSum += record.checks?.reduce((total, check) => moment(check.dueDate).isAfter(record.date) ? (total + check.amount) : total, 0) || 0
-                preTotal += record.amount
                 const fullName = record.user?.subName ? `${record.user.name} (${record.user.subName})` : record.user.name
                 return {
                     id: record.id,
@@ -97,7 +114,6 @@ const RecordsList = (props: Props) => {
                     cardId: record.user?.cardId,
                     createdAt: record.createdAt,
                     deletedAt: record.deletedAt,
-                    subTotal: preTotal,
                     checks: record.checks,
                     images: record.images
 
@@ -106,17 +122,12 @@ const RecordsList = (props: Props) => {
 
             const totalRecord = {
                 id: 'total',
-                subTotal: debtorSum + creditorSum,
-                debtor: debtorSum,
-                creditor: creditorSum * -1,
             };
 
             const recordsToDisplay = reportForUser ? [firstRecord, ...recordsRows, totalRecord] : [...recordsRows, totalRecord];
             setRecordsRows(recordsToDisplay);
             setFilteredRecordsRows(recordsToDisplay);
-            setDebtorSum(deptorSum);
-            setCreditorSum(creditorSum);
-            setChecksSum(checksSum);
+            refreshTotalsValues(recordsToDisplay)
         });
     };
     useEffect(() => {
@@ -135,29 +146,8 @@ const RecordsList = (props: Props) => {
                 filteredRecords = filteredRecords.filter(record => record.user?.currency === chipsFilters.currency || record.id === 'firstRecord' || record.id === 'total');
             }
 
-            let deptorSum: number = 0
-            let creditorSum: number = 0
-            let checksSum: number = 0
-            let preTotal = 0
-
-            filteredRecords.map(record => {
-                if (record.id === 'total' || record.id === 'firstRecord') {
-                    return record
-                }
-                if (record.amount > 0) {
-                    deptorSum += record.amount
-                } else {
-                    creditorSum += record.amount
-                }
-                preTotal += record.amount
-                checksSum += record.checks?.reduce((total, check) => moment(check.dueDate).isAfter(record.date) ? (total + check.amount) : total, 0) || 0
-                return { ...record, subTotal: preTotal, debtor: deptorSum, creditor: creditorSum * -1 }
-            })
-            
-            setChecksSum(checksSum)
-            setDebtorSum(deptorSum)
-            setCreditorSum(creditorSum)
             setFilteredRecordsRows(filteredRecords);
+            refreshTotalsValues(filteredRecords)
         };
 
         applyFilters();
@@ -556,7 +546,7 @@ const RecordsList = (props: Props) => {
                             <GridFooterContainer  >
                                 <Box sx={{ px: '10px', display: 'flex', justifyContent: 'space-between' }}>
                                     <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '16px', color: 'green', mr: '16px' }}>الذمم المدينة: {debtorSum}</Typography>
-                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '16px', color: 'red', mr: '16px' }}>الذمم الدائنة: {creditorSum * -1}</Typography>
+                                    <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '16px', color: 'red', mr: '16px' }}>الذمم الدائنة: {Math.abs(creditorSum)}</Typography>
                                     <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '16px' }}>شيكات غير مستحقة: {checksSum}</Typography>
 
                                 </Box>
