@@ -67,14 +67,3 @@ button:focus-visible {
         background-color: #f9f9f9;
     }
 }
-
-@media print {
-    div {
-        /* width: 8cm !important; */
-        border-color: transparent !important;
-    }
-    * {
-        /* border: none; */
-        color: black !important;
-    }
-}

@@ -73,6 +73,12 @@ const RecordsList = (props: Props) => {
             }
 
             if (record.id === 'firstRecord') {
+                if (preTotal < 0) {
+                    creditorSum += preTotal
+                }
+                else {
+                    deptorSum += preTotal
+                }
                 return { ...record, subTotal: preTotal }
             }
 
@@ -287,7 +293,7 @@ const RecordsList = (props: Props) => {
             {
                 field: '',
                 headerName: '',
-                width: 110,
+                width: 50,
                 sortable: false,
                 filterable: false,
                 disableColumnMenu: true,
@@ -319,24 +325,15 @@ const RecordsList = (props: Props) => {
                 sx={
                     {
                         '@media print': {
-                            marginBottom: 'auto !important',
-                            '.MuiDataGrid-main': {
-                                // width: reportForUser ? '8cm !important' : '100%',
-                                // border: 'solid 2px rgba(0, 0, 0, 0.87) !important',
-                                // marginLeft: 'auto',
-                            },
-                            '.MuiDataGrid-cellContent': {
-                                // maxWidth: '80px !important',
-                                textWrap: 'wrap !important',
-                            },
                             "*": {
                                 direction: 'ltr !important',
-                                // color: 'black !important',
-                                textWrap: 'wrap !important',
                             }
                         },
                         "& .MuiDataGrid-row:nth-of-type(even)": {
                             backgroundColor: '#f9f9f9',
+                        },
+                        "& > div > div > div > div > .MuiDataGrid-row:last-child": {
+                            backgroundColor: '#4caf5040',
                         },
                         "& .MuiDataGrid-aggregationColumnHeader": {
                             backgroundColor: '#f9f9f9',
@@ -389,7 +386,6 @@ const RecordsList = (props: Props) => {
                     const baseHeight = 32;
                     const row = recordsRows.find((row) => row.id === params.id);
                     const numberOfChecks = (row?.checks?.length || 0);
-                    // const lines = row?.notes?.split("\n").length || 1;
                     const lines = Math.ceil((row?.notes?.length ?? 0) / 50) || 1;
                     return (numberOfChecks ? numberOfChecks + 2 : 0) * 32 + (baseHeight * lines);
                 }}
@@ -397,18 +393,9 @@ const RecordsList = (props: Props) => {
                 density="compact"
                 slots={{
                     toolbar: (props) => {
-                        // const recordsTotal = recordsRows?.reduce((total, record) => total + +record.amount, 0)
                         return <>
                             <Box sx={{ textAlign: 'left', padding: '0 10px' }}>
-                                <Box
-                                    sx={
-                                        {
-                                            '@media print': {
-                                                // "*": { display: 'none !important', }
-                                            }
-                                        }
-                                    }
-                                >
+                                <Box>
                                     <Box sx={{
                                         display: "flex",
                                         alignItems: "center",
@@ -437,50 +424,37 @@ const RecordsList = (props: Props) => {
                                         />
                                     </Box>
                                 </Box>
-                                <Box sx={{ display: 'flex', gap: '50px', alignItems: 'center' }}>
+                                <Box>
                                     {
                                         reportForUser ? <>
-                                            <p style={{ fontSize: '18px' }}> الاسم : {user?.fullName}</p>
-                                            <p style={{ fontSize: '18px' }}>رقم التلفون : {user?.phone}</p>
-                                            <p style={{ fontSize: '18px' }}>رقم البطاقة : {user?.cardId}</p>
-                                            <p style={{ fontSize: '18px' }}>المجموع  : {user?.total}</p>
-                                            <p>
+                                            <Box sx={{ display: "flex", gap: '40px', alignItems: 'center' }}>
+                                                <p style={{ fontSize: '18px' }}> الاسم : {user?.fullName}</p>
+                                                <p style={{ fontSize: '18px' }}>رقم التلفون : {user?.phone}</p>
+                                                {user?.phone2 ? <p style={{ fontSize: '18px' }}>رقم التلفون 2 : {user?.phone2}</p> : null}
+                                            </Box>
+                                            <Box sx={{ display: "flex", gap: '40px', alignItems: 'center' }}>
+                                                <p style={{ fontSize: '18px' }}>رقم البطاقة : {user?.cardId}</p>
+                                                <p style={{ fontSize: '18px' }}>المجموع  : {user?.total ?? 0}</p>
+                                                <p>
 
-                                                <Chip
-                                                    variant={'outlined'}
-                                                    color={(user?.type as any)?.id === 1 ? 'primary' : 'secondary'}
-                                                    sx={{ ...styles.chip }}
-                                                    label={usersTypes[+(user?.type as any)?.id]}
-                                                />
-                                                <Chip
-                                                    variant={'outlined'}
-                                                    color={'info'}
-                                                    sx={{ ...styles.chip, width: '60px', "> span": { scale: user?.currency === 'شيكل' ? "1.7" : "1.1" } }}
-                                                    label={getCurrencySymbol(user?.currency)}
-                                                />
-                                            </p>
+                                                    <Chip
+                                                        variant={'outlined'}
+                                                        color={(user?.type as any)?.id === 1 ? 'primary' : 'secondary'}
+                                                        sx={{ ...styles.chip }}
+                                                        label={usersTypes[+(user?.type as any)?.id]}
+                                                    />
+                                                    <Chip
+                                                        variant={'outlined'}
+                                                        color={'info'}
+                                                        sx={{ ...styles.chip, width: '60px', "> span": { scale: user?.currency === 'شيكل' ? "1.7" : "1.1" } }}
+                                                        label={getCurrencySymbol(user?.currency)}
+                                                    />
+                                                </p>
+                                            </Box>
                                         </>
-                                            : <></>
+                                            : null
                                     }
                                 </Box>
-                                {
-                                    /* {
-                                        reportForUser ? <>
-                                            <p>كشف حساب من سوبر ماركت ابودعجان</p>
-                                            <p>من تاريخ: {dateStringFrom}</p>
-                                            <p>الي تاريخ: {dateStringTo}</p>
-                                            <p>الاسم: {recordsRows?.[0]?.user?.name}</p>
-                                            <p>رقم البطاقة: {recordsRows?.[0]?.user?.cardId}</p>
-                                            <p>مجموع قبل {dateStringFrom}: {recordsRows?.[0]?.user?.total - recordsTotal}</p>
-                                            <p>مجموع الحركات: {recordsTotal}</p>
-                                            <p>المجموع النهائي : {recordsRows?.[0]?.user?.total}</p>
-                                        </>
-                                            : <>
-                                                <p>من تاريخ: {dateStringFrom}</p>
-                                                <p>الي تاريخ: {dateStringTo}</p>
-                                            </>
-                                     */
-                                }
                             </Box>
                             <Box sx={{ displayPrint: 'none' }}>
                                 <GridToolbarContainer {...props}>
@@ -543,7 +517,7 @@ const RecordsList = (props: Props) => {
                     },
                     footer: () => {
                         return (
-                            <GridFooterContainer  >
+                            <GridFooterContainer sx={{ displayPrint: "none" }} >
                                 <Box sx={{ px: '10px', display: 'flex', justifyContent: 'space-between' }}>
                                     <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '16px', color: 'green', mr: '16px' }}>الذمم المدينة: {debtorSum}</Typography>
                                     <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '16px', color: 'red', mr: '16px' }}>الذمم الدائنة: {Math.abs(creditorSum)}</Typography>
