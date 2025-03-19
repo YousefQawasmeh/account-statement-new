@@ -320,7 +320,20 @@ const RecordsList = (props: Props) => {
     }
 
     return (
-        <Box sx={{ height: 'calc(100vh - 150px)' }}>
+        <Box
+            sx={{ height: 'calc(100vh - 150px)' }}
+            onKeyDown={(e: any) => {
+                const rowId = e.target?.parentElement?.parentElement?.parentElement?.dataset?.id
+                if (e.keyCode !== 27 && (rowId === "total" || rowId === "firstRecord")) {
+                    const event = new KeyboardEvent("keydown", {
+                        bubbles: true,
+                        cancelable: true,
+                        keyCode: 27, //Escape
+                        charCode: 0,
+                    });
+                    e.target.dispatchEvent(event)
+                }
+            }}>
             <DataGrid
                 sx={
                     {
@@ -334,6 +347,8 @@ const RecordsList = (props: Props) => {
                         },
                         "& > div > div > div > div > .MuiDataGrid-row:last-child": {
                             backgroundColor: '#4caf5040',
+                            pointerEvents: 'none',
+                            outline: 'none'
                         },
                         "& .MuiDataGrid-aggregationColumnHeader": {
                             backgroundColor: '#f9f9f9',
@@ -362,6 +377,10 @@ const RecordsList = (props: Props) => {
                 columnVisibilityModel={displayedColumns}
                 onColumnVisibilityModelChange={(model) => setDisplayedColumns(model)}
                 onCellEditStop={(params, event: any) => {
+                    if (params.id === "firstRecord" || params.id === "total") {
+                        event.target.value = params.value
+                        return
+                    };
                     let value = event.target?.value
                     let key = params.field
                     if (key === "creditor") {
