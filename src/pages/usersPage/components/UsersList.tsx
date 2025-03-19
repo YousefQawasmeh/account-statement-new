@@ -165,16 +165,8 @@ const UsersList = () => {
                 sx={
                     {
                         '@media print': {
-                            marginBottom: 'auto !important',
-                            '.MuiDataGrid-main': {
-                                margin: 'auto',
-                            },
-                            '.MuiDataGrid-cellContent': {
-                                textWrap: 'wrap !important',
-                            },
                             "*": {
                                 direction: 'ltr !important',
-                                textWrap: 'wrap !important',
                             }
                         },
                         "& .MuiDataGrid-row:nth-of-type(even)": {

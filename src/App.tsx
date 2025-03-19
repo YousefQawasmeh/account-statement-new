@@ -120,7 +120,7 @@ const Menu = ()=><NavWrapper>
 
 const PageWithMenu = (page: JSX.Element) => {
   return (
-    <Box sx={{ width: "calc(100vw - 64px) !important", height: "100vh !important", display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <Box sx={{ minWidth: "calc(100vw - 64px)", height: "100vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <Menu />
       {page}
     </Box>
