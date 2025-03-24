@@ -157,7 +157,7 @@ const RecordsList = (props: Props) => {
         };
 
         applyFilters();
-    }, [chipsFilters]);
+    }, [chipsFilters, user, recordsRows]);
 
     useEffect(() => {
         const columns: GridColDef[] = [
