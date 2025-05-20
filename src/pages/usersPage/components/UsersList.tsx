@@ -22,6 +22,7 @@ const UsersList = () => {
         'currency': false,
         'limit': false,
         'active': false,
+        'hidden': false,
     };
     const [displayedColumns, setDisplayedColumns] = useState<any>(parsedDisplayedColumns);
     const columns: GridColDef[] = [
@@ -97,6 +98,22 @@ const UsersList = () => {
             width: 130,
             editable: true,
             type: 'number',
+        },
+        {
+            field: 'hidden',
+            headerName: 'مخفي',
+            sortable: false,
+
+            renderCell(params) {
+                return <Switch
+                    size="small"
+                    defaultChecked={params.value}
+                    onChange={(e) => {
+                        updateUserById(params.row.id, { hidden: e.target.checked }).then()
+                            .catch(err => alert(err.message || err))
+                    }}
+                />
+            },
         },
         {
             field: 'active',
