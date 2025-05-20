@@ -67,6 +67,7 @@ const Home = () => {
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [selectedUserType, setSelectedUserType] = useState<number | null>(null);
   const [selectedUserCurrency, setSelectedUserCurrency] = useState<ICurrency | null>(null);
+  const [showHiddenUsers, setShowHiddenUsers] = useState(false);
   const [cardId, setCardId] = useState<string>("");
   const [searchName, setSearchName] = useState<string>("");
   const [searchPhoneNo, setSearchPhoneNo] = useState<string>("");
@@ -146,6 +147,13 @@ const Home = () => {
               setCardId(e.target.value);
             }}
           />
+          <Chip
+                  variant={showHiddenUsers ? 'filled' : 'outlined'}
+                  color={'info'}
+                  sx={{ ...styles.chip,width:"120px",  ...(showHiddenUsers ? { border: 0, padding: "2px" } : {}) }}
+                  label={"عرض المخفي"}
+                  onClick={() => setShowHiddenUsers(!showHiddenUsers)}
+                />
         </Box>
         <Box sx={{ ...styles.flex, width: "45%" }} >
           {Object.keys(usersTypes).map((key) => {
@@ -228,10 +236,14 @@ const Home = () => {
               setCardId((value?.cardId || "").toString());
             }}
             filterOptions={(options, { inputValue }) => {
-              const filteredOptions = (selectedUserType || selectedUserCurrency) ? options.filter((option) => {
-                if (selectedUserCurrency && !selectedUserType) return option.currency === selectedUserCurrency
-                if (!selectedUserCurrency && selectedUserType) return option.type === selectedUserType
-                return option.currency === selectedUserCurrency && option.type === selectedUserType
+              const filteredOptions = (selectedUserType || selectedUserCurrency || !showHiddenUsers) ? options.filter((option) => {
+                if(!showHiddenUsers && option.hidden) return false
+                if(selectedUserCurrency && option.currency !== selectedUserCurrency) return false
+                if(selectedUserType && option.type !== selectedUserType) return false
+                // if (selectedUserCurrency && !selectedUserType) return option.currency === selectedUserCurrency
+                // if (!selectedUserCurrency && selectedUserType) return option.type === selectedUserType
+                // if (selectedUserCurrency && selectedUserType) return option.currency === selectedUserCurrency && option.type === selectedUserType
+                return true
               })
                 : options
               const words = inputValue.toLowerCase().split(" ").filter(Boolean);
