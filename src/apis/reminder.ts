@@ -27,3 +27,8 @@ export const updateReminder = async (id: string, reminder: Omit<Reminder, 'id'>)
 export const deleteReminder = async (id: string): Promise<void> => {
   await Axios.delete(`${API_URL}/${id}`);
 };
+
+export const sendRemindersToOverdueUsersByIds = async (usersIds: number[]): Promise<any> => {
+  const response = await Axios.post(`${API_URL}/sendRemindersToOverdueUsersByIds`, { usersIds });
+  return await response.data;
+};
