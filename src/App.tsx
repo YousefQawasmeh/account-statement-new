@@ -5,7 +5,7 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage } from "./pages";
+import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPage } from "./pages";
 import { Link } from "react-router-dom";
 import './App.css'
 import { Box, styled, Typography } from '@mui/material';
@@ -115,6 +115,9 @@ const Menu = ()=><NavWrapper>
   <NavLink to="/account-statement-new/reminders" className={window.location.pathname === "/account-statement-new/reminders" ? "active" : ""}>
     {" التذكيرات "}
   </NavLink>
+  <NavLink to="/account-statement-new/reports" className={window.location.pathname === "/account-statement-new/reports" ? "active" : ""}>
+    {" التقارير "}
+  </NavLink>
 </Typography>
 </NavWrapper>
 
@@ -149,6 +152,10 @@ const router = createBrowserRouter([
     element: PageWithMenu(<RemindersPage />),
   },
   {
+    path: "/reports",
+    element: PageWithMenu(<ReportsPage />),
+  },
+  {
     path: "/account-statement-new/",
     element: PageWithMenu(<HomePage />),
   },
@@ -167,6 +174,10 @@ const router = createBrowserRouter([
   {
     path: "/account-statement-new/reminders",
     element: PageWithMenu(<RemindersPage />),
+  },
+  {
+    path: "/account-statement-new/reports",
+    element: PageWithMenu(<ReportsPage />),
   },
   {
     path: "/usersTypes",
