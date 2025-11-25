@@ -59,7 +59,7 @@ const OverdueUsers = () => {
         {
             field: 'name',
             headerName: 'الاسم',
-            width: 170,
+            width: 190,
         },
         // {
         //     field: 'cardId',
@@ -70,7 +70,7 @@ const OverdueUsers = () => {
         {
             field: 'subName',
             headerName: 'الاسم الفرعي',
-            width: 170,
+            width: 140,
         },
         {
             field: 'total',
@@ -123,21 +123,26 @@ const OverdueUsers = () => {
     return (
         <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'center' }}>
-                <TextField
-                    label="عدد الأيام"
-                    type="number"
-                    value={days}
-                    onChange={(e) => setDays(Number(e.target.value))}
-                    size="small"
-                    sx={{ width: 200 }}
-                />
-                <Button
-                    variant="contained"
-                    onClick={handleGetReport}
-                    disabled={loading}
-                >
-                    {loading ? 'جاري التحميل...' : 'عرض التقرير'}
-                </Button>
+                <form onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', gap: 16 }}>
+                    <TextField
+                        label="عدد الأيام"
+                        type="number"
+                        value={days}
+                        onChange={(e) => setDays(Number(e.target.value))}
+                        size="small"
+                        sx={{ width: 200 }}
+                        InputProps={{ inputProps: { min: 1 } }}
+                        autoFocus
+                    />
+                    <Button
+                        type={"submit"}
+                        variant="contained"
+                        onClick={handleGetReport}
+                        disabled={loading}
+                    >
+                        {loading ? 'جاري التحميل...' : 'عرض التقرير'}
+                    </Button>
+                </form>
                 {usersRows.length > 0 && (
                     <Button
                         variant="contained"
