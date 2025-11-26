@@ -55,7 +55,41 @@ const OverdueUsers = () => {
         }
     };
 
+    const handleSendReminderToUser = async (user: any) => {
+        const confirmMessage = `هل تريد إرسال تذكير لـ ${user.name}؟`;
+        if (!window.confirm(confirmMessage)) {
+            return;
+        }
+
+        setSendingReminders(true);
+        try {
+            await sendRemindersToOverdueUsersByIds([user.id]);
+            alert("تم إرسال التذكير بنجاح");
+        } catch (error: any) {
+            alert(error.message || "حدث خطأ في إرسال التذكير");
+        } finally {
+            setSendingReminders(false);
+        }
+    };
+
     const columns: GridColDef[] = [
+                {
+            field: 'actions',
+            headerName: 'إجراء',
+            // width: 120,
+            sortable: false,
+            renderCell: (params) => (
+                <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => handleSendReminderToUser(params.row)}
+                    disabled={sendingReminders}
+                    startIcon={<SendIcon />}
+                >
+                    إرسال
+                </Button>
+            ),
+        },
         {
             field: 'name',
             headerName: 'الاسم',
@@ -66,7 +100,8 @@ const OverdueUsers = () => {
         //     headerName: 'رقم البطاقة',
         //     width: 110,
         //     sortable: true,
-        // },
+        // }
+
         {
             field: 'subName',
             headerName: 'الاسم الفرعي',
@@ -75,7 +110,7 @@ const OverdueUsers = () => {
         {
             field: 'total',
             headerName: 'الرصيد',
-            width: 130,
+            width: 100,
             type: 'number',
             renderCell: (params) => (
                 <Typography variant="body2">
@@ -91,7 +126,7 @@ const OverdueUsers = () => {
         {
             field: 'daysSinceLastPayment',
             headerName: 'متخلف منذ (يوم)',
-            width: 180,
+            width: 140,
             type: 'number',
             renderCell: (params) => (
                 <Typography variant="body2">
@@ -103,7 +138,7 @@ const OverdueUsers = () => {
         {
             field: 'lastPaymentDate',
             headerName: 'تاريخ آخر دفعة',
-            width: 150,
+            width: 140,
             valueFormatter: (params) => {
                 if (!params.value) return 'لا يوجد';
                 return moment(params.value)?.format("YYYY-MM-DD");
@@ -112,7 +147,7 @@ const OverdueUsers = () => {
         {
             field: 'lastPurchaseDate',
             headerName: 'تاريخ آخر حركة',
-            width: 150,
+            width: 140,
             valueFormatter: (params) => {
                 if (!params.value) return 'لا يوجد';
                 return moment(params.value)?.format("YYYY-MM-DD");
