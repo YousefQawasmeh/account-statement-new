@@ -1,5 +1,4 @@
-import Axios from 'axios'
-// const API_URL = process.env.API_URL || `${API_URL}/api`
+import apiClient from "./apiClient";
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 // const init = async () => {    
     // const res0 = await Axios.post(`${API_URL}/usertypes`, {id: 1, title: 'زبون'})
@@ -63,57 +62,52 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
     //     })
     // });
 export const createNewUser = async (newUser: any) => {
-    const res = await Axios.post(`${API_URL}/users`, newUser)
-    
-
-    return res
+    const res = await apiClient.post(`${API_URL}/users`, newUser);
+    return res;
 }
 
 export const getUsers = async () => {
-    
-    const res = await Axios.get(`${API_URL}/users`)
+    const res = await apiClient.get(`${API_URL}/users`);
     res.data.forEach((user: any) => {
-        user.fullName = user.subName ? `${user.name} (${user.subName})` : user.name
-    })
-    return res
+        user.fullName = user.subName ? `${user.name} (${user.subName})` : user.name;
+    });
+    return res;
 }
 
 export const getUserById = async (id: string) => {
-    const res = await Axios.get(`${API_URL}/users/${id}`)
-    return res
+    const res = await apiClient.get(`${API_URL}/users/${id}`);
+    return res;
 }
 
 export const getUserByCardId = async (cardId: number) => {
-    const res = await Axios.get(`${API_URL}/users/card/${cardId}`)
-    res.data.fullName = res.data.subName ? `${res.data.name} (${res.data.subName})` : res.data.name
-    // const res = await Axios.get(`${API_URL}/users?cardId=${cardId}`)
-    return res
+    const res = await apiClient.get(`${API_URL}/users/card/${cardId}`);
+    res.data.fullName = res.data.subName ? `${res.data.name} (${res.data.subName})` : res.data.name;
+    return res;
 }
 
 export const deleteUserById = async (id: string) => {
-    const res = await Axios.delete(`${API_URL}/users/${id}`)
-    return res
+    const res = await apiClient.delete(`${API_URL}/users/${id}`);
+    return res;
 }
 
 export const deleteUserByCardId = async (cardId: number) => {
-    const res = await Axios.delete(`${API_URL}/users/card/${cardId}`)
-    return res
+    const res = await apiClient.delete(`${API_URL}/users/card/${cardId}`);
+    return res;
 }
 
-
 export const updateUserById = async (id: string, newUser: any) => {
-    const res = await Axios.put(`${API_URL}/users/${id}`, newUser)
-    return res
+    const res = await apiClient.put(`${API_URL}/users/${id}`, newUser);
+    return res;
 }
 
 export const updateUserByCardId = async (cardId: number, newUser: any) => {
-    const res = await Axios.put(`${API_URL}/users/card/${cardId}`, newUser)
-    return res
+    const res = await apiClient.put(`${API_URL}/users/card/${cardId}`, newUser);
+    return res;
 }
 
 export const getNewCardId = async (cardType: number) => {
-    const newCardId = await Axios.get(`${API_URL}/users/newCardId/${cardType}`)
-    return newCardId
+    const newCardId = await apiClient.get(`${API_URL}/users/newCardId/${cardType}`);
+    return newCardId;
 }
 
 export default {
@@ -123,5 +117,5 @@ export default {
     updateUserById,
     getUserByCardId,
     deleteUserByCardId,
-    updateUserByCardId
-}
+    updateUserByCardId,
+};

@@ -1,14 +1,14 @@
 import { green, purple } from '@mui/material/colors';
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, RouterProvider, Link } from "react-router-dom"
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPage } from "./pages";
-import { Link } from "react-router-dom";
+import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPage, LoginPage } from "./pages";
 import './App.css'
-import { Box, styled, Typography } from '@mui/material';
+import { Box, styled, Typography, Button } from '@mui/material';
+import { useAuthStore } from "./store/useAuthStore";
 
 const cacheRtl = createCache({
   key: 'muirtl',
@@ -79,6 +79,8 @@ const NavWrapper = styled(Box)`
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 1200px;
 `;
 
 const NavLink = styled(Link)`
@@ -98,28 +100,48 @@ const NavLink = styled(Link)`
   }
 `;
 
-const Menu = ()=><NavWrapper>
-<Typography variant="h5">
-  <NavLink to="/account-statement-new/" className={window.location.pathname === "/account-statement-new/" ? "active" : ""}>
-    {"الصفحة الرئيسية"}
-  </NavLink>
-  <NavLink to="/account-statement-new/users" className={window.location.pathname === "/account-statement-new/users" ? "active" : ""}>
-    {" البطاقات "}
-  </NavLink>
-  <NavLink to="/account-statement-new/records" className={window.location.pathname === "/account-statement-new/records" ? "active" : ""}>
-    {" السجلات "}
-  </NavLink>
-  <NavLink to="/account-statement-new/checks" className={window.location.pathname === "/account-statement-new/checks" ? "active" : ""}>
-    {" الشيكات "}
-  </NavLink>
-  <NavLink to="/account-statement-new/reminders" className={window.location.pathname === "/account-statement-new/reminders" ? "active" : ""}>
-    {" التذكيرات "}
-  </NavLink>
-  <NavLink to="/account-statement-new/reports" className={window.location.pathname === "/account-statement-new/reports" ? "active" : ""}>
-    {" التقارير "}
-  </NavLink>
-</Typography>
-</NavWrapper>
+const Menu = () => {
+  const logout = useAuthStore((state) => state.logout);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return (
+    <NavWrapper>
+      <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center' }}>
+        <NavLink to="/account-statement-new/" className={window.location.pathname === "/account-statement-new/" ? "active" : ""}>
+          {"الصفحة الرئيسية"}
+        </NavLink>
+        <NavLink to="/account-statement-new/users" className={window.location.pathname === "/account-statement-new/users" ? "active" : ""}>
+          {"البطاقات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/records" className={window.location.pathname === "/account-statement-new/records" ? "active" : ""}>
+          {"السجلات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/checks" className={window.location.pathname === "/account-statement-new/checks" ? "active" : ""}>
+          {"الشيكات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/reminders" className={window.location.pathname === "/account-statement-new/reminders" ? "active" : ""}>
+          {"التذكيرات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/reports" className={window.location.pathname === "/account-statement-new/reports" ? "active" : ""}>
+          {"التقارير"}
+        </NavLink>
+      </Typography>
+      <Box>
+        {isAuthenticated ? (
+          <NavLink to="/account-statement-new/login">
+          <Button color="error" variant="outlined" onClick={logout} >
+            تسجيل الخروج
+          </Button>
+          </NavLink>
+        ) : (
+          <NavLink to="/account-statement-new/login" className={window.location.pathname === "/account-statement-new/login" ? "active" : ""}>
+            تسجيل الدخول
+          </NavLink>
+        )}
+      </Box>
+    </NavWrapper>
+  );
+};
 
 const PageWithMenu = (page: JSX.Element) => {
   return (
@@ -131,6 +153,10 @@ const PageWithMenu = (page: JSX.Element) => {
 }
 
 const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
   {
     path: "/",
     element: PageWithMenu(<HomePage />),
@@ -154,6 +180,10 @@ const router = createBrowserRouter([
   {
     path: "/reports",
     element: PageWithMenu(<ReportsPage />),
+  },
+  {
+    path: "/account-statement-new/login",
+    element: <LoginPage />,
   },
   {
     path: "/account-statement-new/",
@@ -189,13 +219,13 @@ const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: 
-    <div>
-    <div>Error! 404</div>
-    <Link style={{ display: "flex", fontSize: "14px" }} to="/account-statement-new/">
-        الصفحة الرئيسية
+    element:
+      <div>
+        <div>Error! 404</div>
+        <Link style={{ display: "flex", fontSize: "14px" }} to="/account-statement-new/">
+          الصفحة الرئيسية
         </Link>
-    </div>
+      </div>
     ,
   }
 ]);
