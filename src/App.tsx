@@ -9,6 +9,7 @@ import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPag
 import './App.css'
 import { Box, styled, Typography, Button } from '@mui/material';
 import { useAuthStore } from "./store/useAuthStore";
+import { Navigate, Outlet } from "react-router-dom";
 
 const cacheRtl = createCache({
   key: 'muirtl',
@@ -129,9 +130,9 @@ const Menu = () => {
       <Box>
         {isAuthenticated ? (
           <NavLink to="/account-statement-new/login">
-          <Button color="error" variant="outlined" onClick={logout} >
-            تسجيل الخروج
-          </Button>
+            <Button color="error" variant="outlined" onClick={logout} >
+              تسجيل الخروج
+            </Button>
           </NavLink>
         ) : (
           <NavLink to="/account-statement-new/login" className={window.location.pathname === "/account-statement-new/login" ? "active" : ""}>
@@ -152,82 +153,103 @@ const PageWithMenu = (page: JSX.Element) => {
   )
 }
 
+const ProtectedRoute = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/account-statement-new/login" replace />;
+};
+
+const Layout = () => {
+  return (
+    <Box
+      sx={{
+        minWidth: "calc(100vw - 64px)",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      <Menu />
+      <Outlet />
+    </Box>
+  );
+};
+
 const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/",
-    element: PageWithMenu(<HomePage />),
-  },
-  {
-    path: "/users",
-    element: PageWithMenu(<UsersPage />),
-  },
-  {
-    path: "/records",
-    element: PageWithMenu(<RecordsPage />),
-  },
-  {
-    path: "/checks",
-    element: PageWithMenu(<ChecksPage />),
-  },
-  {
-    path: "/reminders",
-    element: PageWithMenu(<RemindersPage />),
-  },
-  {
-    path: "/reports",
-    element: PageWithMenu(<ReportsPage />),
-  },
   {
     path: "/account-statement-new/login",
     element: <LoginPage />,
   },
   {
     path: "/account-statement-new/",
-    element: PageWithMenu(<HomePage />),
+    element: <Layout />,
+    children: [
+      {
+        path: "home",
+        element: <h1>Home Page</h1>,
+      },
+
+    ],
   },
   {
-    path: "/account-statement-new/users",
-    element: PageWithMenu(<UsersPage />),
-  },
-  {
-    path: "/account-statement-new/records",
-    element: PageWithMenu(<RecordsPage />),
-  },
-  {
-    path: "/account-statement-new/checks",
-    element: PageWithMenu(<ChecksPage />),
-  },
-  {
-    path: "/account-statement-new/reminders",
-    element: PageWithMenu(<RemindersPage />),
-  },
-  {
-    path: "/account-statement-new/reports",
-    element: PageWithMenu(<ReportsPage />),
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: "/account-statement-new/",
+        element: <Layout />,
+        children: [
+          {
+            index: true,
+            element: <HomePage />,
+          },
+          {
+            path: "checks",
+            element: <ChecksPage />,
+          },
+          {
+            path: "reminders",
+            element: <RemindersPage />,
+          },
+          {
+            path: "users",
+            element: <UsersPage />,
+          },
+          {
+            path: "records",
+            element: <RecordsPage />,
+          },
+          {
+            path: "reports",
+            element: <ReportsPage />,
+          },
+        ],
+      },
+    ],
   },
   {
     path: "/usersTypes",
-    element: <p>000 usersTypes 000 </p>
+    element: <p>000 usersTypes 000</p>,
   },
   {
     path: "/recordsTypes",
-    element: <p>000 recordsTypes 000</p>
+    element: <p>000 recordsTypes 000</p>,
   },
   {
     path: "*",
-    element:
+    element: (
       <div>
         <div>Error! 404</div>
-        <Link style={{ display: "flex", fontSize: "14px" }} to="/account-statement-new/">
+
+        <Link
+          style={{ display: "flex", fontSize: "24px" }}
+          to="/account-statement-new/"
+        >
           الصفحة الرئيسية
         </Link>
       </div>
-    ,
-  }
+    ),
+  },
 ]);
 
 function App() {
