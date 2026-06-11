@@ -101,6 +101,49 @@ const NavLink = styled(Link)`
   }
 `;
 
+const Menu = () => {
+  const logout = useAuthStore((state) => state.logout);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return (
+    <NavWrapper>
+      <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center' }}>
+        <NavLink to="/account-statement-new/" className={window.location.pathname === "/account-statement-new/" ? "active" : ""}>
+          {"الصفحة الرئيسية"}
+        </NavLink>
+        <NavLink to="/account-statement-new/users" className={window.location.pathname === "/account-statement-new/users" ? "active" : ""}>
+          {"البطاقات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/records" className={window.location.pathname === "/account-statement-new/records" ? "active" : ""}>
+          {"السجلات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/checks" className={window.location.pathname === "/account-statement-new/checks" ? "active" : ""}>
+          {"الشيكات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/reminders" className={window.location.pathname === "/account-statement-new/reminders" ? "active" : ""}>
+          {"التذكيرات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/reports" className={window.location.pathname === "/account-statement-new/reports" ? "active" : ""}>
+          {"التقارير"}
+        </NavLink>
+      </Typography>
+      <Box>
+        {isAuthenticated ? (
+          <NavLink to="/account-statement-new/login">
+            <Button color="error" variant="outlined" onClick={logout} >
+              تسجيل الخروج
+            </Button>
+          </NavLink>
+        ) : (
+          <NavLink to="/account-statement-new/login" className={window.location.pathname === "/account-statement-new/login" ? "active" : ""}>
+            تسجيل الدخول
+          </NavLink>
+        )}
+      </Box>
+    </NavWrapper>
+  );
+};
+
 const ProtectedRoute = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
