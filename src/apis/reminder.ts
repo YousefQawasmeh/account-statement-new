@@ -1,8 +1,7 @@
 import { Reminder } from "../types";
-import { baseApiUrl } from "../utils";
 import apiClient from "./apiClient";
 
-const API_URL = `${baseApiUrl}/reminders`;
+const API_URL = `/reminders`;
 
 export const getReminders = async (): Promise<Reminder[]> => {
   const response = await apiClient.get(API_URL);

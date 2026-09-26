@@ -1,7 +1,6 @@
-import { baseApiUrl } from "../utils";
 import apiClient from "./apiClient";
 
-const API_URL = `${baseApiUrl}/reports`;
+const API_URL = `/reports`;
 
 export const getUsersWithMismatchedTotal = async (): Promise<any[]> => {
   const response = await apiClient.get(`${API_URL}/usersWithMismatchedTotal`);

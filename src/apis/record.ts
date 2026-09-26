@@ -1,7 +1,7 @@
 import apiClient from './apiClient';
 import { objectToFormData } from '../utils';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = '/records';
 type Ifilters = {
     date?: string;
     type?: number;
@@ -12,7 +12,7 @@ type Ifilters = {
 };
 
 export const createNewRecord = async (newRecord: any) => {
-    const res = await apiClient.post(`${API_URL}/records`, objectToFormData(newRecord), {
+    const res = await apiClient.post(`${API_URL}`, objectToFormData(newRecord), {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
@@ -21,22 +21,22 @@ export const createNewRecord = async (newRecord: any) => {
 };
 
 export const getRecords = async (filters: Ifilters) => {
-    const res = await apiClient.get(`${API_URL}/records`, { params: filters });
+    const res = await apiClient.get(`${API_URL}`, { params: filters });
     return res;
 };
 
 export const getRecordById = async (id: string) => {
-    const res = await apiClient.get(`${API_URL}/records/${id}`);
+    const res = await apiClient.get(`${API_URL}/${id}`);
     return res;
 };
 
 export const deleteRecordById = async ({ id, notes }: { id: string; notes: string }) => {
-    const res = await apiClient.delete(`${API_URL}/records/${id}`, { data: { notes } });
+    const res = await apiClient.delete(`${API_URL}/${id}`, { data: { notes } });
     return res;
 };
 
 export const updateRecordById = async (id: string, newRecord: any) => {
-    const res = await apiClient.put(`${API_URL}/records/${id}`, newRecord);
+    const res = await apiClient.put(`${API_URL}/${id}`, newRecord);
     return res;
 };
 
