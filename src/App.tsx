@@ -5,7 +5,7 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPage, LoginPage } from "./pages";
+import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPage, LoginPage, EmployeesPage } from "./pages";
 import './App.css'
 import { Box, styled, Typography, Button } from '@mui/material';
 import { useAuthStore } from "./store/useAuthStore";
@@ -104,6 +104,7 @@ const NavLink = styled(Link)`
 const Menu = () => {
   const logout = useAuthStore((state) => state.logout);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const employee = useAuthStore((state) => state.employee);
 
   return (
     <NavWrapper>
@@ -111,6 +112,11 @@ const Menu = () => {
         <NavLink to="/account-statement-new/" className={window.location.pathname === "/account-statement-new/" ? "active" : ""}>
           {"الصفحة الرئيسية"}
         </NavLink>
+        {isAuthenticated && employee?.role === "admin" && (
+          <NavLink to="/account-statement-new/employees" className={window.location.pathname === "/account-statement-new/employees" ? "active" : ""}>
+            {"إدارة الحسابات"}
+          </NavLink>
+        )}
         <NavLink to="/account-statement-new/users" className={window.location.pathname === "/account-statement-new/users" ? "active" : ""}>
           {"البطاقات"}
         </NavLink>
@@ -213,6 +219,10 @@ const router = createBrowserRouter([
           {
             path: "reports",
             element: <ReportsPage />,
+          },
+          {
+            path: "employees",
+            element: <EmployeesPage />,
           },
         ],
       },

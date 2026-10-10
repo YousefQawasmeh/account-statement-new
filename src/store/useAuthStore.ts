@@ -1,35 +1,35 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-interface Account {
+interface Employee {
   id: string;
   username: string;
   role: string;
 }
 
 interface AuthState {
-  account: Account | null;
+  employee: Employee | null;
   token: string | null;
   isAuthenticated: boolean;
-  login: (account: Account, token: string) => void;
+  login: (employee: Employee, token: string) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      account: null,
+      employee: null,
       token: null,
       isAuthenticated: false,
-      login: (account, token) =>
+      login: (employee, token) =>
         set({
-          account,
+          employee,
           token,
           isAuthenticated: true,
         }),
       logout: () =>
         set({
-          account: null,
+          employee: null,
           token: null,
           isAuthenticated: false,
         }),

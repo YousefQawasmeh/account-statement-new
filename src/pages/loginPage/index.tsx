@@ -24,7 +24,7 @@ const LoginPage: React.FC = () => {
     setError(null);
     try {
       const response = await apiClient.post('/auth/login', { username, password });
-      login(response.data.account, response.data.token);
+      login(response.data.employee, response.data.token);
       navigate('/'); // التحويل إلى الصفحة الرئيسية عند نجاح تسجيل الدخول
     } catch (err: any) {
       setError(err.response?.data?.message || 'فشل تسجيل الدخول، يرجى التحقق من البيانات');
