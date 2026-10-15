@@ -175,6 +175,10 @@ const Layout = () => {
 
 const router = createBrowserRouter([
   {
+    path: "/",
+    element: <Navigate to="/account-statement-new/" replace />,
+  },
+  {
     path: "/account-statement-new/login",
     element: <LoginPage />,
   },

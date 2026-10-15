@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import apiClient from '../../apis/apiClient';
@@ -17,7 +17,14 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const login = useAuthStore((state) => state.login);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/account-statement-new/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +32,7 @@ const LoginPage: React.FC = () => {
     try {
       const response = await apiClient.post('/auth/login', { username, password });
       login(response.data.employee, response.data.token);
-      navigate('/'); // التحويل إلى الصفحة الرئيسية عند نجاح تسجيل الدخول
+      navigate('/', { replace: true }); // التحويل إلى الصفحة الرئيسية عند نجاح تسجيل الدخول
     } catch (err: any) {
       setError(err.response?.data?.message || 'فشل تسجيل الدخول، يرجى التحقق من البيانات');
     }
