@@ -4,5 +4,7 @@ import RecordsPage from "./recordsPage";
 import ChecksPage from "./checksPage";
 import RemindersPage from "./remindersPage";
 import ReportsPage from "./reportsPage";
+import LoginPage from "./loginPage";
+import EmployeesPage from "./employeePage";
 
-export { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPage };
+export { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPage, LoginPage, EmployeesPage };

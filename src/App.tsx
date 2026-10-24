@@ -1,14 +1,15 @@
 import { green, purple } from '@mui/material/colors';
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, RouterProvider, Link } from "react-router-dom"
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPage } from "./pages";
-import { Link } from "react-router-dom";
+import { HomePage, UsersPage, RecordsPage, ChecksPage, RemindersPage, ReportsPage, LoginPage, EmployeesPage } from "./pages";
 import './App.css'
-import { Box, styled, Typography } from '@mui/material';
+import { Box, styled, Typography, Button } from '@mui/material';
+import { useAuthStore } from "./store/useAuthStore";
+import { Navigate, Outlet } from "react-router-dom";
 
 const cacheRtl = createCache({
   key: 'muirtl',
@@ -79,6 +80,8 @@ const NavWrapper = styled(Box)`
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 1200px;
 `;
 
 const NavLink = styled(Link)`
@@ -98,106 +101,160 @@ const NavLink = styled(Link)`
   }
 `;
 
-const Menu = ()=><NavWrapper>
-<Typography variant="h5">
-  <NavLink to="/account-statement-new/" className={window.location.pathname === "/account-statement-new/" ? "active" : ""}>
-    {"الصفحة الرئيسية"}
-  </NavLink>
-  <NavLink to="/account-statement-new/users" className={window.location.pathname === "/account-statement-new/users" ? "active" : ""}>
-    {" البطاقات "}
-  </NavLink>
-  <NavLink to="/account-statement-new/records" className={window.location.pathname === "/account-statement-new/records" ? "active" : ""}>
-    {" السجلات "}
-  </NavLink>
-  <NavLink to="/account-statement-new/checks" className={window.location.pathname === "/account-statement-new/checks" ? "active" : ""}>
-    {" الشيكات "}
-  </NavLink>
-  <NavLink to="/account-statement-new/reminders" className={window.location.pathname === "/account-statement-new/reminders" ? "active" : ""}>
-    {" التذكيرات "}
-  </NavLink>
-  <NavLink to="/account-statement-new/reports" className={window.location.pathname === "/account-statement-new/reports" ? "active" : ""}>
-    {" التقارير "}
-  </NavLink>
-</Typography>
-</NavWrapper>
+const Menu = () => {
+  const logout = useAuthStore((state) => state.logout);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const employee = useAuthStore((state) => state.employee);
 
-const PageWithMenu = (page: JSX.Element) => {
   return (
-    <Box sx={{ minWidth: "calc(100vw - 64px)", height: "100vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <NavWrapper>
+      <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center' }}>
+        <NavLink to="/account-statement-new/" className={window.location.pathname === "/account-statement-new/" ? "active" : ""}>
+          {"الصفحة الرئيسية"}
+        </NavLink>
+        {isAuthenticated && employee?.role === "admin" && (
+          <NavLink to="/account-statement-new/employees" className={window.location.pathname === "/account-statement-new/employees" ? "active" : ""}>
+            {"إدارة الحسابات"}
+          </NavLink>
+        )}
+        <NavLink to="/account-statement-new/users" className={window.location.pathname === "/account-statement-new/users" ? "active" : ""}>
+          {"البطاقات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/records" className={window.location.pathname === "/account-statement-new/records" ? "active" : ""}>
+          {"السجلات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/checks" className={window.location.pathname === "/account-statement-new/checks" ? "active" : ""}>
+          {"الشيكات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/reminders" className={window.location.pathname === "/account-statement-new/reminders" ? "active" : ""}>
+          {"التذكيرات"}
+        </NavLink>
+        <NavLink to="/account-statement-new/reports" className={window.location.pathname === "/account-statement-new/reports" ? "active" : ""}>
+          {"التقارير"}
+        </NavLink>
+      </Typography>
+      <Box>
+        {isAuthenticated ? (
+          <NavLink to="/account-statement-new/login">
+            <Button color="error" variant="outlined" onClick={logout} >
+              تسجيل الخروج
+            </Button>
+          </NavLink>
+        ) : (
+          <NavLink to="/account-statement-new/login" className={window.location.pathname === "/account-statement-new/login" ? "active" : ""}>
+            تسجيل الدخول
+          </NavLink>
+        )}
+      </Box>
+    </NavWrapper>
+  );
+};
+
+const ProtectedRoute = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/account-statement-new/login" replace />;
+};
+
+const Layout = () => {
+  return (
+    <Box
+      sx={{
+        minWidth: "calc(100vw - 64px)",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <Menu />
-      {page}
+      <Outlet />
     </Box>
-  )
-}
+  );
+};
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: PageWithMenu(<HomePage />),
+    element: <Navigate to="/account-statement-new/" replace />,
   },
   {
-    path: "/users",
-    element: PageWithMenu(<UsersPage />),
-  },
-  {
-    path: "/records",
-    element: PageWithMenu(<RecordsPage />),
-  },
-  {
-    path: "/checks",
-    element: PageWithMenu(<ChecksPage />),
-  },
-  {
-    path: "/reminders",
-    element: PageWithMenu(<RemindersPage />),
-  },
-  {
-    path: "/reports",
-    element: PageWithMenu(<ReportsPage />),
+    path: "/account-statement-new/login",
+    element: <LoginPage />,
   },
   {
     path: "/account-statement-new/",
-    element: PageWithMenu(<HomePage />),
+    element: <Layout />,
+    children: [
+      {
+        path: "home",
+        element: <h1>Home Page</h1>,
+      },
+
+    ],
   },
   {
-    path: "/account-statement-new/users",
-    element: PageWithMenu(<UsersPage />),
-  },
-  {
-    path: "/account-statement-new/records",
-    element: PageWithMenu(<RecordsPage />),
-  },
-  {
-    path: "/account-statement-new/checks",
-    element: PageWithMenu(<ChecksPage />),
-  },
-  {
-    path: "/account-statement-new/reminders",
-    element: PageWithMenu(<RemindersPage />),
-  },
-  {
-    path: "/account-statement-new/reports",
-    element: PageWithMenu(<ReportsPage />),
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: "/account-statement-new/",
+        element: <Layout />,
+        children: [
+          {
+            index: true,
+            element: <HomePage />,
+          },
+          {
+            path: "checks",
+            element: <ChecksPage />,
+          },
+          {
+            path: "reminders",
+            element: <RemindersPage />,
+          },
+          {
+            path: "users",
+            element: <UsersPage />,
+          },
+          {
+            path: "records",
+            element: <RecordsPage />,
+          },
+          {
+            path: "reports",
+            element: <ReportsPage />,
+          },
+          {
+            path: "employees",
+            element: <EmployeesPage />,
+          },
+        ],
+      },
+    ],
   },
   {
     path: "/usersTypes",
-    element: <p>000 usersTypes 000 </p>
+    element: <p>000 usersTypes 000</p>,
   },
   {
     path: "/recordsTypes",
-    element: <p>000 recordsTypes 000</p>
+    element: <p>000 recordsTypes 000</p>,
   },
   {
     path: "*",
-    element: 
-    <div>
-    <div>Error! 404</div>
-    <Link style={{ display: "flex", fontSize: "14px" }} to="/account-statement-new/">
-        الصفحة الرئيسية
+    element: (
+      <div>
+        <div>Error! 404</div>
+
+        <Link
+          style={{ display: "flex", fontSize: "24px" }}
+          to="/account-statement-new/"
+        >
+          الصفحة الرئيسية
         </Link>
-    </div>
-    ,
-  }
+      </div>
+    ),
+  },
 ]);
 
 function App() {

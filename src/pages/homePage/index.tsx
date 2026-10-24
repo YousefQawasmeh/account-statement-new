@@ -126,7 +126,7 @@ const Home = () => {
   }, [cardId, users]);
 
   return (
-    <Card sx={{ maxWidth: "850px", bgcolor: "#f9f9f9", padding: "50px" }}>
+    <Card sx={{ maxWidth: "850px", bgcolor: "#f9f9f9", padding: "50px 100px 100px" }}>
       <Box sx={{ ...styles.flex, justifyContent: "space-between" }}>
         <Box sx={{ ...styles.flex, width: "50%" }} >
           <Typography variant='body1' sx={{ mr: "8px" }}>
